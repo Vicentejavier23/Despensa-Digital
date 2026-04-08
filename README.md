@@ -26,7 +26,7 @@ eficiente del inventario doméstico.
 **Profesor guía:** Jorge Niochet  
 **Asignatura:** Taller de Programacion
 **Instituto:** Duoc UC San Joaquín  
-**Carrera:** Analista Programador Computacional
+**Carrera:** Analista Programador 
 
 ## Estado del proyecto
 - [x] Análisis y diseño
