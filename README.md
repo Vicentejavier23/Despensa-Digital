@@ -24,7 +24,7 @@ eficiente del inventario doméstico.
 - Diego Olea
 
 **Profesor guía:** Jorge Niochet  
-**Asignatura:** Taller de Programacion
+**Asignatura:** Taller de Programacion  
 **Instituto:** Duoc UC San Joaquín  
 **Carrera:** Analista Programador 
 
