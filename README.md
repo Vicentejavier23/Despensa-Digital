@@ -1,16 +1,76 @@
-# React + Vite
+> [!Note]
+> El proyecto se encuentra en fase de desarrollo activo — MVP desplegado en Vercel.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# DespensaDigital
 
-Currently, two official plugins are available:
+## Descripción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+DespensaDigital es una aplicación web que permite gestionar la mercadería presente en los hogares, ayudando a reducir el desperdicio de alimentos y su impacto ambiental. La propuesta busca además mejorar la economía familiar mediante un control eficiente del inventario doméstico.
 
-## React Compiler
+## Funcionalidades MVP
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Gestión de inventario por sección (Despensa, Refrigerador, Congelador)
+- Alertas automáticas por stock bajo (cantidad menor a 2)
+- Alertas automáticas por vencimiento próximo (menos de 5 días)
+- Edición de productos desde modal
+- Control de cantidad con botones + y -
+- Persistencia de datos con localStorage
+- Home dinámico con resumen de alertas y productos
 
-## Expanding the ESLint configuration
+## Tecnologías
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+| Capa | Tecnología |
+|------|-----------|
+| Frontend | React + TypeScript |
+| Estilos | Tailwind CSS |
+| Enrutamiento | React Router DOM |
+| Persistencia | localStorage |
+| Deploy | Vercel |
+
+## Equipo
+
+- Vicente Bueno
+- Daniel Lagos
+- Diego Olea
+
+**Profesor guía:** Jorge Niochet
+**Asignatura:** Taller de Programación
+**Instituto:** Duoc UC San Joaquín
+**Carrera:** Analista Programador Computacional
+
+## Estado del proyecto
+
+- [x] Análisis y diseño
+- [x] Modelo Entidad-Relación
+- [x] Desarrollo frontend MVP
+- [x] Despliegue en Vercel
+- [ ] Desarrollo backend
+- [ ] Integración con base de datos
+- [ ] Escaneo de código de barras
+- [ ] Pruebas
+
+## Requisitos
+
+- Node.js v18+
+- npm v9+
+
+## Cómo ejecutar
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/tu-usuario/despensa-digital.git
+
+# Instalar dependencias
+npm install
+
+# Iniciar en desarrollo
+npm run dev
+```
+
+## Demo
+
+🔗 [Ver proyecto en Vercel](https://tu-url.vercel.app)
+
+## Slogan
+
+*"Que nada se venza, que todo rinda"*
