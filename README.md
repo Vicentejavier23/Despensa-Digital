@@ -69,7 +69,7 @@ npm run dev
 
 ## Demo
 
-🔗 [Ver proyecto en Vercel](https://tu-url.vercel.app)
+🔗 https://despensa-digital-one.vercel.app/
 
 ## Slogan
 
