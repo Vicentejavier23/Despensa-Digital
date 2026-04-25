@@ -3,8 +3,8 @@ import Home from './pages/Home'
 import Navbar from './components/Navbar'
 import { Route, BrowserRouter as Router , Routes} from 'react-router-dom'
 import Despensa from './pages/Despensa'
-import Refrigerador from './pages/refrigerador'
-import Congelador from './pages/congelador'
+import Refrigerador from './pages/Refrigerador'
+import Congelador from './pages/Congelador'
 
 
 function App() {
@@ -14,9 +14,9 @@ function App() {
       <Navbar/>
       <Routes>
       <Route path='/' element={<Home/>}/>
-      <Route path='/despensa' element={<Despensa/>}/>
-      <Route path='/refrigerador' element={<Refrigerador/>}/>
-      <Route path='/congelador' element={<Congelador/>}/>
+      <Route path='/Despensa' element={<Despensa/>}/>
+      <Route path='/Refrigerador' element={<Refrigerador/>}/>
+      <Route path='/Congelador' element={<Congelador/>}/>
      </Routes>
       </Router>
     </div>
