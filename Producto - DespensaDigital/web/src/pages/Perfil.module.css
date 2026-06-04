@@ -1,0 +1,134 @@
+/* ================================================================
+   Perfil — Estilos
+   ================================================================ */
+
+.perfil {
+  animation: fadeIn 0.3s ease both;
+  max-width: 600px;
+}
+
+.titulo {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  margin-bottom: 1.75rem;
+  color: var(--color-text);
+}
+
+/* ── Avatar card ──────────────────────────────────── */
+.avatarCard {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-primary-800);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  color: #fff;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.avatarNombre {
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.avatarCorreo {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-top: 4px;
+}
+
+/* ── Datos card ───────────────────────────────────── */
+.datosCard {
+  background: var(--color-surface);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.datosHeader {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.datosFila {
+  display: flex;
+  padding: 0.875rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+  gap: 1rem;
+  align-items: center;
+}
+
+.datosFila:last-child {
+  border-bottom: none;
+}
+
+.datosCampo {
+  width: 180px;
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.datosValor {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* ── Logout ───────────────────────────────────────── */
+.logoutBtn {
+  width: 100%;
+  padding: 0.875rem;
+  border-radius: var(--radius-lg);
+  background: #FEE2E2;
+  color: #991B1B;
+  border: none;
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: background var(--transition);
+  font-family: var(--font-base);
+}
+
+.logoutBtn:hover {
+  background: #FECACA;
+}
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 640px) {
+  .datosFila {
+    flex-direction: column;
+    gap: 2px;
+    padding: 0.75rem 1.25rem;
+  }
+
+  .datosCampo {
+    width: auto;
+    font-size: var(--font-size-xs);
+  }
+
+  .avatarCard {
+    padding: 1.25rem;
+  }
+}
