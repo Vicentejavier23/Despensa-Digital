@@ -308,7 +308,7 @@ export default function LoginScreen() {
             </button>
 
             <p style={s.hint}>
-              💡 Prueba: <strong>test2@despensa.cl</strong> / <strong>Password123</strong>
+              💡 Prueba: <strong>test@despensa.cl</strong> / <strong>Password123</strong>
             </p>
           </form>
         )}

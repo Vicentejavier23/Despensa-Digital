@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
         p.nombre_producto, p.marca_producto, p.id_producto,
         p.cantidad_unidad, p.stock_minimo
       FROM LISTA_COMPRAS lc
-      JOIN PRODUCTO p ON p.id_producto = lc.producto_id_producto
+      JOIN PRODUCTO p ON p.id_producto = lc.PRODUCTO_id_producto
       WHERE lc.USUARIO_run_usuario = $1
       ORDER BY lc.estado_lista ASC, lc.fecha_lista DESC
     `, [run_usuario]);
@@ -46,7 +46,7 @@ router.post('/generar', async (req, res, next) => {
         AND p.cantidad_unidad < p.stock_minimo
         AND NOT EXISTS (
           SELECT 1 FROM LISTA_COMPRAS lc
-          WHERE lc.producto_id_producto = p.id_producto
+          WHERE lc.PRODUCTO_id_producto = p.id_producto
             AND lc.USUARIO_run_usuario  = $1
             AND lc.estado_lista = false
         )
@@ -64,7 +64,7 @@ router.post('/generar', async (req, res, next) => {
         const { rows } = await client.query(`
           INSERT INTO LISTA_COMPRAS
             (fecha_lista, estado_lista, cantidad_producto, tipo_lista,
-             USUARIO_run_usuario, producto_id_producto)
+             USUARIO_run_usuario, PRODUCTO_id_producto)
           VALUES (CURRENT_DATE, false, $1, 'AUTOMATICA', $2, $3)
           RETURNING *
         `, [prod.cantidad_a_pedir, run_usuario, prod.id_producto]);

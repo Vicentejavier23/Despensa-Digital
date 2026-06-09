@@ -11,8 +11,8 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 const API_BASE_URL = Platform.OS === 'web'
-  ? 'http://localhost:3002'
-  : (Constants.expoConfig?.extra?.apiBaseUrl ?? 'http://localhost:3002');
+  ? 'http://localhost:3001'
+  : (Constants.expoConfig?.extra?.apiBaseUrl ?? 'http://localhost:3001');
 
 async function apiGet(endpoint) {
   const res = await fetch(`${API_BASE_URL}${endpoint}`);

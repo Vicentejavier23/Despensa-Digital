@@ -10,7 +10,7 @@ export default defineConfig({
       // En desarrollo: /api/... → http://localhost:3001/api/...
       // Esto evita CORS y permite que VITE_API_URL quede vacío en .env
       '/api': {
-        target: 'http://localhost:3002',
+        target: 'http://localhost:3001',
         changeOrigin: true,
         secure: false,
       },

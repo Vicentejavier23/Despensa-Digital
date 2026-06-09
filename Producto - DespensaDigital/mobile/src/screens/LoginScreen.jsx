@@ -152,7 +152,7 @@ export default function LoginScreen({ navigation }) {
 
           {/* Hint */}
           <Text style={s.hint}>
-            💡 Prueba: <Text style={{ fontFamily: 'Nunito_700Bold' }}>test2@despensa.cl</Text> / <Text style={{ fontFamily: 'Nunito_700Bold' }}>Password123</Text>
+            💡 Prueba: <Text style={{ fontFamily: 'Nunito_700Bold' }}>test@despensa.cl</Text> / <Text style={{ fontFamily: 'Nunito_700Bold' }}>Password123</Text>
           </Text>
         </View>
       </ScrollView>

@@ -198,13 +198,60 @@ INSERT INTO TIPO_ALMACENAJE (tipo_almacenaje) VALUES
   ('Despensa'),('Refrigerador'),('Congelador'),('Bodega'),('Alacena'),('Baño')
 ON CONFLICT DO NOTHING;
 
--- ─── Usuario de prueba (contraseña: Password123) ──────────────
+-- ─── Usuarios de prueba ───────────────────────────────────────
+-- Usuario 1: test@despensa.cl / Password123
 INSERT INTO USUARIO (
   run_usuario, dvrun_usuario, pri_nom_usuario, pri_ape_usuario,
   correo_usuario, num_tel_usuario, password_usuario, fecha_nac_usuario
 ) VALUES (
   12345678, '9', 'Test', 'Usuario',
   'test@despensa.cl', 912345678,
-  '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/oVX.bZSES',
+  '$2b$12$4AU0cqJOrAt/3knJRhfVh.s5YPVtA2.X5P.jg3641ttX.XD62G6py',
   '1990-01-01'
 ) ON CONFLICT DO NOTHING;
+
+-- Dirección del usuario 1 (Santiago Centro)
+WITH u AS (SELECT 12345678 AS run), c AS (SELECT id_comuna FROM COMUNA WHERE nombre_comuna = 'Santiago Centro' LIMIT 1)
+INSERT INTO DIRECCION (calle_direccion, numero_direccion, COMUNA_id_comuna, USUARIO_run_usuario)
+SELECT 'Av. Libertador', 1234, c.id_comuna, u.run FROM u, c
+ON CONFLICT DO NOTHING;
+
+-- Usuario 2: admin@despensa.cl / Admin2024!
+INSERT INTO USUARIO (
+  run_usuario, dvrun_usuario, pri_nom_usuario, pri_ape_usuario,
+  correo_usuario, num_tel_usuario, password_usuario, fecha_nac_usuario
+) VALUES (
+  11111111, '1', 'Admin', 'DespensaDigital',
+  'admin@despensa.cl', 998765432,
+  '$2b$12$x7jBGCLruw.Yp0grYKrowuqNoCrj8aLhR.K.R7x0x/XYHd9zCXnB2',
+  '1995-06-15'
+) ON CONFLICT DO NOTHING;
+
+-- Dirección del usuario 2 (Providencia)
+WITH u AS (SELECT 11111111 AS run), c AS (SELECT id_comuna FROM COMUNA WHERE nombre_comuna = 'Providencia' LIMIT 1)
+INSERT INTO DIRECCION (calle_direccion, numero_direccion, COMUNA_id_comuna, USUARIO_run_usuario)
+SELECT 'Av. Providencia', 560, c.id_comuna, u.run FROM u, c
+ON CONFLICT DO NOTHING;
+
+-- Productos de prueba para test@despensa.cl
+WITH u AS (SELECT 12345678 AS run),
+     cat_lacteo    AS (SELECT id_categoria FROM CATEGORIA_PRODUCTO WHERE nombre_categoria = 'Lácteos'           LIMIT 1),
+     cat_fruta     AS (SELECT id_categoria FROM CATEGORIA_PRODUCTO WHERE nombre_categoria = 'Frutas'            LIMIT 1),
+     cat_cereal    AS (SELECT id_categoria FROM CATEGORIA_PRODUCTO WHERE nombre_categoria = 'Granos y cereales' LIMIT 1),
+     alm_refrig    AS (SELECT id_almacenaje FROM TIPO_ALMACENAJE WHERE tipo_almacenaje = 'Refrigerador' LIMIT 1),
+     alm_despensa  AS (SELECT id_almacenaje FROM TIPO_ALMACENAJE WHERE tipo_almacenaje = 'Despensa'    LIMIT 1)
+INSERT INTO PRODUCTO (
+  nombre_producto, marca_producto, fecha_vencimiento,
+  cantidad_unidad, stock_minimo, tipo_producto,
+  CATEGORIA_id_categoria, TIPO_ALMACENAJE_id, USUARIO_run_usuario
+)
+SELECT nombre, marca, vence, cant, stock, tipo, cat, alm, (SELECT run FROM u)
+FROM (VALUES
+  ('Leche entera',     'Soprole',   CURRENT_DATE + 5,   2, 2, 'Lácteo',    (SELECT id_categoria FROM cat_lacteo),   (SELECT id_almacenaje FROM alm_refrig)),
+  ('Yogur natural',    'Nestlé',    CURRENT_DATE + 3,   3, 2, 'Lácteo',    (SELECT id_categoria FROM cat_lacteo),   (SELECT id_almacenaje FROM alm_refrig)),
+  ('Manzanas Fuji',    'Sin marca', CURRENT_DATE + 10,  6, 4, 'Alimento',  (SELECT id_categoria FROM cat_fruta),    (SELECT id_almacenaje FROM alm_refrig)),
+  ('Arroz largo',      'Tucapel',   CURRENT_DATE + 180, 1, 2, 'Alimento',  (SELECT id_categoria FROM cat_cereal),   (SELECT id_almacenaje FROM alm_despensa)),
+  ('Jugo naranja',     'Watts',     CURRENT_DATE - 2,   1, 2, 'Bebida',    NULL,                                    (SELECT id_almacenaje FROM alm_refrig)),
+  ('Avena integral',   'Quaker',    CURRENT_DATE + 90,  2, 1, 'Alimento',  (SELECT id_categoria FROM cat_cereal),   (SELECT id_almacenaje FROM alm_despensa))
+) AS t(nombre, marca, vence, cant, stock, tipo, cat, alm)
+ON CONFLICT DO NOTHING;

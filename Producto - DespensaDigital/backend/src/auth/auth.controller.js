@@ -81,18 +81,18 @@ async function register(req, res, next) {
     });
   }
 
-  // Si no viene run_usuario (registro desde web), generar uno temporal único
-  if (!req.body.run_usuario) {
-    // Buscar el run_usuario mínimo disponible en el rango reservado para web (90000000+)
-    const { rows } = await pool.query(
-      `SELECT COALESCE(MAX(run_usuario), 90000000) + 1 AS next_run
-       FROM USUARIO WHERE run_usuario >= 90000000`
-    );
-    req.body.run_usuario   = rows[0].next_run;
-    req.body.dvrun_usuario = calcularDV(rows[0].next_run);
-  }
-
   try {
+    // Si no viene run_usuario (registro desde web), generar uno temporal único
+    if (!req.body.run_usuario) {
+      // Buscar el run_usuario mínimo disponible en el rango reservado para web (90000000+)
+      const { rows } = await pool.query(
+        `SELECT COALESCE(MAX(run_usuario), 90000000) + 1 AS next_run
+         FROM USUARIO WHERE run_usuario >= 90000000`
+      );
+      req.body.run_usuario   = parseInt(rows[0].next_run, 10);
+      req.body.dvrun_usuario = calcularDV(parseInt(rows[0].next_run, 10));
+    }
+
     const resultado = await registrarUsuario(req.body);
     return res.status(201).json(resultado);
   } catch (err) {

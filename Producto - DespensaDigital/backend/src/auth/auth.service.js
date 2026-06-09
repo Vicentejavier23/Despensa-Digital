@@ -58,11 +58,15 @@ async function registrarUsuario(datos) {
   } = datos;
 
   // 1. Validar RUT chileno (módulo 11)
-  const { valido, mensaje } = validarRutChileno(run_usuario, dvrun_usuario);
-  if (!valido) {
-    const err = new Error(mensaje);
-    err.statusCode = 400;
-    throw err;
+  // Solo validar si viene de móvil (run < 90000000); los registros web
+  // usan un RUT temporal generado por el controller que ya es válido.
+  if (run_usuario < 90000000) {
+    const { valido, mensaje } = validarRutChileno(run_usuario, dvrun_usuario);
+    if (!valido) {
+      const err = new Error(mensaje);
+      err.statusCode = 400;
+      throw err;
+    }
   }
 
   // 2. Unicidad de RUT

@@ -17,7 +17,7 @@ module.exports = {
       bundleIdentifier: 'cl.duocuc.despensadigital',
     },
     extra: {
-      apiBaseUrl:     `http://${ip}:3002`,
+      apiBaseUrl:     `http://${ip}:3001`,
       webCallbackUrl: `http://${ip}:5173`,
       eas: {
         projectId: '9d5a2290-b708-4aa7-babe-a9fdb5a71cfd',
