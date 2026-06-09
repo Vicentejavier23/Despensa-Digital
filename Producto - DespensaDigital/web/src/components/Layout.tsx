@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { to: '/inventario',   icon: '📦', label: 'Inventario'    },
   { to: '/patologias',   icon: '🩺', label: 'Patologías'   },
   { to: '/lista-compras',icon: '🛒', label: 'Lista compras' },
+  { to: '/alertas',      icon: '🔔', label: 'Alertas'       },
   { to: '/perfil',       icon: '👤', label: 'Mi perfil'     },
 ];
 

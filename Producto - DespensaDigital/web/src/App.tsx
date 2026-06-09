@@ -14,6 +14,7 @@ import Inventario from './pages/Inventario';
 import Patologias from './pages/Patologias';
 import ListaCompras from './pages/ListaCompras';
 import Perfil from './pages/Perfil';
+import Alertas from './pages/Alertas';
 
 /**
  * CORRECCIÓN: AuthProvider debe estar DENTRO de BrowserRouter para que
@@ -40,6 +41,7 @@ export default function App() {
               <Route path="/patologias"     element={<Patologias />} />
               <Route path="/lista-compras"  element={<ListaCompras />} />
               <Route path="/perfil"         element={<Perfil />} />
+              <Route path="/alertas"        element={<Alertas />} />
             </Route>
           </Route>
 
