@@ -236,13 +236,33 @@ export default function LoginScreen() {
         return;
       }
 
-      // Registro exitoso: limpiar y volver a login
-      setNombre(''); setApellido(''); setCorreo('');
-      setTelefono(''); setFechaNac(''); setPassword(''); setConfirmPassword('');
-      setSelPais(''); setSelRegion(''); setSelCiudad(''); setSelComuna('');
-      setMode('login');
-      setLoginErrors({ correo: '✅ Cuenta creada. Inicia sesión con tu correo y contraseña.' });
-      setLoading(false);
+      if (!data.exchange_token) {
+        setRegErrors({ nombre: 'Respuesta inválida del servidor' });
+        setLoading(false);
+        return;
+      }
+
+      // Registro exitoso: canjear exchange_token por JWT y entrar directo al dashboard
+      const exchRes = await fetch('/api/auth/exchange', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: data.exchange_token }),
+      });
+      const exchData = await exchRes.json();
+
+      if (!exchRes.ok || !exchData.jwt) {
+        // Si falla el exchange, redirigir al login con mensaje de éxito
+        setNombre(''); setApellido(''); setCorreo('');
+        setTelefono(''); setFechaNac(''); setPassword(''); setConfirmPassword('');
+        setSelPais(''); setSelRegion(''); setSelCiudad(''); setSelComuna('');
+        setMode('login');
+        setLoginErrors({ correo: '✅ Cuenta creada. Inicia sesión con tu correo y contraseña.' });
+        setLoading(false);
+        return;
+      }
+
+      iniciarSesion(exchData.jwt, exchData.usuario);
+      navigate('/dashboard', { replace: true });
 
     } catch (err: unknown) {
       setRegErrors({ nombre: err instanceof Error ? err.message : 'Error de conexión con el servidor' });
