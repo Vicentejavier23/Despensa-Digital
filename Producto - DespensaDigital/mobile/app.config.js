@@ -6,8 +6,10 @@ module.exports = {
     name: 'DespensaDigital',
     slug: 'despensa-digital',
     version: '1.0.0',
+    sdkVersion: '53.0.0',
     orientation: 'portrait',
     userInterfaceStyle: 'light',
+    newArchEnabled: true,
     updates: {
       enabled: false,
     },
@@ -15,6 +17,12 @@ module.exports = {
     ios: {
       supportsTablet: false,
       bundleIdentifier: 'cl.duocuc.despensadigital',
+    },
+    android: {
+      package: 'cl.duocuc.despensadigital',
+      adaptiveIcon: {
+        backgroundColor: '#2D6A4F',
+      },
     },
     extra: {
       apiBaseUrl:     `http://${ip}:3001`,
