@@ -7,12 +7,16 @@ import type { Pais, Region, Ciudad, Comuna } from '../types';
 // ─── Tipos de error por campo ─────────────────────────────────────────────────
 type LoginErrors = Partial<Record<'correo' | 'password', string>>;
 type RegisterErrors = Partial<Record<
-  'nombre' | 'apellido' | 'correo' | 'telefono' |
-  'fechaNac' | 'password' | 'confirmPassword' | 'pais' | 'region' | 'ciudad' | 'comuna',
+  | 'run' | 'dv'
+  | 'nombre' | 'segNombre' | 'apellido' | 'segApellido'
+  | 'correo' | 'telefono' | 'fechaNac'
+  | 'password' | 'confirmPassword'
+  | 'pais' | 'region' | 'ciudad' | 'comuna'
+  | 'calle' | 'numeroDireccion',
   string
 >>;
 
-// ─── Validador RUT (módulo 11) — solo se usa en el formulario de registro ──────
+// ─── Validador RUT (módulo 11) ────────────────────────────────────────────────
 function calcularDV(rut: number): string {
   let suma = 0, mul = 2, n = rut;
   while (n > 0) { suma += (n % 10) * mul; n = Math.floor(n / 10); mul = mul === 7 ? 2 : mul + 1; }
@@ -40,13 +44,24 @@ export default function LoginScreen() {
   const [loginErrors,   setLoginErrors]   = useState<LoginErrors>({});
 
   // ── Register fields ──
+  // Identidad
+  const [run,             setRun]             = useState('');
+  const [dv,              setDv]              = useState('');
   const [nombre,          setNombre]          = useState('');
+  const [segNombre,       setSegNombre]       = useState('');
   const [apellido,        setApellido]        = useState('');
+  const [segApellido,     setSegApellido]     = useState('');
+  // Contacto
   const [correo,          setCorreo]          = useState('');
   const [telefono,        setTelefono]        = useState('');
   const [fechaNac,        setFechaNac]        = useState('');
+  // Contraseña
   const [password,        setPassword]        = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  // Dirección
+  const [calle,           setCalle]           = useState('');
+  const [numeroDireccion, setNumeroDireccion] = useState('');
+  // Errores
   const [regErrors,       setRegErrors]       = useState<RegisterErrors>({});
 
   // ── Geo state ──
@@ -54,39 +69,31 @@ export default function LoginScreen() {
   const [regiones, setRegiones] = useState<Region[]>([]);
   const [ciudades, setCiudades] = useState<Ciudad[]>([]);
   const [comunas,  setComunas]  = useState<Comuna[]>([]);
-
   const [selPais,   setSelPais]   = useState('');
   const [selRegion, setSelRegion] = useState('');
   const [selCiudad, setSelCiudad] = useState('');
   const [selComuna, setSelComuna] = useState('');
 
-  // Cargar países al montar
   useEffect(() => {
-    getPaises().then(setPaises).catch(() => {/* silencioso */});
+    getPaises().then(setPaises).catch(() => {});
   }, []);
 
   const onPaisChange = useCallback(async (id: string) => {
     setSelPais(id); setSelRegion(''); setSelCiudad(''); setSelComuna('');
     setRegiones([]); setCiudades([]); setComunas([]);
-    if (id) {
-      try { setRegiones(await getRegiones(Number(id))); } catch { /* noop */ }
-    }
+    if (id) { try { setRegiones(await getRegiones(Number(id))); } catch { /* noop */ } }
   }, []);
 
   const onRegionChange = useCallback(async (id: string) => {
     setSelRegion(id); setSelCiudad(''); setSelComuna('');
     setCiudades([]); setComunas([]);
-    if (id) {
-      try { setCiudades(await getCiudades(Number(id))); } catch { /* noop */ }
-    }
+    if (id) { try { setCiudades(await getCiudades(Number(id))); } catch { /* noop */ } }
   }, []);
 
   const onCiudadChange = useCallback(async (id: string) => {
     setSelCiudad(id); setSelComuna('');
     setComunas([]);
-    if (id) {
-      try { setComunas(await getComunas(Number(id))); } catch { /* noop */ }
-    }
+    if (id) { try { setComunas(await getComunas(Number(id))); } catch { /* noop */ } }
   }, []);
 
   // ── VALIDACIÓN LOGIN ──────────────────────────────────────────────────────
@@ -104,21 +111,39 @@ export default function LoginScreen() {
   // ── VALIDACIÓN REGISTRO ───────────────────────────────────────────────────
   function validarRegistro(): RegisterErrors {
     const errs: RegisterErrors = {};
+
+    // RUT
+    const runLimpio = run.replace(/\./g, '').trim();
+    if (!runLimpio)
+      errs.run = 'El RUT es obligatorio';
+    else if (isNaN(Number(runLimpio)) || Number(runLimpio) < 1000000 || Number(runLimpio) > 99999999)
+      errs.run = 'RUT inválido — debe tener entre 7 y 8 dígitos';
+    if (!dv.trim())
+      errs.dv = 'El dígito verificador es obligatorio';
+    else if (!/^[0-9kK]$/.test(dv.trim()))
+      errs.dv = 'Solo se acepta un número o la letra K';
+    else if (runLimpio && !validarRut(runLimpio, dv.trim()))
+      errs.dv = 'Dígito verificador incorrecto para ese RUT';
+
+    // Nombre y apellidos
     if (!nombre.trim())
       errs.nombre = 'El nombre es obligatorio';
     if (!apellido.trim())
       errs.apellido = 'El apellido es obligatorio';
 
+    // Correo
     if (!correo.trim())
       errs.correo = 'El correo electrónico es obligatorio';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo))
       errs.correo = 'Ingresa un correo válido (ej: nombre@gmail.com)';
 
+    // Teléfono
     if (!telefono.trim())
       errs.telefono = 'El teléfono es obligatorio';
     else if (!/^\d{9}$/.test(telefono))
       errs.telefono = 'El teléfono debe tener 9 dígitos sin el +56 (ej: 912345678)';
 
+    // Fecha de nacimiento
     if (!fechaNac)
       errs.fechaNac = 'La fecha de nacimiento es obligatoria';
     else {
@@ -126,6 +151,7 @@ export default function LoginScreen() {
       if (edad < 13) errs.fechaNac = 'Debes tener al menos 13 años para registrarte';
     }
 
+    // Contraseña
     if (!password)
       errs.password = 'La contraseña es obligatoria';
     else if (password.length < 8)
@@ -140,6 +166,7 @@ export default function LoginScreen() {
     else if (password !== confirmPassword)
       errs.confirmPassword = 'Las contraseñas no coinciden';
 
+    // Ubicación
     if (!selPais)    errs.pais   = 'Selecciona tu país';
     if (!selRegion)  errs.region = 'Selecciona tu región';
     if (!selCiudad)  errs.ciudad = 'Selecciona tu ciudad';
@@ -165,7 +192,6 @@ export default function LoginScreen() {
       const data = await res.json();
 
       if (!res.ok) {
-        // Mapear error del servidor al campo correspondiente
         const msg: string = data.error ?? 'Error al iniciar sesión';
         if (msg.toLowerCase().includes('correo') || msg.toLowerCase().includes('credenciales'))
           setLoginErrors({ correo: 'Correo o contraseña incorrectos' });
@@ -181,7 +207,6 @@ export default function LoginScreen() {
         return;
       }
 
-      // Intercambiar por JWT
       const exchRes = await fetch('/api/auth/exchange', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -213,24 +238,34 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
+      const runLimpio = parseInt(run.replace(/\./g, '').trim(), 10);
+
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          pri_nom_usuario:  nombre.trim(),
-          pri_ape_usuario:  apellido.trim(),
-          correo_usuario:   correo.trim().toLowerCase(),
-          num_tel_usuario:  parseInt(telefono, 10),
-          password_usuario: password,
+          run_usuario:       runLimpio,
+          dvrun_usuario:     dv.trim().toUpperCase(),
+          pri_nom_usuario:   nombre.trim(),
+          seg_nom_usuario:   segNombre.trim() || null,
+          pri_ape_usuario:   apellido.trim(),
+          seg_ape_usuario:   segApellido.trim() || null,
+          correo_usuario:    correo.trim().toLowerCase(),
+          num_tel_usuario:   parseInt(telefono, 10),
+          password_usuario:  password,
           fecha_nac_usuario: fechaNac,
-          id_comuna:        parseInt(selComuna, 10),
+          id_comuna:         parseInt(selComuna, 10),
+          calle_direccion:   calle.trim() || 'Sin calle',
+          numero_direccion:  parseInt(numeroDireccion, 10) || 0,
         }),
       });
       const data = await res.json();
 
       if (!res.ok) {
         const msg: string = data.error ?? 'Error al registrarse';
-        if (msg.toLowerCase().includes('correo')) setRegErrors({ correo: msg });
+        if (msg.toLowerCase().includes('correo'))       setRegErrors({ correo: msg });
+        else if (msg.toLowerCase().includes('rut'))     setRegErrors({ run: msg });
+        else if (msg.toLowerCase().includes('comuna'))  setRegErrors({ comuna: msg });
         else setRegErrors({ nombre: msg });
         setLoading(false);
         return;
@@ -242,7 +277,6 @@ export default function LoginScreen() {
         return;
       }
 
-      // Registro exitoso: canjear exchange_token por JWT y entrar directo al dashboard
       const exchRes = await fetch('/api/auth/exchange', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -251,9 +285,12 @@ export default function LoginScreen() {
       const exchData = await exchRes.json();
 
       if (!exchRes.ok || !exchData.jwt) {
-        // Si falla el exchange, redirigir al login con mensaje de éxito
-        setNombre(''); setApellido(''); setCorreo('');
-        setTelefono(''); setFechaNac(''); setPassword(''); setConfirmPassword('');
+        // Exchange falló → ir a login con mensaje de éxito
+        setNombre(''); setSegNombre(''); setApellido(''); setSegApellido('');
+        setRun(''); setDv('');
+        setCorreo(''); setTelefono(''); setFechaNac('');
+        setPassword(''); setConfirmPassword('');
+        setCalle(''); setNumeroDireccion('');
         setSelPais(''); setSelRegion(''); setSelCiudad(''); setSelComuna('');
         setMode('login');
         setLoginErrors({ correo: '✅ Cuenta creada. Inicia sesión con tu correo y contraseña.' });
@@ -270,15 +307,11 @@ export default function LoginScreen() {
     }
   };
 
-  const toggleMode = () => {
-    setLoginErrors({}); setRegErrors({});
-    setMode(mode === 'login' ? 'register' : 'login');
-  };
-
   // ── RENDER ────────────────────────────────────────────────────────────────
   return (
     <div style={s.container}>
       <div style={s.card}>
+
         {/* Header */}
         <div style={s.header}>
           <span style={s.logo}>🥗</span>
@@ -337,21 +370,66 @@ export default function LoginScreen() {
         {mode === 'register' && (
           <form onSubmit={handleRegister} noValidate style={s.form}>
 
-            {/* Nombre + Apellido */}
+            {/* ── RUT ── */}
+            <div style={s.sectionTitle}>🪪 RUT</div>
+            <div style={s.rutRow}>
+              <Field label="Número RUT *" error={regErrors.run} style={{ flex: 1 }}>
+                <input
+                  type="text"
+                  placeholder="12345678"
+                  value={run}
+                  onChange={e => setRun(e.target.value.replace(/[^0-9.]/g, ''))}
+                  style={{ ...s.input, ...(regErrors.run ? s.inputError : {}) }}
+                  disabled={loading}
+                  maxLength={9}
+                />
+              </Field>
+              <span style={s.rutDash}>-</span>
+              <Field label="DV *" error={regErrors.dv} style={{ width: 64 }}>
+                <input
+                  type="text"
+                  placeholder="K"
+                  value={dv}
+                  onChange={e => setDv(e.target.value.replace(/[^0-9kK]/g, '').slice(0, 1))}
+                  style={{ ...s.input, ...(regErrors.dv ? s.inputError : {}), textAlign: 'center', textTransform: 'uppercase' }}
+                  disabled={loading}
+                  maxLength={1}
+                />
+              </Field>
+            </div>
+
+            {/* ── Nombre y Apellidos ── */}
+            <div style={s.sectionTitle}>👤 Datos personales</div>
+
             <div style={s.row}>
               <Field label="Nombre *" error={regErrors.nombre} style={{ flex: 1 }}>
                 <input type="text" placeholder="Juan" value={nombre}
                   onChange={e => setNombre(e.target.value)}
                   style={{ ...s.input, ...(regErrors.nombre ? s.inputError : {}) }} disabled={loading} />
               </Field>
+              <Field label="Segundo nombre" error={regErrors.segNombre} style={{ flex: 1 }}>
+                <input type="text" placeholder="Carlos (opcional)" value={segNombre}
+                  onChange={e => setSegNombre(e.target.value)}
+                  style={{ ...s.input, ...(regErrors.segNombre ? s.inputError : {}) }} disabled={loading} />
+              </Field>
+            </div>
+
+            <div style={s.row}>
               <Field label="Apellido *" error={regErrors.apellido} style={{ flex: 1 }}>
                 <input type="text" placeholder="Pérez" value={apellido}
                   onChange={e => setApellido(e.target.value)}
                   style={{ ...s.input, ...(regErrors.apellido ? s.inputError : {}) }} disabled={loading} />
               </Field>
+              <Field label="Segundo apellido" error={regErrors.segApellido} style={{ flex: 1 }}>
+                <input type="text" placeholder="González (opcional)" value={segApellido}
+                  onChange={e => setSegApellido(e.target.value)}
+                  style={{ ...s.input, ...(regErrors.segApellido ? s.inputError : {}) }} disabled={loading} />
+              </Field>
             </div>
 
-            {/* Correo */}
+            {/* ── Contacto ── */}
+            <div style={s.sectionTitle}>📬 Contacto</div>
+
             <Field label="Correo electrónico *" error={regErrors.correo}>
               <input type="email" placeholder="tucorreo@gmail.com" value={correo}
                 onChange={e => setCorreo(e.target.value)}
@@ -359,7 +437,6 @@ export default function LoginScreen() {
                 disabled={loading} autoComplete="email" />
             </Field>
 
-            {/* Teléfono + Fecha nac */}
             <div style={s.row}>
               <Field label="Teléfono *" error={regErrors.telefono} style={{ flex: 1 }}>
                 <input type="tel" placeholder="912345678" value={telefono}
@@ -373,7 +450,7 @@ export default function LoginScreen() {
               </Field>
             </div>
 
-            {/* ── Sección Ubicación ── */}
+            {/* ── Ubicación ── */}
             <div style={s.sectionTitle}>📍 Ubicación</div>
 
             <Field label="País *" error={regErrors.pais}>
@@ -412,7 +489,23 @@ export default function LoginScreen() {
               </select>
             </Field>
 
-            {/* ── Contraseñas ── */}
+            {/* ── Dirección ── */}
+            <div style={s.sectionTitle}>🏠 Dirección</div>
+
+            <div style={s.row}>
+              <Field label="Calle" error={regErrors.calle} style={{ flex: 2 }}>
+                <input type="text" placeholder="Av. Libertador Bernardo O'Higgins (opcional)" value={calle}
+                  onChange={e => setCalle(e.target.value)}
+                  style={{ ...s.input, ...(regErrors.calle ? s.inputError : {}) }} disabled={loading} />
+              </Field>
+              <Field label="Número" error={regErrors.numeroDireccion} style={{ flex: 1 }}>
+                <input type="text" placeholder="1234" value={numeroDireccion}
+                  onChange={e => setNumeroDireccion(e.target.value.replace(/\D/g, ''))}
+                  style={{ ...s.input, ...(regErrors.numeroDireccion ? s.inputError : {}) }} disabled={loading} />
+              </Field>
+            </div>
+
+            {/* ── Contraseña ── */}
             <div style={s.sectionTitle}>🔒 Contraseña</div>
 
             <div style={s.row}>
@@ -460,7 +553,7 @@ function Field({
   );
 }
 
-// ─── Estilos (mantiene la estética original del proyecto) ────────────────────
+// ─── Estilos ──────────────────────────────────────────────────────────────────
 const s: Record<string, React.CSSProperties> = {
   container: {
     display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
@@ -470,7 +563,7 @@ const s: Record<string, React.CSSProperties> = {
   card: {
     backgroundColor: 'var(--color-surface)', borderRadius: 'var(--radius-lg)',
     boxShadow: 'var(--shadow-lg)', padding: '36px 32px',
-    width: '100%', maxWidth: 520,
+    width: '100%', maxWidth: 560,
   },
   header: { textAlign: 'center', marginBottom: 24 },
   logo:   { fontSize: 40, display: 'block', marginBottom: 8 },
@@ -499,6 +592,12 @@ const s: Record<string, React.CSSProperties> = {
   row:   { display: 'flex', gap: 12 },
   label: { fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--color-text)' },
 
+  rutRow: { display: 'flex', alignItems: 'flex-start', gap: 8 },
+  rutDash: {
+    fontSize: 22, fontWeight: 700, color: 'var(--color-text-muted)',
+    marginTop: 26, flexShrink: 0,
+  },
+
   input: {
     width: '100%', padding: '10px 12px', fontSize: 'var(--font-size-sm)',
     border: '1.5px solid var(--color-border)', borderRadius: 'var(--radius-sm)',
@@ -508,9 +607,6 @@ const s: Record<string, React.CSSProperties> = {
   },
   inputError: { borderColor: 'var(--color-danger)' },
 
-  rutRow:  { display: 'flex', alignItems: 'flex-start', gap: 6 },
-  rutDash: { fontSize: 22, fontWeight: 700, color: 'var(--color-text-muted)', marginTop: 8, flexShrink: 0 },
-
   fieldErr: { margin: '3px 0 0', fontSize: 12, color: 'var(--color-danger)', lineHeight: 1.3 },
   fieldOk:  { color: 'var(--color-ok)' },
 
@@ -518,8 +614,7 @@ const s: Record<string, React.CSSProperties> = {
     fontSize: 'var(--font-size-sm)', fontWeight: 700, color: 'var(--color-primary-700)',
     borderBottom: '1px solid var(--color-border)', paddingBottom: 6, marginTop: 4,
   },
-  hint:  { fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center', margin: 0 },
-  hint2: { fontSize: 11, color: 'var(--color-text-light)', margin: '3px 0 0' },
+  hint: { fontSize: 12, color: 'var(--color-text-muted)', textAlign: 'center', margin: 0 },
 
   btn: {
     padding: '12px 16px', fontSize: 'var(--font-size-base)', fontWeight: 700,
@@ -528,14 +623,4 @@ const s: Record<string, React.CSSProperties> = {
     transition: 'background 150ms', fontFamily: 'var(--font-base)',
   },
   btnDisabled: { opacity: 0.55, cursor: 'not-allowed' },
-  btnSecondary: {
-    width: '100%', padding: '11px 16px', fontSize: 'var(--font-size-sm)', fontWeight: 600,
-    background: 'transparent', color: 'var(--color-primary-700)',
-    border: '2px solid var(--color-primary-600)', borderRadius: 'var(--radius-sm)',
-    cursor: 'pointer', fontFamily: 'var(--font-base)',
-  },
-  divider: {
-    textAlign: 'center', color: 'var(--color-text-muted)',
-    margin: '20px 0 12px', fontSize: 'var(--font-size-sm)',
-  },
 };

@@ -18,14 +18,33 @@ const C = {
   danger: '#EF4444',
 };
 
+// ─── Validador RUT (módulo 11) ────────────────────────────────────────────────
+function calcularDV(rut) {
+  let suma = 0, mul = 2, n = rut;
+  while (n > 0) { suma += (n % 10) * mul; n = Math.floor(n / 10); mul = mul === 7 ? 2 : mul + 1; }
+  const r = suma % 11;
+  return r === 0 ? '0' : r === 1 ? 'K' : String(11 - r);
+}
+function validarRut(run, dv) {
+  const n = parseInt(String(run).replace(/\./g, ''), 10);
+  if (isNaN(n) || n < 1000000 || n > 99999999) return false;
+  return calcularDV(n) === String(dv).toUpperCase();
+}
+
 export default function RegisterScreen({ navigation }) {
+  // ── RUT ───────────────────────────────────────────────────────
+  const [run,           setRun]          = useState('');
+  const [dv,            setDv]           = useState('');
+
   // ── Campos personales ──────────────────────────────────────────
-  const [nombre,    setNombre]    = useState('');
-  const [apellido,  setApellido]  = useState('');
-  const [correo,    setCorreo]    = useState('');
-  const [telefono,  setTelefono]  = useState('');
-  const [fechaNac,  setFechaNac]  = useState('');         // YYYY-MM-DD
-  const [fechaDisplay, setFechaDisplay] = useState('');  // DD/MM/AAAA
+  const [nombre,        setNombre]       = useState('');
+  const [segNombre,     setSegNombre]    = useState('');
+  const [apellido,      setApellido]     = useState('');
+  const [segApellido,   setSegApellido]  = useState('');
+  const [correo,        setCorreo]       = useState('');
+  const [telefono,      setTelefono]     = useState('');
+  const [fechaNac,      setFechaNac]     = useState('');
+  const [fechaDisplay,  setFechaDisplay] = useState('');
 
   // ── Ubicación ─────────────────────────────────────────────────
   const [paises,   setPaises]   = useState([]);
@@ -37,26 +56,39 @@ export default function RegisterScreen({ navigation }) {
   const [selCiudad, setSelCiudad] = useState('');
   const [selComuna, setSelComuna] = useState('');
 
+  // ── Dirección ─────────────────────────────────────────────────
+  const [calle,          setCalle]          = useState('');
+  const [numeroDireccion, setNumeroDireccion] = useState('');
+
   // ── Contraseña ────────────────────────────────────────────────
   const [password,  setPassword]  = useState('');
   const [confirm,   setConfirm]   = useState('');
 
   // ── Errores ───────────────────────────────────────────────────
   const [err, setErr] = useState({
-    nombre:'', apellido:'', correo:'', telefono:'',
-    fechaNac:'', pais:'', region:'', ciudad:'', comuna:'',
-    password:'', confirm:'',
+    run: '', dv: '',
+    nombre: '', segNombre: '', apellido: '', segApellido: '',
+    correo: '', telefono: '', fechaNac: '',
+    pais: '', region: '', ciudad: '', comuna: '',
+    calle: '', numeroDireccion: '',
+    password: '', confirm: '',
   });
 
   const { height } = useWindowDimensions();
   const { loading, ejecutarRegistro } = useAuthFlow();
 
-  // refs
-  const apRef  = useRef(null); const coRef = useRef(null);
-  const telRef = useRef(null); const paRef = useRef(null);
-  const c2Ref  = useRef(null);
+  // refs para navegación entre campos
+  const dvRef       = useRef(null);
+  const segNomRef   = useRef(null);
+  const apRef       = useRef(null);
+  const segApRef    = useRef(null);
+  const coRef       = useRef(null);
+  const telRef      = useRef(null);
+  const paRef       = useRef(null);
+  const calleRef    = useRef(null);
+  const numDirRef   = useRef(null);
+  const c2Ref       = useRef(null);
 
-  // Cargar países al montar
   useEffect(() => {
     getPaises().then(setPaises).catch(() => {});
   }, []);
@@ -86,57 +118,98 @@ export default function RegisterScreen({ navigation }) {
     setFechaDisplay(limpio);
     const p = limpio.split('/');
     if (p.length === 3 && p[2].length === 4) {
-      setFechaNac(`${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`);
+      setFechaNac(`${p[2]}-${p[1].padStart(2, '0')}-${p[0].padStart(2, '0')}`);
     } else {
       setFechaNac('');
     }
     if (err.fechaNac) setErr(e => ({ ...e, fechaNac: '' }));
   }
 
-  const clrErr = (campo) => (v) => {
+  const clrErr = (campo) => () => {
     if (err[campo]) setErr(e => ({ ...e, [campo]: '' }));
-    return v;
   };
 
   function validarTodo() {
-    const e = { nombre:'', apellido:'', correo:'', telefono:'', fechaNac:'',
-                pais:'', region:'', ciudad:'', comuna:'', password:'', confirm:'' };
+    const e = {
+      run: '', dv: '',
+      nombre: '', segNombre: '', apellido: '', segApellido: '',
+      correo: '', telefono: '', fechaNac: '',
+      pais: '', region: '', ciudad: '', comuna: '',
+      calle: '', numeroDireccion: '',
+      password: '', confirm: '',
+    };
     let ok = true;
 
-    if (!nombre.trim())                        { e.nombre   = 'El nombre es obligatorio'; ok = false; }
-    if (!apellido.trim())                      { e.apellido = 'El apellido es obligatorio'; ok = false; }
-    if (!validarEmail(correo).valido)           { e.correo   = 'Correo electrónico inválido'; ok = false; }
+    // RUT
+    const runLimpio = run.replace(/\./g, '').trim();
+    if (!runLimpio) {
+      e.run = 'El RUT es obligatorio'; ok = false;
+    } else if (isNaN(Number(runLimpio)) || Number(runLimpio) < 1000000 || Number(runLimpio) > 99999999) {
+      e.run = 'RUT inválido — entre 7 y 8 dígitos'; ok = false;
+    }
+    if (!dv.trim()) {
+      e.dv = 'El DV es obligatorio'; ok = false;
+    } else if (!/^[0-9kK]$/.test(dv.trim())) {
+      e.dv = 'Solo un número o K'; ok = false;
+    } else if (runLimpio && !validarRut(runLimpio, dv.trim())) {
+      e.dv = 'DV incorrecto para ese RUT'; ok = false;
+    }
+
+    // Nombre y apellidos
+    if (!nombre.trim())   { e.nombre   = 'El nombre es obligatorio';   ok = false; }
+    if (!apellido.trim()) { e.apellido = 'El apellido es obligatorio';  ok = false; }
+
+    // Contacto
+    if (!validarEmail(correo).valido) { e.correo  = 'Correo electrónico inválido'; ok = false; }
     const tr = validarTelefono(telefono);
-    if (!tr.valido)                            { e.telefono = tr.mensaje; ok = false; }
+    if (!tr.valido)                   { e.telefono = tr.mensaje; ok = false; }
     const er = validarEdadMinima(fechaNac, 13);
-    if (!er.valido)                            { e.fechaNac = er.mensaje; ok = false; }
-    if (!selPais)                              { e.pais     = 'Selecciona tu país'; ok = false; }
-    if (!selRegion)                            { e.region   = 'Selecciona tu región'; ok = false; }
-    if (!selCiudad)                            { e.ciudad   = 'Selecciona tu ciudad'; ok = false; }
-    if (!selComuna)                            { e.comuna   = 'Selecciona tu comuna'; ok = false; }
+    if (!er.valido)                   { e.fechaNac = er.mensaje; ok = false; }
+
+    // Ubicación
+    if (!selPais)   { e.pais   = 'Selecciona tu país';    ok = false; }
+    if (!selRegion) { e.region = 'Selecciona tu región';  ok = false; }
+    if (!selCiudad) { e.ciudad = 'Selecciona tu ciudad';  ok = false; }
+    if (!selComuna) { e.comuna = 'Selecciona tu comuna';  ok = false; }
+
+    // Contraseña
     const pr = validarPassword(password);
-    if (!pr.valido)                            { e.password = pr.mensaje; ok = false; }
-    if (password !== confirm)                  { e.confirm  = 'Las contraseñas no coinciden'; ok = false; }
+    if (!pr.valido)               { e.password = pr.mensaje; ok = false; }
+    if (password !== confirm)     { e.confirm  = 'Las contraseñas no coinciden'; ok = false; }
 
     setErr(e); return ok;
   }
 
   async function handleRegistro() {
     if (!validarTodo()) return;
+
+    const runLimpio = parseInt(run.replace(/\./g, '').trim(), 10);
+
     const payload = {
+      run_usuario:       runLimpio,
+      dvrun_usuario:     dv.trim().toUpperCase(),
       pri_nom_usuario:   nombre.trim(),
+      seg_nom_usuario:   segNombre.trim() || null,
       pri_ape_usuario:   apellido.trim(),
+      seg_ape_usuario:   segApellido.trim() || null,
       correo_usuario:    correo.trim().toLowerCase(),
       num_tel_usuario:   parseInt(telefono, 10),
       password_usuario:  password,
       fecha_nac_usuario: fechaNac,
       id_comuna:         parseInt(selComuna, 10),
+      calle_direccion:   calle.trim() || 'Sin calle',
+      numero_direccion:  parseInt(numeroDireccion, 10) || 0,
     };
+
     const callbackUrl = await ejecutarRegistro(payload);
     if (callbackUrl) {
       navigation.navigate('Redirecting', { callbackUrl });
     } else {
-      Alert.alert('Error al crear cuenta', 'Es posible que el correo ya esté registrado.', [{ text: 'OK' }]);
+      Alert.alert(
+        'Error al crear cuenta',
+        'Es posible que el RUT o el correo ya estén registrados.',
+        [{ text: 'OK' }]
+      );
     }
   }
 
@@ -168,35 +241,87 @@ export default function RegisterScreen({ navigation }) {
             </View>
           </View>
 
-          {/* ── Nombre + Apellido ── */}
+          {/* ── RUT ── */}
+          <Text style={s.sectionTitle}>🪪 RUT</Text>
+          <Row>
+            <Field label="Número RUT *" error={err.run} flex={3}>
+              <TI
+                placeholder="12345678"
+                value={run}
+                onChangeText={v => { setRun(v.replace(/[^0-9.]/g, '')); clrErr('run')(); }}
+                error={!!err.run}
+                keyboardType="numeric"
+                maxLength={9}
+                onSubmitEditing={() => dvRef.current?.focus()}
+                returnKeyType="next"
+              />
+            </Field>
+            <View style={s.rutDashWrap}>
+              <Text style={s.rutDash}>-</Text>
+            </View>
+            <Field label="DV *" error={err.dv} flex={1}>
+              <TI
+                ref={dvRef}
+                placeholder="K"
+                value={dv}
+                onChangeText={v => { setDv(v.replace(/[^0-9kK]/g, '').slice(0, 1).toUpperCase()); clrErr('dv')(); }}
+                error={!!err.dv}
+                autoCapitalize="characters"
+                maxLength={1}
+                style={s.inputCenter}
+                onSubmitEditing={() => segNomRef.current?.focus()}
+                returnKeyType="next"
+              />
+            </Field>
+          </Row>
+
+          {/* ── Datos personales ── */}
+          <Text style={s.sectionTitle}>👤 Datos personales</Text>
+
           <Row>
             <Field label="Nombre *" error={err.nombre} flex={1}>
               <TI placeholder="Juan" value={nombre}
-                onChangeText={v => { setNombre(v); clrErr('nombre')(v); }}
+                onChangeText={v => { setNombre(v); clrErr('nombre')(); }}
                 error={!!err.nombre}
+                onSubmitEditing={() => segNomRef.current?.focus()} returnKeyType="next" />
+            </Field>
+            <Field label="Segundo nombre" error={err.segNombre} flex={1}>
+              <TI ref={segNomRef} placeholder="Carlos (opcional)" value={segNombre}
+                onChangeText={v => { setSegNombre(v); clrErr('segNombre')(); }}
+                error={!!err.segNombre}
                 onSubmitEditing={() => apRef.current?.focus()} returnKeyType="next" />
             </Field>
+          </Row>
+
+          <Row>
             <Field label="Apellido *" error={err.apellido} flex={1}>
               <TI ref={apRef} placeholder="Pérez" value={apellido}
-                onChangeText={v => { setApellido(v); clrErr('apellido')(v); }}
+                onChangeText={v => { setApellido(v); clrErr('apellido')(); }}
                 error={!!err.apellido}
+                onSubmitEditing={() => segApRef.current?.focus()} returnKeyType="next" />
+            </Field>
+            <Field label="Segundo apellido" error={err.segApellido} flex={1}>
+              <TI ref={segApRef} placeholder="González (opcional)" value={segApellido}
+                onChangeText={v => { setSegApellido(v); clrErr('segApellido')(); }}
+                error={!!err.segApellido}
                 onSubmitEditing={() => coRef.current?.focus()} returnKeyType="next" />
             </Field>
           </Row>
 
-          {/* ── Correo ── */}
+          {/* ── Contacto ── */}
+          <Text style={s.sectionTitle}>📬 Contacto</Text>
+
           <Field label="Correo electrónico *" error={err.correo}>
             <TI ref={coRef} placeholder="tucorreo@gmail.com" value={correo}
-              onChangeText={v => { setCorreo(v); clrErr('correo')(v); }}
+              onChangeText={v => { setCorreo(v); clrErr('correo')(); }}
               error={!!err.correo} keyboardType="email-address" autoCapitalize="none"
               onSubmitEditing={() => telRef.current?.focus()} returnKeyType="next" />
           </Field>
 
-          {/* ── Teléfono + Fecha ── */}
           <Row>
             <Field label="Teléfono *" error={err.telefono} flex={1}>
               <TI ref={telRef} placeholder="912345678" value={telefono}
-                onChangeText={v => { setTelefono(v.replace(/\D/g,'').slice(0,9)); clrErr('telefono')(v); }}
+                onChangeText={v => { setTelefono(v.replace(/\D/g, '').slice(0, 9)); clrErr('telefono')(); }}
                 error={!!err.telefono} keyboardType="phone-pad"
                 onSubmitEditing={() => paRef.current?.focus()} returnKeyType="next" />
             </Field>
@@ -213,7 +338,7 @@ export default function RegisterScreen({ navigation }) {
           <Field label="País *" error={err.pais}>
             <PickerField
               selectedValue={selPais}
-              onValueChange={v => { onPaisChange(v); setErr(e => ({ ...e, pais:'' })); }}
+              onValueChange={v => { onPaisChange(v); setErr(e => ({ ...e, pais: '' })); }}
               error={!!err.pais}
             >
               <Picker.Item label="— Selecciona tu país —" value="" />
@@ -225,7 +350,7 @@ export default function RegisterScreen({ navigation }) {
             <Field label="Región *" error={err.region} flex={1}>
               <PickerField
                 selectedValue={selRegion}
-                onValueChange={v => { onRegionChange(v); setErr(e => ({ ...e, region:'' })); }}
+                onValueChange={v => { onRegionChange(v); setErr(e => ({ ...e, region: '' })); }}
                 enabled={!!selPais} error={!!err.region}
               >
                 <Picker.Item label={selPais ? '— Elige región —' : '— Elige país —'} value="" />
@@ -235,7 +360,7 @@ export default function RegisterScreen({ navigation }) {
             <Field label="Ciudad *" error={err.ciudad} flex={1}>
               <PickerField
                 selectedValue={selCiudad}
-                onValueChange={v => { onCiudadChange(v); setErr(e => ({ ...e, ciudad:'' })); }}
+                onValueChange={v => { onCiudadChange(v); setErr(e => ({ ...e, ciudad: '' })); }}
                 enabled={!!selRegion} error={!!err.ciudad}
               >
                 <Picker.Item label={selRegion ? '— Elige ciudad —' : '— Elige región —'} value="" />
@@ -247,7 +372,7 @@ export default function RegisterScreen({ navigation }) {
           <Field label="Comuna *" error={err.comuna}>
             <PickerField
               selectedValue={selComuna}
-              onValueChange={v => { setSelComuna(v); setErr(e => ({ ...e, comuna:'' })); }}
+              onValueChange={v => { setSelComuna(v); setErr(e => ({ ...e, comuna: '' })); }}
               enabled={!!selCiudad} error={!!err.comuna}
             >
               <Picker.Item label={selCiudad ? '— Elige comuna —' : '— Elige ciudad —'} value="" />
@@ -255,19 +380,37 @@ export default function RegisterScreen({ navigation }) {
             </PickerField>
           </Field>
 
+          {/* ── Dirección ── */}
+          <Text style={s.sectionTitle}>🏠 Dirección</Text>
+
+          <Row>
+            <Field label="Calle" error={err.calle} flex={2}>
+              <TI ref={calleRef} placeholder="Av. O'Higgins (opcional)" value={calle}
+                onChangeText={v => { setCalle(v); clrErr('calle')(); }}
+                error={!!err.calle}
+                onSubmitEditing={() => numDirRef.current?.focus()} returnKeyType="next" />
+            </Field>
+            <Field label="Número" error={err.numeroDireccion} flex={1}>
+              <TI ref={numDirRef} placeholder="1234" value={numeroDireccion}
+                onChangeText={v => { setNumeroDireccion(v.replace(/\D/g, '')); clrErr('numeroDireccion')(); }}
+                error={!!err.numeroDireccion} keyboardType="numeric"
+                returnKeyType="next" />
+            </Field>
+          </Row>
+
           {/* ── Contraseña ── */}
           <Text style={s.sectionTitle}>🔒 Contraseña</Text>
 
           <Row>
             <Field label="Contraseña *" error={err.password} flex={1}>
               <TI placeholder="Mín. 8 car., 1 mayús., 1 núm." value={password}
-                onChangeText={v => { setPassword(v); clrErr('password')(v); }}
+                onChangeText={v => { setPassword(v); clrErr('password')(); }}
                 error={!!err.password} secureTextEntry autoCapitalize="none"
                 onSubmitEditing={() => c2Ref.current?.focus()} returnKeyType="next" />
             </Field>
             <Field label="Repetir contraseña *" error={err.confirm} flex={1}>
               <TI ref={c2Ref} placeholder="Repite la contraseña" value={confirm}
-                onChangeText={v => { setConfirm(v); clrErr('confirm')(v); }}
+                onChangeText={v => { setConfirm(v); clrErr('confirm')(); }}
                 error={!!err.confirm} secureTextEntry autoCapitalize="none"
                 onSubmitEditing={handleRegistro} returnKeyType="done" />
             </Field>
@@ -338,28 +481,31 @@ const s = StyleSheet.create({
     flexDirection: 'row', gap: 4, backgroundColor: C.bg,
     borderRadius: 12, padding: 4, marginBottom: 24,
   },
-  tab:          { flex: 1, paddingVertical: 9, paddingHorizontal: 12, borderRadius: 8, alignItems: 'center' },
-  tabActive:    { backgroundColor: C.surface, shadowColor:'#000', shadowOffset:{width:0,height:1}, shadowOpacity:0.06, shadowRadius:3, elevation:2 },
-  tabText:      { fontSize: 14, fontFamily: 'Nunito_600SemiBold', color: C.muted },
-  tabTextActive:{ color: C.p800 },
+  tab:           { flex: 1, paddingVertical: 9, paddingHorizontal: 12, borderRadius: 8, alignItems: 'center' },
+  tabActive:     { backgroundColor: C.surface, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 },
+  tabText:       { fontSize: 14, fontFamily: 'Nunito_600SemiBold', color: C.muted },
+  tabTextActive: { color: C.p800 },
   sectionTitle: {
     fontSize: 14, fontFamily: 'Nunito_700Bold', color: C.p700,
     borderBottomWidth: 1, borderBottomColor: C.border,
     paddingBottom: 6, marginTop: 4, marginBottom: 14,
   },
-  label:   { fontSize: 14, fontFamily: 'Nunito_600SemiBold', color: C.text, marginBottom: 5 },
+  label:    { fontSize: 14, fontFamily: 'Nunito_600SemiBold', color: C.text, marginBottom: 5 },
   input: {
     borderWidth: 1.5, borderColor: C.border, borderRadius: 8,
     paddingVertical: 10, paddingHorizontal: 12,
     fontSize: 14, fontFamily: 'Nunito_400Regular', color: C.text, backgroundColor: C.surface,
   },
-  inputErr: { borderColor: C.danger },
-  fieldErr: { fontSize: 12, color: C.danger, marginTop: 4, fontFamily: 'Nunito_400Regular' },
+  inputCenter: { textAlign: 'center' },
+  inputErr:  { borderColor: C.danger },
+  fieldErr:  { fontSize: 12, color: C.danger, marginTop: 4, fontFamily: 'Nunito_400Regular' },
   pickerWrap: {
     borderWidth: 1.5, borderColor: C.border, borderRadius: 8,
     backgroundColor: C.surface, overflow: 'hidden',
   },
-  picker: { height: 44, color: C.text },
+  picker:    { height: 44, color: C.text },
+  rutDashWrap: { justifyContent: 'center', paddingTop: 22, paddingHorizontal: 2 },
+  rutDash:   { fontSize: 22, fontWeight: '700', color: C.muted },
   btn:    { backgroundColor: C.p700, borderRadius: 8, paddingVertical: 12, alignItems: 'center', marginTop: 4 },
   btnDis: { opacity: 0.55 },
   btnTxt: { color: '#fff', fontSize: 16, fontFamily: 'Nunito_700Bold' },
