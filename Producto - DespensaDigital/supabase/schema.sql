@@ -144,11 +144,11 @@ ON CONFLICT DO NOTHING;
 WITH r AS (SELECT id_region FROM REGION WHERE nombre_region='Metropolitana de Santiago' LIMIT 1)
 INSERT INTO CIUDAD (nombre_ciudad, REGION_id_region)
 SELECT c, r.id_region FROM r, (VALUES
-  ('Santiago'),('San Bernardo'),('Puente Alto'),('Maipú'),
-  ('La Florida'),('Peñalolén'),('Las Condes')
+  ('Santiago')
 ) AS t(c)
 ON CONFLICT DO NOTHING;
 
+-- Todas las comunas del Gran Santiago bajo la ciudad Santiago
 WITH ci AS (SELECT id_ciudad FROM CIUDAD WHERE nombre_ciudad='Santiago' LIMIT 1)
 INSERT INTO COMUNA (nombre_comuna, CIUDAD_id_ciudad)
 SELECT c, ci.id_ciudad FROM ci, (VALUES
@@ -159,7 +159,9 @@ SELECT c, ci.id_ciudad FROM ci, (VALUES
   ('Maipú'),('Cerrillos'),('Pedro Aguirre Cerda'),('San Miguel'),
   ('La Cisterna'),('El Bosque'),('San Ramón'),('Lo Espejo'),
   ('La Granja'),('La Pintana'),('San Joaquín'),('Macul'),
-  ('Peñalolén'),('La Florida'),('Puente Alto')
+  ('Peñalolén'),('La Florida'),('Puente Alto'),('San Bernardo'),
+  ('El Monte'),('Talagante'),('Calera de Tango'),('Pirque'),
+  ('San José de Maipo')
 ) AS t(c)
 ON CONFLICT DO NOTHING;
 

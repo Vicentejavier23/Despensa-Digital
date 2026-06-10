@@ -196,18 +196,7 @@ export default function Dashboard() {
 
       </div>
 
-      {/* Acceso rápido */}
-      <div style={s.accesosGrid}>
-        {[
-          { label: 'Lista de compras', ruta: '/lista-compras', color: '#2D6A4F' },
-          { label: 'Patologías',       ruta: '/patologias',    color: '#7C3AED' },
-          { label: 'Mi perfil',        ruta: '/perfil',        color: '#0369A1' },
-        ].map(a => (
-          <button key={a.ruta} style={{ ...s.accesoBtn, borderTop: `3px solid ${a.color}` }} onClick={() => navigate(a.ruta)}>
-            {a.label}
-          </button>
-        ))}
-      </div>
+
 
     </div>
   );
