@@ -335,8 +335,9 @@ export default function LoginScreen() {
         {mode === 'register' && (
           <form onSubmit={handleRegister} noValidate style={s.form}>
 
+
             {/* ── Nombre y Apellidos ── */}
-            <div style={s.sectionTitle}>👤 Datos personales</div>
+            <div style={s.sectionTitle}> Datos personales</div>
 
             <div style={s.row}>
               <Field label="Nombre *" error={regErrors.nombre} style={{ flex: 1 }}>
@@ -365,7 +366,7 @@ export default function LoginScreen() {
             </div>
 
             {/* ── Contacto ── */}
-            <div style={s.sectionTitle}>📬 Contacto</div>
+            <div style={s.sectionTitle}> Contacto</div>
 
             <Field label="Correo electrónico *" error={regErrors.correo}>
               <input type="email" placeholder="tucorreo@gmail.com" value={correo}
@@ -388,7 +389,7 @@ export default function LoginScreen() {
             </div>
 
             {/* ── Ubicación ── */}
-            <div style={s.sectionTitle}>📍 Ubicación</div>
+            <div style={s.sectionTitle}> Ubicación</div>
 
             <Field label="País *" error={regErrors.pais}>
               <select value={selPais} onChange={e => onPaisChange(e.target.value)}
@@ -427,7 +428,7 @@ export default function LoginScreen() {
             </Field>
 
             {/* ── Dirección ── */}
-            <div style={s.sectionTitle}>🏠 Dirección</div>
+            <div style={s.sectionTitle}> Dirección</div>
 
             <div style={s.row}>
               <Field label="Calle" error={regErrors.calle} style={{ flex: 2 }}>
@@ -443,7 +444,7 @@ export default function LoginScreen() {
             </div>
 
             {/* ── Contraseña ── */}
-            <div style={s.sectionTitle}>🔒 Contraseña</div>
+            <div style={s.sectionTitle}> Contraseña</div>
 
             <div style={s.row}>
               <Field label="Contraseña *" error={regErrors.password} style={{ flex: 1 }}>
