@@ -37,7 +37,6 @@ router.get('/', [
       LEFT JOIN CATEGORIA_PRODUCTO c ON c.id_categoria = p.CATEGORIA_id_categoria
       LEFT JOIN TIPO_ALMACENAJE    a ON a.id_almacenaje = p.TIPO_ALMACENAJE_id
       WHERE p.USUARIO_run_usuario = $1
-        AND p.fecha_vencimiento >= CURRENT_DATE
         AND p.fecha_vencimiento <= CURRENT_DATE + ($2 || ' days')::interval
       ORDER BY p.fecha_vencimiento ASC
     `, [run_usuario, dias]);

@@ -28,7 +28,7 @@ function saludo() {
 }
 
 function diasRestantes(fecha: string) {
-  const hoy  = new Date(); hoy.setHours(0,0,0,0);
+  const hoy   = new Date(); hoy.setHours(0,0,0,0);
   const vence = new Date(fecha); vence.setHours(0,0,0,0);
   return Math.round((vence.getTime() - hoy.getTime()) / 86400000);
 }
@@ -37,14 +37,20 @@ function formatFecha(fecha: string) {
   return new Date(fecha).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' });
 }
 
+function labelDias(dias: number) {
+  if (dias < 0)  return `Venció hace ${Math.abs(dias)} día${Math.abs(dias) !== 1 ? 's' : ''}`;
+  if (dias === 0) return 'Vence hoy';
+  return `Vence en ${dias} día${dias !== 1 ? 's' : ''}`;
+}
+
 export default function Dashboard() {
   const { usuario } = useAuth();
   const navigate    = useNavigate();
 
-  const [metricas, setMetricas] = useState<Metricas | null>(null);
+  const [metricas,  setMetricas]  = useState<Metricas | null>(null);
   const [productos, setProductos] = useState<Producto[]>([]);
-  const [alertas,  setAlertas]  = useState<Alertas | null>(null);
-  const [loading,  setLoading]  = useState(true);
+  const [alertas,   setAlertas]   = useState<Alertas | null>(null);
+  const [loading,   setLoading]   = useState(true);
 
   useEffect(() => {
     let cancelado = false;
@@ -59,76 +65,52 @@ export default function Dashboard() {
         setMetricas(met as Metricas);
         setProductos(prods);
         setAlertas(alerts);
-      } catch {
-        // silenciar — cada sección muestra su propio estado vacío
-      } finally {
-        if (!cancelado) setLoading(false);
-      }
+      } catch { /* silenciar */ }
+      finally { if (!cancelado) setLoading(false); }
     })();
     return () => { cancelado = true; };
   }, []);
 
   if (loading) return <SkeletonDashboard />;
 
-  const vencidos  = productos.filter(p => calcularEstadoVencimiento(p.fecha_vencimiento) === 'vencido');
-  const proximos  = productos.filter(p => calcularEstadoVencimiento(p.fecha_vencimiento) === 'proximo');
-  const vigentes  = productos.filter(p => calcularEstadoVencimiento(p.fecha_vencimiento) === 'ok');
-  // Todos los productos ordenados: primero vencidos, luego próximos, luego vigentes
-  const productosOrdenados = [...vencidos, ...proximos, ...vigentes].slice(0, 6);
+  const vencidos = productos.filter(p => calcularEstadoVencimiento(p.fecha_vencimiento) === 'vencido');
+  const proximos = productos.filter(p => calcularEstadoVencimiento(p.fecha_vencimiento) === 'proximo');
+  const vigentes = productos.filter(p => calcularEstadoVencimiento(p.fecha_vencimiento) === 'ok');
+  // Ordenados: vencidos primero, luego próximos, luego vigentes
+  const productosOrdenados = [...vencidos, ...proximos, ...vigentes];
 
   return (
     <div style={{ animation: 'fadeIn 0.3s ease both' }}>
 
-      {/* ── Encabezado ─────────────────────────────────────────── */}
+      {/* Encabezado */}
       <div style={{ marginBottom: '1.75rem' }}>
         <h1 style={{ fontSize: 'var(--font-size-3xl)', fontWeight: 800, color: 'var(--color-text)', margin: 0 }}>
           {saludo()}, {usuario?.pri_nom_usuario}
         </h1>
-        <p style={{ color: 'var(--color-text-muted)', marginTop: 6 }}>
-          Aquí tienes el resumen de tu despensa
+        <p style={{ color: 'var(--color-text-muted)', marginTop: 6, fontSize: 'var(--font-size-sm)' }}>
+          Resumen de tu despensa
         </p>
       </div>
 
-      {/* ── Métricas ────────────────────────────────────────────── */}
+      {/* Métricas */}
       <div style={s.gridMetricas}>
-        <StatCard
-          label="Total productos"
-          valor={metricas?.total_productos ?? productos.length}
-          color="#2D6A4F"
-          onClick={() => navigate('/inventario')}
-        />
-        <StatCard
-          label="Próximos a vencer"
-          valor={metricas?.proximos_vencer ?? proximos.length}
-          color="#D97706"
-          alerta={(metricas?.proximos_vencer ?? proximos.length) > 0}
-          sub="Próximos 7 días"
-          onClick={() => navigate('/alertas')}
-        />
-        <StatCard
-          label="Vencidos"
-          valor={metricas?.vencidos ?? vencidos.length}
-          color="#DC2626"
-          alerta={(metricas?.vencidos ?? vencidos.length) > 0}
-          onClick={() => navigate('/inventario')}
-        />
-        <StatCard
-          label="Alertas activas"
-          valor={alertas?.total_alertas ?? 0}
-          color="#7C3AED"
-          alerta={(alertas?.total_alertas ?? 0) > 0}
-          onClick={() => navigate('/alertas')}
-        />
+        <StatCard label="Total productos"    valor={metricas?.total_productos ?? productos.length}        color="#2D6A4F" onClick={() => navigate('/inventario')} />
+        <StatCard label="Próximos a vencer"  valor={metricas?.proximos_vencer ?? proximos.length}         color="#D97706" alerta={(metricas?.proximos_vencer ?? proximos.length) > 0} sub="Próximos 7 días" onClick={() => navigate('/alertas')} />
+        <StatCard label="Vencidos"           valor={metricas?.vencidos ?? vencidos.length}                color="#DC2626" alerta={(metricas?.vencidos ?? vencidos.length) > 0} onClick={() => navigate('/inventario')} />
+        <StatCard label="Alertas activas"    valor={alertas?.total_alertas ?? 0}                          color="#7C3AED" alerta={(alertas?.total_alertas ?? 0) > 0} onClick={() => navigate('/alertas')} />
       </div>
 
-      {/* ── Dos columnas ────────────────────────────────────────── */}
+      {/* Dos columnas */}
       <div style={s.grid2col}>
 
-        {/* Productos de tu despensa */}
+        {/* Tu despensa — TODOS los productos con scroll */}
         <div style={s.card}>
           <div style={s.cardHead}>
-            <h2 style={s.cardTitle}>Tu despensa</h2>
-            <button style={s.verTodos} onClick={() => navigate('/inventario')}>Ver todos</button>
+            <div>
+              <h2 style={s.cardTitle}>Tu despensa</h2>
+              <p style={s.cardSub}>{productos.length} producto{productos.length !== 1 ? 's' : ''}</p>
+            </div>
+            <button style={s.verTodos} onClick={() => navigate('/inventario')}>Ver inventario</button>
           </div>
 
           {productosOrdenados.length === 0 ? (
@@ -137,77 +119,84 @@ export default function Dashboard() {
               accion={<button style={s.btnPrimary} onClick={() => navigate('/inventario')}>Ir al inventario</button>}
             />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 360, overflowY: 'auto', paddingRight: 4 }}>
               {productosOrdenados.map(p => {
                 const est   = calcularEstadoVencimiento(p.fecha_vencimiento);
                 const dias  = diasRestantes(p.fecha_vencimiento);
                 const color = est === 'vencido' ? '#DC2626' : est === 'proximo' ? '#D97706' : '#15803D';
                 const bg    = est === 'vencido' ? '#FEF2F2' : est === 'proximo' ? '#FFFBEB' : '#F0FDF4';
-                const label = est === 'vencido'
-                  ? `Vencido hace ${Math.abs(dias)} día${Math.abs(dias) !== 1 ? 's' : ''}`
-                  : dias === 0 ? 'Vence hoy'
-                  : `Vence en ${dias} día${dias !== 1 ? 's' : ''}`;
                 return (
-                  <div key={p.id_producto} style={{ ...s.productoRow, borderLeft: `3px solid ${color}`, background: bg }}>
+                  <div
+                    key={p.id_producto}
+                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 8, background: bg, borderLeft: `3px solid ${color}` }}
+                  >
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={s.productoNombre}>{p.nombre_producto}</div>
-                      <div style={s.productoMarca}>{p.marca_producto} · ×{p.cantidad_unidad}</div>
+                      <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {p.nombre_producto}
+                      </div>
+                      <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: 1 }}>
+                        {p.marca_producto} · stock: {p.cantidad_unidad}
+                      </div>
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: '0.7rem', fontWeight: 700, color, whiteSpace: 'nowrap' }}>{label}</div>
-                      <div style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)', marginTop: 1 }}>{formatFecha(p.fecha_vencimiento)}</div>
+                      <div style={{ fontSize: '0.68rem', fontWeight: 700, color, whiteSpace: 'nowrap' }}>
+                        {labelDias(dias)}
+                      </div>
+                      <div style={{ fontSize: '0.62rem', color: 'var(--color-text-muted)', marginTop: 1 }}>
+                        {formatFecha(p.fecha_vencimiento)}
+                      </div>
                     </div>
                   </div>
                 );
               })}
-              {productos.length > 6 && (
-                <button style={s.verMas} onClick={() => navigate('/inventario')}>
-                  + {productos.length - 6} productos más
-                </button>
-              )}
             </div>
           )}
         </div>
 
-        {/* Panel de alertas rápidas */}
+        {/* Alertas rápidas */}
         <div style={s.card}>
           <div style={s.cardHead}>
-            <h2 style={s.cardTitle}>Alertas</h2>
+            <div>
+              <h2 style={s.cardTitle}>Alertas</h2>
+              <p style={s.cardSub}>
+                {alertas ? `${alertas.total_alertas} alerta${alertas.total_alertas !== 1 ? 's' : ''} activa${alertas.total_alertas !== 1 ? 's' : ''}` : '—'}
+              </p>
+            </div>
             <button style={s.verTodos} onClick={() => navigate('/alertas')}>Ver todas</button>
           </div>
 
           {!alertas || alertas.total_alertas === 0 ? (
             <EmptyState emoji="✅" titulo="Sin alertas" descripcion="Tu despensa está al día." />
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {alertas.por_vencer.slice(0, 3).map((a: any) => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 360, overflowY: 'auto', paddingRight: 4 }}>
+              {alertas.por_vencer.map((a: any) => (
                 <AlertaRow
                   key={`v-${a.id_producto}`}
                   nombre={a.nombre_producto}
-                  detalle={`Vence el ${formatFecha(a.fecha_vencimiento)}`}
+                  detalle={a.dias_restantes < 0
+                    ? `Venció hace ${Math.abs(a.dias_restantes)} días`
+                    : a.dias_restantes === 0 ? 'Vence hoy'
+                    : `Vence en ${a.dias_restantes} días`}
                   tipo="vencimiento"
+                  urgente={a.dias_restantes <= 0}
                 />
               ))}
-              {alertas.stock_bajo.slice(0, 3).map((a: any) => (
+              {alertas.stock_bajo.map((a: any) => (
                 <AlertaRow
                   key={`s-${a.id_producto}`}
                   nombre={a.nombre_producto}
                   detalle={`Stock: ${a.cantidad_unidad} (mín. ${a.stock_minimo})`}
                   tipo="stock"
+                  urgente={a.cantidad_unidad === 0}
                 />
               ))}
-              {alertas.total_alertas > 6 && (
-                <button style={s.verMas} onClick={() => navigate('/alertas')}>
-                  + {alertas.total_alertas - 6} alertas más
-                </button>
-              )}
             </div>
           )}
         </div>
 
       </div>
 
-      {/* ── Acceso rápido ───────────────────────────────────────── */}
+      {/* Acceso rápido */}
       <div style={s.accesosGrid}>
         {[
           { label: 'Lista de compras', ruta: '/lista-compras', color: '#2D6A4F' },
@@ -224,7 +213,7 @@ export default function Dashboard() {
   );
 }
 
-// ── Componentes internos ───────────────────────────────────────
+// ── Componentes internos ─────────────────────────────────────────
 function StatCard({ label, valor, color, alerta, sub, onClick }: {
   label: string; valor: number; color: string; alerta?: boolean; sub?: string; onClick?: () => void;
 }) {
@@ -238,17 +227,22 @@ function StatCard({ label, valor, color, alerta, sub, onClick }: {
   );
 }
 
-function AlertaRow({ nombre, detalle, tipo }: { nombre: string; detalle: string; tipo: 'vencimiento' | 'stock' }) {
-  const color = tipo === 'vencimiento' ? '#D97706' : '#DC2626';
-  const bg    = tipo === 'vencimiento' ? '#FFFBEB'  : '#FEF2F2';
+function AlertaRow({ nombre, detalle, tipo, urgente }: {
+  nombre: string; detalle: string; tipo: 'vencimiento' | 'stock'; urgente?: boolean;
+}) {
+  const color  = urgente ? '#DC2626' : tipo === 'vencimiento' ? '#D97706' : '#DC2626';
+  const bg     = urgente ? '#FEF2F2' : tipo === 'vencimiento' ? '#FFFBEB' : '#FEF2F2';
+  const badge  = tipo === 'vencimiento' ? (urgente ? 'VENCIDO' : 'VENCE') : 'STOCK';
   return (
     <div style={{ display: 'flex', gap: 10, padding: '8px 10px', borderRadius: 8, background: bg, borderLeft: `3px solid ${color}`, alignItems: 'center' }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{nombre}</div>
+        <div style={{ fontSize: 'var(--font-size-xs)', fontWeight: 700, color: 'var(--color-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {nombre}
+        </div>
         <div style={{ fontSize: '0.65rem', color, marginTop: 1 }}>{detalle}</div>
       </div>
-      <span style={{ fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 20, background: color, color: '#fff', flexShrink: 0 }}>
-        {tipo === 'vencimiento' ? 'VENCE' : 'STOCK'}
+      <span style={{ fontSize: '0.6rem', fontWeight: 700, padding: '2px 7px', borderRadius: 20, background: color, color: '#fff', flexShrink: 0 }}>
+        {badge}
       </span>
     </div>
   );
@@ -262,15 +256,15 @@ function SkeletonDashboard() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(140px,1fr))', gap: 12, marginBottom: 24 }}>
         {[...Array(4)].map((_, i) => <div key={i} style={{ height: 90, background: '#E5E7EB', borderRadius: 12 }} />)}
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div style={{ height: 300, background: '#E5E7EB', borderRadius: 16 }} />
-        <div style={{ height: 300, background: '#E5E7EB', borderRadius: 16 }} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(320px,1fr))', gap: 16 }}>
+        <div style={{ height: 380, background: '#E5E7EB', borderRadius: 16 }} />
+        <div style={{ height: 380, background: '#E5E7EB', borderRadius: 16 }} />
       </div>
     </div>
   );
 }
 
-// ── Estilos ────────────────────────────────────────────────────
+// ── Estilos ──────────────────────────────────────────────────────
 const s: Record<string, React.CSSProperties> = {
   gridMetricas: {
     display: 'grid',
@@ -311,14 +305,19 @@ const s: Record<string, React.CSSProperties> = {
   cardHead: {
     display: 'flex',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '1rem',
+    alignItems: 'flex-start',
+    marginBottom: '0.875rem',
   },
   cardTitle: {
     fontSize: 'var(--font-size-base)',
     fontWeight: 700,
     color: 'var(--color-text)',
     margin: 0,
+  },
+  cardSub: {
+    fontSize: '0.68rem',
+    color: 'var(--color-text-muted)',
+    margin: '3px 0 0 0',
   },
   verTodos: {
     fontSize: 'var(--font-size-xs)',
@@ -328,38 +327,7 @@ const s: Record<string, React.CSSProperties> = {
     border: 'none',
     cursor: 'pointer',
     padding: 0,
-  },
-  productoRow: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 10,
-    padding: '8px 10px',
-    borderRadius: 8,
-  },
-  productoNombre: {
-    fontSize: 'var(--font-size-xs)',
-    fontWeight: 700,
-    color: 'var(--color-text)',
     whiteSpace: 'nowrap',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  productoMarca: {
-    fontSize: '0.65rem',
-    color: 'var(--color-text-muted)',
-    marginTop: 1,
-  },
-  verMas: {
-    fontSize: 'var(--font-size-xs)',
-    fontWeight: 600,
-    color: 'var(--color-primary-700)',
-    background: 'var(--color-primary-50)',
-    border: 'none',
-    borderRadius: 8,
-    padding: '6px 12px',
-    cursor: 'pointer',
-    textAlign: 'center',
-    width: '100%',
     fontFamily: 'var(--font-base)',
   },
   accesosGrid: {
@@ -390,5 +358,6 @@ const s: Record<string, React.CSSProperties> = {
     fontWeight: 700,
     border: 'none',
     cursor: 'pointer',
+    fontFamily: 'var(--font-base)',
   },
 };
