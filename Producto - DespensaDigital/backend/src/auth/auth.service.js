@@ -22,6 +22,9 @@
  *  - El JWT expira en 1 hora (RNF-01)
  *  - El exchange_token se destruye al primer uso (tokenStore)
  *  - El login nunca revela si el correo existe (mensaje genérico)
+ *
+ * Identidad de usuario: id_usuario (autoincremental, generado por la BD).
+ * El sistema ya no usa RUT ni dígito verificador en ninguna parte.
  * ============================================================
  */
 const bcrypt = require('bcryptjs');
@@ -29,7 +32,6 @@ const jwt    = require('jsonwebtoken');
 const crypto = require('crypto');
 const pool   = require('../config/db');
 const { JWT_SECRET } = require('../config/env');
-const { validarRutChileno } = require('../utils/rutValidator');
 const { setToken } = require('../utils/tokenStore');
 
 const SALT_ROUNDS = 12;
@@ -51,38 +53,15 @@ function firmarJWT(payload) {
  */
 async function registrarUsuario(datos) {
   const {
-    run_usuario, dvrun_usuario, pri_nom_usuario, seg_nom_usuario,
+    pri_nom_usuario, seg_nom_usuario,
     pri_ape_usuario, seg_ape_usuario, correo_usuario, num_tel_usuario,
     password_usuario, fecha_nac_usuario, id_comuna,
     calle_direccion, numero_direccion,
   } = datos;
 
-  // 1. Validar RUT chileno (módulo 11)
-  // Solo validar si viene de móvil (run < 90000000); los registros web
-  // usan un RUT temporal generado por el controller que ya es válido.
-  if (run_usuario < 90000000) {
-    const { valido, mensaje } = validarRutChileno(run_usuario, dvrun_usuario);
-    if (!valido) {
-      const err = new Error(mensaje);
-      err.statusCode = 400;
-      throw err;
-    }
-  }
-
-  // 2. Unicidad de RUT
-  const { rows: rutRows } = await pool.query(
-    'SELECT run_usuario FROM USUARIO WHERE run_usuario = $1',
-    [run_usuario]
-  );
-  if (rutRows.length > 0) {
-    const err = new Error('El RUT ya está registrado en el sistema');
-    err.statusCode = 409;
-    throw err;
-  }
-
-  // 3. Unicidad de correo
+  // 1. Unicidad de correo
   const { rows: correoRows } = await pool.query(
-    'SELECT run_usuario FROM USUARIO WHERE LOWER(correo_usuario) = LOWER($1)',
+    'SELECT id_usuario FROM USUARIO WHERE LOWER(correo_usuario) = LOWER($1)',
     [correo_usuario]
   );
   if (correoRows.length > 0) {
@@ -91,7 +70,7 @@ async function registrarUsuario(datos) {
     throw err;
   }
 
-  // 4. Validar comuna si se proporcionó
+  // 2. Validar comuna si se proporcionó
   if (id_comuna) {
     const { rows: comunaRows } = await pool.query(
       'SELECT id_comuna FROM COMUNA WHERE id_comuna = $1',
@@ -104,23 +83,23 @@ async function registrarUsuario(datos) {
     }
   }
 
-  // 5. Hash de contraseña
+  // 3. Hash de contraseña
   const passwordHash = await bcrypt.hash(password_usuario, SALT_ROUNDS);
 
-  // 6. Transacción: USUARIO + DIRECCION
+  // 4. Transacción: USUARIO + DIRECCION
   const client = await pool.connect();
+  let nuevoUsuario;
   try {
     await client.query('BEGIN');
 
-    await client.query(
+    const { rows: insertados } = await client.query(
       `INSERT INTO USUARIO (
-        run_usuario, dvrun_usuario, pri_nom_usuario, seg_nom_usuario,
+        pri_nom_usuario, seg_nom_usuario,
         pri_ape_usuario, seg_ape_usuario, correo_usuario, num_tel_usuario,
         password_usuario, fecha_nac_usuario
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+      RETURNING id_usuario`,
       [
-        run_usuario,
-        dvrun_usuario.toUpperCase(),
         pri_nom_usuario.trim(),
         seg_nom_usuario || null,
         pri_ape_usuario.trim(),
@@ -131,12 +110,13 @@ async function registrarUsuario(datos) {
         fecha_nac_usuario,
       ]
     );
+    nuevoUsuario = insertados[0];
 
     if (id_comuna) {
       await client.query(
-        `INSERT INTO DIRECCION (calle_direccion, numero_direccion, COMUNA_id_comuna, USUARIO_run_usuario)
+        `INSERT INTO DIRECCION (calle_direccion, numero_direccion, COMUNA_id_comuna, USUARIO_id_usuario)
          VALUES ($1, $2, $3, $4)`,
-        [calle_direccion || 'Sin calle', numero_direccion || 0, id_comuna, run_usuario]
+        [calle_direccion || 'Sin calle', numero_direccion || 0, id_comuna, nuevoUsuario.id_usuario]
       );
     }
 
@@ -149,8 +129,8 @@ async function registrarUsuario(datos) {
   }
 
   const exchange_token = generarExchangeToken({
-    run_usuario,
-    correo_usuario: correo_usuario.toLowerCase(),
+    id_usuario:      nuevoUsuario.id_usuario,
+    correo_usuario:  correo_usuario.toLowerCase(),
     pri_nom_usuario: pri_nom_usuario.trim(),
   });
 
@@ -159,11 +139,10 @@ async function registrarUsuario(datos) {
 
 /**
  * Autentica por CORREO ELECTRÓNICO + contraseña.
- * El RUT nunca se usa como credencial de acceso.
  */
 async function autenticarUsuario({ correo_usuario, password_usuario }) {
   const { rows } = await pool.query(
-    `SELECT run_usuario, dvrun_usuario, correo_usuario, password_usuario,
+    `SELECT id_usuario, correo_usuario, password_usuario,
             pri_nom_usuario, seg_nom_usuario, pri_ape_usuario
      FROM USUARIO WHERE LOWER(correo_usuario) = LOWER($1)`,
     [correo_usuario]
@@ -180,7 +159,7 @@ async function autenticarUsuario({ correo_usuario, password_usuario }) {
   if (!coincide) throw credencialesErr;
 
   const exchange_token = generarExchangeToken({
-    run_usuario:     usuario.run_usuario,
+    id_usuario:      usuario.id_usuario,
     correo_usuario:  usuario.correo_usuario,
     pri_nom_usuario: usuario.pri_nom_usuario,
   });
