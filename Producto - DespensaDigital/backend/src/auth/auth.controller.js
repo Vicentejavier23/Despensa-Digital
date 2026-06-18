@@ -12,27 +12,17 @@
  *  POST /api/auth/exchange  → canjea exchange_token por JWT real + datos del usuario
  *
  * El login NUNCA acepta RUT — solo correo electrónico + contraseña.
- * Cuando se registra desde la web, el RUT se genera automáticamente.
+ * El sistema ya no usa RUT/dígito verificador en ninguna parte;
+ * la identidad del usuario es id_usuario (autoincremental).
  * ============================================================
  */
 const { body, validationResult } = require('express-validator');
 const { registrarUsuario, autenticarUsuario, firmarJWT } = require('./auth.service');
 const { consumeToken } = require('../utils/tokenStore');
-const { calcularDV } = require('../utils/rutValidator');
 const pool = require('../config/db');
 
 // ─── Validaciones de registro ─────────────────────────────────────────────────
-// run_usuario y dvrun_usuario son opcionales cuando se registra desde la web
-// (la app móvil siempre los envía; la web no los expone al usuario)
 const validacionesRegistro = [
-  body('run_usuario')
-    .optional()
-    .isInt({ min: 1_000_000, max: 99_999_999 })
-    .withMessage('RUT inválido — debe ser un número entre 1.000.000 y 99.999.999'),
-  body('dvrun_usuario')
-    .optional()
-    .matches(/^[0-9kK]$/)
-    .withMessage('Dígito verificador inválido — debe ser un número o la letra K'),
   body('pri_nom_usuario')
     .trim().notEmpty()
     .withMessage('El nombre es obligatorio'),
@@ -82,17 +72,6 @@ async function register(req, res, next) {
   }
 
   try {
-    // Si no viene run_usuario (registro desde web), generar uno temporal único
-    if (!req.body.run_usuario) {
-      // Buscar el run_usuario mínimo disponible en el rango reservado para web (90000000+)
-      const { rows } = await pool.query(
-        `SELECT COALESCE(MAX(run_usuario), 90000000) + 1 AS next_run
-         FROM USUARIO WHERE run_usuario >= 90000000`
-      );
-      req.body.run_usuario   = parseInt(rows[0].next_run, 10);
-      req.body.dvrun_usuario = calcularDV(parseInt(rows[0].next_run, 10));
-    }
-
     const resultado = await registrarUsuario(req.body);
     return res.status(201).json(resultado);
   } catch (err) {
@@ -136,7 +115,7 @@ async function exchange(req, res, next) {
   try {
     const { rows } = await pool.query(
       `SELECT
-         u.run_usuario, u.dvrun_usuario,
+         u.id_usuario,
          u.pri_nom_usuario, u.seg_nom_usuario,
          u.pri_ape_usuario, u.seg_ape_usuario,
          u.correo_usuario, u.num_tel_usuario,
@@ -146,14 +125,14 @@ async function exchange(req, res, next) {
          r.nombre_region,
          p.nombre_pais
        FROM USUARIO u
-       LEFT JOIN DIRECCION d  ON d.USUARIO_run_usuario = u.run_usuario
+       LEFT JOIN DIRECCION d  ON d.USUARIO_id_usuario = u.id_usuario
        LEFT JOIN COMUNA c     ON c.id_comuna = d.COMUNA_id_comuna
        LEFT JOIN CIUDAD ci    ON ci.id_ciudad = c.CIUDAD_id_ciudad
        LEFT JOIN REGION r     ON r.id_region = ci.REGION_id_region
        LEFT JOIN PAIS p       ON p.id_pais = r.PAIS_id_pais
-       WHERE u.run_usuario = $1
+       WHERE u.id_usuario = $1
        LIMIT 1`,
-      [payload.run_usuario]
+      [payload.id_usuario]
     );
 
     if (rows.length === 0) {
@@ -165,7 +144,7 @@ async function exchange(req, res, next) {
 
     // JWT expira en 1 hora (RNF-01)
     const jwt = firmarJWT({
-      run_usuario:    usuario.run_usuario,
+      id_usuario:     usuario.id_usuario,
       correo_usuario: usuario.correo_usuario,
     });
 
