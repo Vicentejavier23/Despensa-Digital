@@ -26,7 +26,7 @@
 // TTL de 5 minutos — suficiente para que el navegador cargue la web
 const TTL_MS = 5 * 60 * 1000;
 
-/** @type {Map<string, { run_usuario: number, correo_usuario: string, pri_nom_usuario: string, expiresAt: number }>} */
+/** @type {Map<string, { id_usuario: number, correo_usuario: string, pri_nom_usuario: string, expiresAt: number }>} */
 const store = new Map();
 
 function setToken(token, payload) {
