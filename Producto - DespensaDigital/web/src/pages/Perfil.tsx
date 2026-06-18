@@ -21,10 +21,7 @@ export default function Perfil() {
     usuario.seg_ape_usuario,
   ].filter(Boolean).join(' ');
 
-  const rutFormateado = `${usuario.run_usuario.toLocaleString('es-CL')}-${usuario.dvrun_usuario}`;
-
   const filas: [string, string][] = [
-    ['RUT',             rutFormateado],
     ['Nombre completo', nombreCompleto],
     ['Correo',          usuario.correo_usuario],
     ['Teléfono',        `+56 ${usuario.num_tel_usuario}`],
