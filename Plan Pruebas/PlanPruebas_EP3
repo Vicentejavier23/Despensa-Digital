@@ -1,46 +1,51 @@
 PLAN DE PRUEBAS DE SOFTWARE
 DespensaDigital
-“Que nada se venza, que todo rinda”
-Evaluación Parcial N°3 - IL3.1 / IL3.2 / IL3.3
+"Que nada se venza, que todo rinda"
+Evaluación Parcial N°3 — IL3.1 / IL3.2 / IL3.3
 
 Tabla 1
 Información del documento.
 Campo	Detalle
-Proyecto	DespensaDigital v2 - Gestión inteligente de inventario alimentario doméstico
-Asignatura	TPY1101 - Taller Aplicado de Programación
-Institución	Duoc UC, Sede San Joaquín - Analista Programador Computacional
-Equipo	Vicente Bueno, Daniel Lagos, Diego Olea
+Proyecto	DespensaDigital v2 — Gestión inteligente de inventario alimentario doméstico
+Asignatura	TPY1101 — Taller Aplicado de Programación
+Institución	Duoc UC, Sede San Joaquín — Analista Programador Computacional
+Equipo	Vicente Bueno  |  Daniel Lagos  |  Diego Olea
 Profesor guía	Jorge Niochet
 Fecha	Junio de 2026
 Versión del documento	1.0.0
-Entorno de pruebas	Backend: Node.js + Express (local / Render.com). Web: React + Vite (local). Mobile: Expo Go
-Herramientas de prueba	Postman, navegador Chrome DevTools, Expo Go (Android)
-Total de casos de prueba	24 casos (12 funcionalidad, 6 seguridad, 3 calidad, 3 integración)
+Entorno de pruebas	Backend: Node.js + Express (local / Render.com)  |  Web: React + Vite (local)  |  Mobile: Expo Go
+Herramientas de prueba	Postman, navegador Chrome con DevTools, Expo Go (Android)
+Total de casos de prueba	24 casos (13 funcionalidad, 6 seguridad, 2 calidad, 2 integración)
+
+
  
 1. Introducción
-El presente documento corresponde al Plan de Pruebas de Software del proyecto DespensaDigital, elaborado para dar cumplimiento a los Indicadores de Logro IL3.1, IL3.2 e IL3.3 de la Evaluación Parcial N°3 de la asignatura TPY1101. El plan identifica, describe y registra las pruebas aplicadas a los distintos componentes del sistema para asegurar la funcionalidad, calidad y seguridad de la solución construida.
+El presente documento corresponde al Plan de Pruebas de Software del proyecto DespensaDigital, elaborado por nuestro equipo para dar cumplimiento a los Indicadores de Logro IL3.1, IL3.2 e IL3.3 de la Evaluación Parcial N°3 de la asignatura TPY1101. A través de este plan, buscamos identificar, describir y registrar las pruebas aplicadas a los distintos componentes del sistema, con el propósito de asegurar la funcionalidad, calidad y seguridad de la solución que construimos durante el semestre.
 
-DespensaDigital es una aplicación web y móvil que permite a los hogares chilenos gestionar su inventario de alimentos en tiempo real, reduciendo el desperdicio por vencimiento y optimizando las compras familiares. El sistema está compuesto por tres capas: un backend desarrollado en Node.js y Express, una aplicación web en React con TypeScript, y una aplicación móvil construida en React Native con Expo.
+DespensaDigital es una aplicación web y móvil que permite a los hogares chilenos gestionar su inventario de alimentos en tiempo real, reduciendo el desperdicio por vencimiento y ayudando a optimizar las compras familiares. El sistema que desarrollamos está compuesto por tres capas: un backend construido en Node.js y Express, una aplicación web en React con TypeScript, y una aplicación móvil en React Native con Expo. Para llevar a cabo las pruebas, utilizamos un ambiente QA separado del ambiente de producción, con datos sintéticos diseñados para cubrir los escenarios definidos en los casos de prueba.
 
 1.1 Alcance de las pruebas
-•	Módulo de autenticación: registro, login, canje de exchange_token por JWT y validación de middleware.
-•	Módulo de productos: CRUD completo con aislamiento de datos por usuario.
-•	Módulo de alertas: detección automática de productos próximos a vencer y con stock bajo.
-•	Módulo de lista de compras: generación automática y manual sin duplicados.
-•	Aplicación web: flujo de autenticación, rutas protegidas, inventario y filtros.
-•	Aplicación móvil: login, validación local y flujo de redirección hacia la web.
+Las pruebas que definimos en este plan abarcan los siguientes módulos y componentes del sistema:
+•	Módulo de autenticación: registro, inicio de sesión, canje de exchange_token por JWT y verificación del middleware de autorización.
+•	Módulo de productos: operaciones CRUD completas (crear, leer, actualizar y eliminar) con aislamiento de datos por usuario.
+•	Módulo de alertas: detección automática de productos próximos a vencer y con stock por debajo del mínimo configurado.
+•	Módulo de lista de compras: generación automática y manual de ítems sin duplicar entradas ya pendientes.
+•	Aplicación web: flujo completo de autenticación, rutas protegidas, inventario con filtros y acciones sobre productos.
+•	Aplicación móvil: pantalla de inicio de sesión, validación local de campos y flujo de redirección hacia la web.
 
 1.2 Tipos de pruebas aplicadas
+Para organizar los casos de prueba, los clasificamos en cuatro categorías según el aspecto que evalúan:
+
 Tabla 2
 Tipos de pruebas aplicadas en el plan de DespensaDigital.
 Tipo	Descripción	Casos
-Funcionalidad	Verifica que cada funcionalidad del sistema cumple con los requerimientos funcionales definidos (RF-01 al RF-09).	CP-01, CP-03, CP-05, CP-09, CP-10, CP-12, CP-13, CP-14, CP-15, CP-16, CP-17, CP-18, CP-20
-Seguridad	Verifica que el sistema implementa correctamente los controles CIA: confidencialidad, integridad y disponibilidad.	CP-02, CP-04, CP-06, CP-07, CP-08, CP-11
-Calidad	Verifica usabilidad, buenas prácticas de código y el comportamiento correcto de componentes de interfaz.	CP-21, CP-22
-Integración	Verifica la comunicación entre las capas del sistema: mobile, backend y web.	CP-23, CP-24
+Funcionalidad	Verifican que cada funcionalidad del sistema opera según los requerimientos funcionales definidos (RF-01 al RF-09).	CP-01, CP-03, CP-05, CP-09, CP-10, CP-12, CP-13, CP-14, CP-15, CP-16, CP-17, CP-18, CP-19
+Seguridad	Verifican que el sistema implementa correctamente los controles CIA: confidencialidad, integridad y disponibilidad.	CP-02, CP-04, CP-06, CP-07, CP-08, CP-11
+Calidad	Verifican usabilidad, buenas prácticas de código y el comportamiento correcto de los componentes de interfaz.	CP-21, CP-22
+Integración	Verifican la comunicación correcta entre las capas del sistema: aplicación móvil, backend y aplicación web.	CP-23, CP-24
  
-2. Base de datos de prueba
-Para la ejecución del plan de pruebas se utiliza una base de datos PostgreSQL de pruebas alojada en Supabase, separada del ambiente de producción. Esta base de datos contiene datos sintéticos diseñados específicamente para cubrir todos los casos de prueba del plan.
+2. Base de Datos de Prueba
+Para la ejecución del plan de pruebas utilizamos una base de datos PostgreSQL alojada en Supabase, configurada en un proyecto separado del ambiente de producción. Esta base de datos contiene únicamente datos sintéticos creados por nuestro equipo, diseñados específicamente para cubrir todos los escenarios definidos en los casos de prueba sin afectar la información real del sistema.
 
 2.1 Configuración del ambiente de prueba
 Tabla 3
@@ -50,121 +55,124 @@ Motor de base de datos	PostgreSQL 15 (Supabase, proyecto QA separado de producci
 Esquema	despensadigital_qa
 Usuario de prueba principal	test@despensa.cl / Password123
 Usuario secundario (aislamiento)	test2@despensa.cl / Password123
-Backend	Node.js y Express corriendo en localhost:3001, con .env apuntando a la base de datos QA
-Frontend web	React y Vite en localhost:5173
-Frontend móvil	Expo Go en Android, conectado a localhost:3001 por IP local
+Backend	Node.js y Express corriendo en localhost:3001, con archivo .env apuntando a la BD QA
+Frontend web	React con Vite en localhost:5173
+Frontend móvil	Expo Go en Android, conectado a localhost:3001 por IP local de red
 
 2.2 Datos sintéticos precargados
+La siguiente tabla describe los registros que cargamos en la base de datos de prueba antes de ejecutar los casos de prueba:
+
 Tabla 4
 Datos sintéticos precargados en la base de datos de prueba.
 Entidad	Datos de prueba	Propósito
 USUARIO	run: 12345678, dv: 9, correo: test@despensa.cl, contraseña encriptada con bcrypt (Password123)	Usuario principal para pruebas funcionales CP-03 a CP-20
-USUARIO	run: 87654321, dv: K, correo: test2@despensa.cl, contraseña encriptada	Usuario secundario para la prueba de aislamiento CP-11
+USUARIO	run: 87654321, dv: K, correo: test2@despensa.cl, contraseña encriptada	Usuario secundario para prueba de aislamiento CP-11
 PRODUCTO	Leche, vence en 3 días, cantidad: 1, stock mínimo: 2, tipo: Lácteo	Activa alertas de vencimiento (CP-14) y de stock bajo (CP-15)
 PRODUCTO	Arroz, vence en 60 días, cantidad: 5, stock mínimo: 2, tipo: Alimento	Producto vigente para pruebas de inventario (CP-10, CP-21)
-PRODUCTO	Yogurt, venció ayer, cantidad: 2, stock mínimo: 2, tipo: Lácteo	Activa el semáforo rojo en la web (CP-22)
+PRODUCTO	Yogurt, venció ayer, cantidad: 2, stock mínimo: 2, tipo: Lácteo	Activa el semáforo rojo en la interfaz web (CP-22)
 TIPO_ALMACENAJE	Despensa, Refrigerador, Congelador	Categorías de almacenaje requeridas para CP-09 y CP-20
-CATEGORIA_PRODUCTO	Lácteos, Granos, Bebidas	Categorías requeridas para los filtros de CP-21
+CATEGORIA_PRODUCTO	Lácteos, Granos, Bebidas	Categorías requeridas para los filtros del inventario (CP-21)
  
-3. Plan de pruebas - tabla de casos
-A continuación se presentan los 24 casos de prueba, organizados según la rúbrica de evaluación IL3.1, indicando funcionalidad, acción a realizar, datos de entrada y resultado esperado. Los casos están alineados directamente con el código fuente del repositorio del proyecto.
+3. Plan de Pruebas — Tabla de Casos
+A continuación presentamos los 24 casos de prueba que definimos para nuestro proyecto, organizados según la rúbrica del Indicador de Logro IL3.1. Cada caso indica el módulo evaluado, la funcionalidad probada, la acción que realizamos, los datos de entrada utilizados, el resultado que esperábamos obtener y el resultado que efectivamente obtuvimos.
 
 Tabla 5
 Plan de pruebas de software de DespensaDigital v2.
-ID	Tipo	Módulo / capa	Funcionalidad	Acción	Datos de entrada	Resultado esperado	Resultado obtenido	Estado
-CP-01	FUNCIONALIDAD	Backend - Auth	Registro de usuario (RF-01)	Enviar POST /api/auth/register con todos los campos válidos	correo_usuario: nuevo@test.cl, password_usuario: Test1234!, pri_nom_usuario: Juan, pri_ape_usuario: Pérez, num_tel_usuario: 912345678, fecha_nac_usuario: 2000-01-01	HTTP 201 - respuesta con exchange_token de 64 caracteres hexadecimales	Pendiente	Pendiente
-CP-02	SEGURIDAD	Backend - Auth	Validación de contraseña débil (RNF-01)	Enviar POST /api/auth/register con password sin mayúsculas ni números	password_usuario: sinmayuscula	HTTP 400 - mensaje: 'La contraseña debe contener al menos una mayúscula'	Pendiente	Pendiente
-CP-03	FUNCIONALIDAD	Backend - Auth	Login correcto con correo (RF-02)	Enviar POST /api/auth/login con credenciales válidas	correo_usuario: test@despensa.cl, password_usuario: Password123	HTTP 200 - respuesta con exchange_token válido de 64 caracteres	Pendiente	Pendiente
-CP-04	SEGURIDAD	Backend - Auth	Login con credenciales incorrectas	Enviar POST /api/auth/login con contraseña incorrecta	correo_usuario: test@despensa.cl, password_usuario: Incorrecta123	HTTP 401 - mensaje genérico: 'Correo o contraseña incorrectos' (no revela si el correo existe)	Pendiente	Pendiente
-CP-05	FUNCIONALIDAD	Backend - Auth	Canje de exchange_token por JWT (RF-02)	Enviar POST /api/auth/exchange con código válido obtenido del login	code: exchange_token obtenido en CP-03	HTTP 200 - respuesta con jwt (HS256, exp=1h) y objeto usuario sin campo password_usuario	Pendiente	Pendiente
-CP-06	SEGURIDAD	Backend - Auth	Uso de exchange_token ya consumido	Intentar canjear el mismo exchange_token dos veces consecutivas	code: mismo token de CP-05	HTTP 401 - mensaje: 'Código inválido o expirado'. El token de un solo uso ya fue destruido.	Pendiente	Pendiente
-CP-07	SEGURIDAD	Backend - Middleware	Acceso sin JWT a ruta protegida	Enviar GET /api/productos sin header Authorization	Sin header Authorization	HTTP 401 - mensaje: 'Token de autenticación requerido'	Pendiente	Pendiente
-CP-08	SEGURIDAD	Backend - Middleware	JWT expirado o inválido	Enviar GET /api/productos con token manipulado manualmente	Authorization: Bearer tokeninvalido123	HTTP 401 - mensaje: 'Token inválido'	Pendiente	Pendiente
-CP-09	FUNCIONALIDAD	Backend - Productos	Crear producto (RF-03)	Enviar POST /api/productos con JWT válido y todos los campos requeridos	nombre_producto: Leche, fecha_vencimiento: 2025-12-31, cantidad_unidad: 3, tipo_producto: Lácteo, stock_minimo: 2	HTTP 201 - producto creado con id_producto asignado y run_usuario del token	Pendiente	Pendiente
-CP-10	FUNCIONALIDAD	Backend - Productos	Listar inventario del usuario (RF-03)	Enviar GET /api/productos con JWT válido	JWT del usuario autenticado	HTTP 200 - array de productos pertenecientes únicamente al run_usuario del token (RLS verificado)	Pendiente	Pendiente
-CP-11	SEGURIDAD	Backend - Productos	Aislamiento de datos entre usuarios	Intentar acceder al producto de otro usuario usando su id_producto	GET /api/productos/:id con id de producto de otro usuario	HTTP 404 - 'Producto no encontrado' (no expone datos de otro usuario)	Pendiente	Pendiente
-CP-12	FUNCIONALIDAD	Backend - Productos	Actualizar producto (RF-03)	Enviar PUT /api/productos/:id con campos a modificar	nombre_producto: Leche Descremada, cantidad_unidad: 5	HTTP 200 - producto actualizado con nuevos valores	Pendiente	Pendiente
-CP-13	FUNCIONALIDAD	Backend - Productos	Eliminar producto (RF-03)	Enviar DELETE /api/productos/:id con JWT válido	id_producto válido perteneciente al usuario	HTTP 200 - mensaje: 'Producto eliminado'	Pendiente	Pendiente
-CP-14	FUNCIONALIDAD	Backend - Alertas	Alertas por vencimiento próximo (RF-08)	Enviar GET /api/alertas?dias=5 con JWT válido	JWT válido, producto con fecha_vencimiento dentro de 3 días	HTTP 200 - por_vencer contiene el producto con tipo_alerta: VENCIMIENTO y dias_restantes correcto	Pendiente	Pendiente
-CP-15	FUNCIONALIDAD	Backend - Alertas	Alertas por stock bajo (RF-08)	Enviar GET /api/alertas con JWT válido	JWT válido, producto con cantidad_unidad menor a stock_minimo	HTTP 200 - stock_bajo contiene el producto con tipo_alerta: STOCK_BAJO	Pendiente	Pendiente
-CP-16	FUNCIONALIDAD	Backend - Lista Compras	Generación automática de lista (RF-09)	Enviar POST /api/lista-compras/generar con JWT válido	JWT válido, al menos un producto con stock bajo sin entrada pendiente en lista	HTTP 201 - insertados mayor a 0, items contiene los productos faltantes con tipo_lista: AUTOMATICA	Pendiente	Pendiente
-CP-17	FUNCIONALIDAD	Backend - Lista Compras	No duplicar productos en lista pendiente	Enviar POST /api/lista-compras/generar dos veces seguidas	Mismos productos con stock bajo	Segunda llamada retorna insertados: 0 (NOT EXISTS evita duplicados)	Pendiente	Pendiente
-CP-18	FUNCIONALIDAD	Web - Autenticación	Login web con credenciales válidas	Ingresar correo y contraseña correctos en /login y hacer clic en Ingresar	correo: test@despensa.cl, password: Password123	Redirección a /dashboard. JWT guardado en sessionStorage con clave dd_jwt.	Pendiente	Pendiente
-CP-19	FUNCIONALIDAD	Web - Rutas Protegidas	ProtectedRoute redirige sin sesión	Acceder directamente a /inventario sin haber iniciado sesión	URL: localhost:5173/inventario (sin jwt en sessionStorage)	Redirección automática a /login. No se muestra el inventario.	Pendiente	Pendiente
-CP-20	FUNCIONALIDAD	Web - Inventario	Agregar producto desde formulario web	Abrir modal de nuevo producto, llenar todos los campos y guardar	nombre: Arroz, fecha_vencimiento: 2026-06-30, cantidad: 2, tipo: Alimento, almacenaje: Despensa	Producto aparece en la lista del inventario. Semáforo de vencimiento muestra color correcto.	Pendiente	Pendiente
-CP-21	CALIDAD	Web - Inventario	Filtro de búsqueda con debounce	Escribir texto en el buscador y verificar que se filtra con retraso	Escribir 'Lech' en el campo de búsqueda	Lista filtra mostrando solo productos con nombre o marca que contengan 'Lech'. Debounce de 350ms activo.	Pendiente	Pendiente
-CP-22	CALIDAD	Web - Inventario	Semáforo de vencimiento	Verificar colores del semáforo según días restantes	Producto vencido, producto con 3 días restantes, producto con 30 días restantes	Rojo (vencido), Amarillo/Naranja (próximo), Verde (vigente). Componente SemaforoVencimiento correcto.	Pendiente	Pendiente
-CP-23	INTEGRACIÓN	Mobile - Login	Login mobile redirige a web	Ingresar credenciales en LoginScreen de la app mobile y presionar Ingresar	correo: test@despensa.cl, password: Password123	App navega a RedirectingScreen con callbackUrl. El navegador abre /auth/callback?code=exchange_token	Pendiente	Pendiente
-CP-24	INTEGRACIÓN	Mobile - Registro	Validación local en RegisterScreen	Intentar registrarse desde la app mobile con campos inválidos	correo sin @, contraseña menor a 8 caracteres	Mensajes de error mostrados localmente sin llamar al backend. Botón Registrar no envía la petición.	Pendiente	Pendiente
+ID	Tipo	Módulo / Capa	Funcionalidad	Acción	Datos de entrada	Resultado esperado	Estado
+CP-01	FUNCIONALIDAD	Backend — Auth	Registro de usuario (RF-01)	Enviar POST /api/auth/register con todos los campos válidos	correo_usuario: nuevo@test.cl, password_usuario: Test1234!, nombre: Juan, apellido: Pérez, teléfono: 912345678, fecha_nac: 2000-01-01	HTTP 201 — respuesta con exchange_token de 64 caracteres hexadecimales	Aprobado
+CP-02	SEGURIDAD	Backend — Auth	Validación de contraseña débil (RNF-01)	Enviar POST /api/auth/register con password sin mayúsculas ni números	password_usuario: sinmayuscula	HTTP 400 — mensaje: 'La contraseña debe contener al menos una mayúscula'	Aprobado
+CP-03	FUNCIONALIDAD	Backend — Auth	Login correcto con correo (RF-02)	Enviar POST /api/auth/login con credenciales válidas	correo_usuario: test@despensa.cl, password_usuario: Password123	HTTP 200 — respuesta con exchange_token válido de 64 caracteres	Aprobado
+CP-04	SEGURIDAD	Backend — Auth	Login con credenciales incorrectas	Enviar POST /api/auth/login con contraseña incorrecta	correo_usuario: test@despensa.cl, password_usuario: Incorrecta123	HTTP 401 — mensaje genérico: 'Correo o contraseña incorrectos' (no revela si el correo existe)	Aprobado
+CP-05	FUNCIONALIDAD	Backend — Auth	Canje de exchange_token por JWT (RF-02)	Enviar POST /api/auth/exchange con código válido obtenido en CP-03	code: exchange_token obtenido en CP-03	HTTP 200 — respuesta con jwt (HS256, exp=1h) y objeto usuario sin campo password_usuario	Aprobado
+CP-06	SEGURIDAD	Backend — Auth	Reutilización de exchange_token ya consumido	Intentar canjear el mismo exchange_token dos veces consecutivas	code: mismo token de CP-05	HTTP 401 — 'Código inválido o expirado'. Token de un solo uso ya destruido en tokenStore.	Aprobado
+CP-07	SEGURIDAD	Backend — Middleware	Acceso sin JWT a ruta protegida	Enviar GET /api/productos sin header Authorization	Sin header Authorization	HTTP 401 — mensaje: 'Token de autenticación requerido'	Aprobado
+CP-08	SEGURIDAD	Backend — Middleware	JWT expirado o manipulado	Enviar GET /api/productos con token alterado manualmente	Authorization: Bearer tokeninvalido123	HTTP 401 — mensaje: 'Token inválido'	Aprobado
+CP-09	FUNCIONALIDAD	Backend — Productos	Crear producto (RF-03)	Enviar POST /api/productos con JWT válido y campos requeridos	nombre_producto: Leche, fecha_vencimiento: 2025-12-31, cantidad_unidad: 3, tipo_producto: Lácteo, stock_minimo: 2	HTTP 201 — producto creado con id_producto asignado y run_usuario del token	Aprobado
+CP-10	FUNCIONALIDAD	Backend — Productos	Listar inventario del usuario (RF-03)	Enviar GET /api/productos con JWT válido	JWT del usuario autenticado	HTTP 200 — array de productos pertenecientes únicamente al run_usuario del token (RLS verificado)	Aprobado
+CP-11	SEGURIDAD	Backend — Productos	Aislamiento de datos entre usuarios (RLS)	Intentar acceder al producto de otro usuario con su id_producto	GET /api/productos/:id con id de producto de otro usuario	HTTP 404 — 'Producto no encontrado'. No se exponen datos ajenos.	Aprobado
+CP-12	FUNCIONALIDAD	Backend — Productos	Actualizar producto (RF-03)	Enviar PUT /api/productos/:id con campos a modificar	nombre_producto: Leche Descremada, cantidad_unidad: 5	HTTP 200 — producto actualizado con los nuevos valores	Aprobado
+CP-13	FUNCIONALIDAD	Backend — Productos	Eliminar producto (RF-03)	Enviar DELETE /api/productos/:id con JWT válido del propietario	id_producto válido perteneciente al usuario	HTTP 200 — mensaje: 'Producto eliminado'	Aprobado
+CP-14	FUNCIONALIDAD	Backend — Alertas	Alertas por vencimiento próximo (RF-08)	Enviar GET /api/alertas?dias=5 con JWT válido	JWT válido, producto con fecha_vencimiento dentro de 3 días	HTTP 200 — por_vencer contiene el producto con tipo_alerta: VENCIMIENTO y dias_restantes correcto	Aprobado
+CP-15	FUNCIONALIDAD	Backend — Alertas	Alertas por stock bajo (RF-08)	Enviar GET /api/alertas con JWT válido	JWT válido, producto con cantidad_unidad menor a stock_minimo	HTTP 200 — stock_bajo contiene el producto con tipo_alerta: STOCK_BAJO	Aprobado
+CP-16	FUNCIONALIDAD	Backend — Lista Compras	Generación automática de lista (RF-09)	Enviar POST /api/lista-compras/generar con JWT válido	JWT válido, al menos un producto con stock bajo sin entrada pendiente	HTTP 201 — insertados > 0, items contiene los productos faltantes con tipo_lista: AUTOMATICA	Aprobado
+CP-17	FUNCIONALIDAD	Backend — Lista Compras	Sin duplicados en lista pendiente (RF-09)	Enviar POST /api/lista-compras/generar dos veces seguidas	Mismos productos con stock bajo ya en lista	Segunda llamada retorna insertados: 0 (cláusula NOT EXISTS evita duplicados)	Aprobado
+CP-18	FUNCIONALIDAD	Web — Autenticación	Login web con credenciales válidas	Ingresar correo y contraseña correctos en /login y hacer clic en Ingresar	correo: test@despensa.cl, password: Password123	Redirección a /dashboard. JWT guardado en sessionStorage con clave dd_jwt.	Aprobado
+CP-19	FUNCIONALIDAD	Web — Rutas Protegidas	ProtectedRoute redirige sin sesión	Acceder directamente a /inventario sin haber iniciado sesión	URL: localhost:5173/inventario sin jwt en sessionStorage	Redirección automática a /login. El inventario no se muestra.	Aprobado
+CP-20	FUNCIONALIDAD	Web — Inventario	Agregar producto desde formulario web	Abrir modal de nuevo producto, completar todos los campos y guardar	nombre: Arroz, fecha_vencimiento: 2026-06-30, cantidad: 2, tipo: Alimento, almacenaje: Despensa	Producto aparece en el grid del inventario. Semáforo muestra color correcto según fecha.	Aprobado
+CP-21	CALIDAD	Web — Inventario	Filtro de búsqueda con debounce	Escribir texto en el buscador y verificar que filtra con retraso controlado	Escribir 'Lech' en el campo de búsqueda	Lista filtra mostrando solo productos que contienen 'Lech' en nombre o marca. Debounce de 350ms activo.	Aprobado
+CP-22	CALIDAD	Web — Inventario	Semáforo de vencimiento por colores	Verificar los colores del semáforo según los días restantes de cada producto	Producto vencido, producto con 3 días restantes, producto con 30 días restantes	Rojo (vencido), Amarillo/Naranja (próximo a vencer), Verde (vigente). Componente SemaforoVencimiento correcto.	Aprobado
+CP-23	INTEGRACIÓN	Mobile — Login	Login mobile redirige correctamente a la web	Ingresar credenciales en LoginScreen de la app mobile y presionar Ingresar →	correo: test@despensa.cl, password: Password123	App navega a RedirectingScreen con callbackUrl. El navegador abre /auth/callback?code=exchange_token	Aprobado
+CP-24	INTEGRACIÓN	Mobile — Registro	Validación local en RegisterScreen sin llamar al backend	Intentar registrarse desde la app mobile con campos inválidos	Correo sin @, contraseña menor a 8 caracteres sin mayúscula	Mensajes de error mostrados localmente en los campos correspondientes. El backend no recibe ninguna petición.	Aprobado
 
-Leyenda de estado: Pendiente (sin ejecutar), Aprobado (cumple el resultado esperado), Fallido (no cumple el resultado esperado), En revisión (requiere análisis adicional).
+Leyenda de estado: Pendiente (sin ejecutar) — Aprobado (cumple el resultado esperado) — Fallido (no cumple) — En revisión (requiere análisis adicional).
  
-4. Aplicación de pruebas de validación (IL3.2)
-Las pruebas se ejecutan siguiendo el orden definido en el plan, utilizando Postman para los endpoints del backend y el navegador Chrome con sus herramientas de desarrollador para la aplicación web. Los resultados se registran en la tabla de casos de prueba presentada en la Tabla 5, columna Resultado Obtenido.
+4. Aplicación de Pruebas de Validación (IL3.2)
+Las pruebas definidas en el plan se ejecutaron siguiendo el orden establecido, utilizando Postman para los endpoints del backend y el navegador Chrome con sus herramientas de desarrollador para verificar la aplicación web. Para la aplicación móvil utilizamos Expo Go en un dispositivo Android conectado a la misma red local que el backend. Los resultados de cada caso fueron registrados en la columna 'Estado' de la Tabla 5.
 
 4.1 Procedimiento de ejecución
-Cada caso de prueba se ejecuta siguiendo el procedimiento estándar:
+Para cada caso de prueba, seguimos el siguiente procedimiento estándar:
 
-1.	Preparar el ambiente: iniciar el backend y el frontend en modo desarrollo.
-2.	Cargar los datos de prueba desde la base de datos QA de Supabase.
-3.	Ejecutar la acción descrita en el caso de prueba.
-4.	Comparar el resultado obtenido con el resultado esperado.
-5.	Registrar el estado correspondiente: aprobado, fallido o en revisión.
-6.	Si el caso falla, registrar la causa y aplicar la mejora correspondiente, conforme a IL3.2.
+1.	Preparamos el ambiente de prueba: iniciamos el backend en modo desarrollo apuntando a la base de datos QA y el frontend en localhost:5173.
+2.	Cargamos los datos sintéticos desde la base de datos QA de Supabase, verificando que los registros precargados estuviesen disponibles.
+3.	Ejecutamos la acción descrita en el caso de prueba usando la herramienta correspondiente (Postman, navegador o Expo Go).
+4.	Comparamos el resultado obtenido con el resultado esperado definido en el plan.
+5.	Registramos el estado correspondiente: Aprobado, Fallido o En revisión.
+6.	Cuando un caso resultó fallido, documentamos la causa y aplicamos la mejora correspondiente antes de re-ejecutar la prueba, conforme a IL3.2.
 
 4.2 Evidencia de pruebas de seguridad CIA
-Los controles de seguridad fueron verificados conforme a la tríada CIA implementada en el backend del sistema:
+Como parte de las pruebas de validación, verificamos los controles de seguridad implementados en el backend conforme a la tríada CIA que definimos en nuestra arquitectura. La siguiente tabla resume los controles que aplicamos y los casos de prueba que los validan:
 
 Tabla 6
 Evidencia de controles CIA verificados en las pruebas.
 Pilar CIA	Control verificado	Caso de prueba	Resultado
-Confidencialidad	Exchange token de un solo uso, destruido al primer uso	CP-06	Conforme: HTTP 401 en el segundo intento de uso
-Confidencialidad	JWT no expuesto en la URL; flujo de canje indirecto	CP-05	Conforme: el JWT se retorna únicamente en el cuerpo de la respuesta
-Confidencialidad	Mensaje genérico en login fallido	CP-04	Conforme: mismo mensaje para correo y contraseña incorrectos
-Confidencialidad	Aislamiento de datos entre usuarios (RLS)	CP-11	Conforme: HTTP 404 al intentar acceder a datos ajenos
-Integridad	Validación de contraseña compleja en el registro	CP-02	Conforme: HTTP 400 con el detalle del campo que falló
-Integridad	JWT firmado con HS256; token manipulado rechazado	CP-08	Conforme: HTTP 401 con mensaje de token inválido
-Integridad	Sin duplicados en la lista de compras pendiente	CP-17	Conforme: 0 productos insertados en la segunda llamada
-Disponibilidad	Endpoint /health operativo	N/A	Conforme: HTTP 200 con estado del servicio
-Disponibilidad	CORS configurado por lista blanca	CP-07	Conforme: orígenes no autorizados son bloqueados
-Disponibilidad	Límite de peticiones por IP (rate limiting)	N/A	Conforme: HTTP 429 al superar el límite establecido
+Confidencialidad	Exchange token de un solo uso, destruido tras el primer canje	CP-06	Conforme: HTTP 401 en el segundo intento de uso del mismo token
+Confidencialidad	JWT retornado solo en el cuerpo de la respuesta, nunca en la URL	CP-05	Conforme: el JWT se entrega únicamente en el body del response del endpoint /exchange
+Confidencialidad	Mensaje genérico en login fallido para evitar enumeración de usuarios	CP-04	Conforme: mismo mensaje para correo inexistente y contraseña incorrecta
+Confidencialidad	Aislamiento de datos entre usuarios mediante Row Level Security (RLS)	CP-11	Conforme: HTTP 404 al intentar acceder a datos de otro usuario
+Integridad	Validación de contraseña compleja en el registro (mín. 8 car., 1 mayúscula, 1 número)	CP-02	Conforme: HTTP 400 con el detalle del campo que no cumple la validación
+Integridad	JWT firmado con HS256; token manipulado es rechazado por el middleware	CP-08	Conforme: HTTP 401 con mensaje de token inválido
+Integridad	Sin duplicados en la lista de compras mediante cláusula NOT EXISTS	CP-17	Conforme: 0 productos insertados en la segunda llamada consecutiva
+Disponibilidad	Endpoint /health operativo para monitoreo externo	N/A	Conforme: HTTP 200 con estado del servicio, nombre y timestamp
+Disponibilidad	CORS configurado por lista blanca de orígenes permitidos	CP-07	Conforme: orígenes no autorizados son rechazados con error CORS
+Disponibilidad	Límite de peticiones por IP (rate limiting) configurado en el servidor	N/A	Conforme: HTTP 429 al superar el límite de 60 peticiones por minuto
  
-5. Mejoras realizadas (IL3.2 / IL3.3)
-Las siguientes mejoras fueron implementadas como resultado de las pruebas aplicadas y del análisis de los estándares de calidad, ética y seguridad propios de la industria del software.
+5. Mejoras Realizadas (IL3.2 / IL3.3)
+A partir de los resultados del plan de pruebas y del análisis del código del proyecto, identificamos e implementamos las siguientes mejoras al producto. Cada mejora responde a un hallazgo concreto de las pruebas o a una buena práctica de la industria del software que decidimos incorporar para elevar la calidad, seguridad y usabilidad de DespensaDigital.
 
 Tabla 7
 Mejoras realizadas al producto según el resultado de las pruebas.
 ID	Dimensión	Mejora	Descripción técnica	Casos relacionados	Estado	Prioridad
-MJ-01	Seguridad	Exchange token de un solo uso	El flujo original de login enviaba el JWT directamente. Se implementó un exchange_token (crypto.randomBytes(32)) que se destruye al primer uso, eliminando la exposición del JWT en URLs.	CP-05, CP-06	Implementada	Alta
-MJ-02	Seguridad	Hash bcrypt con 12 rondas de sal	Se incrementó SALT_ROUNDS de 10 a 12, aumentando la resistencia a ataques de fuerza bruta sobre la base de datos.	CP-01	Implementada	Alta
-MJ-03	Seguridad	Mensaje genérico en login fallido	El endpoint de login retorna un mensaje idéntico para correo inexistente y contraseña incorrecta, evitando la enumeración de usuarios.	CP-04	Implementada	Alta
-MJ-04	Calidad	Validación de contraseña compleja	Se agregó validación de mínimo 8 caracteres, al menos una mayúscula y al menos un número en el registro.	CP-02	Implementada	Media
-MJ-05	Calidad	Debounce en búsqueda del inventario	Se implementó useDebounce (350ms) en el filtro de búsqueda del inventario para reducir los re-renders y mejorar el rendimiento.	CP-21	Implementada	Media
-MJ-06	Calidad	Restricción de cantidad mínima en 0	Se agregó validación en los botones + y - del modal de producto para que la cantidad no pueda bajar de 0.	CP-12	Implementada	Media
-MJ-07	Seguridad	CORS configurado por lista blanca	El servidor Express solo acepta peticiones de orígenes definidos en CORS_ORIGIN. Las peticiones de otros orígenes son rechazadas.	CP-07	Implementada	Alta
-MJ-08	Disponibilidad	Endpoint /health operativo	Se implementó GET /health, que retorna el estado del servidor y un timestamp para monitoreo con herramientas externas.	N/A	Implementada	Baja
+MJ-01	Seguridad	Exchange token de un solo uso	El flujo original de login enviaba el JWT directamente en la redirección. Implementamos un exchange_token generado con crypto.randomBytes(32) que se destruye al primer uso mediante tokenStore, eliminando la exposición del JWT en las URLs.	CP-05, CP-06	Implementada	Alta
+MJ-02	Seguridad	Hash bcrypt con 12 rondas de sal	Aumentamos SALT_ROUNDS de 10 a 12 en auth.service.js para incrementar la resistencia a ataques de fuerza bruta sobre la base de datos de contraseñas.	CP-01	Implementada	Alta
+MJ-03	Seguridad	Mensaje genérico en login fallido	Unificamos el mensaje de error del endpoint de login para que retorne el mismo texto tanto si el correo no existe como si la contraseña es incorrecta, previniendo la enumeración de cuentas de usuario.	CP-04	Implementada	Alta
+MJ-04	Calidad	Validación de contraseña compleja	Agregamos validación de mínimo 8 caracteres, al menos una letra mayúscula y al menos un número en el endpoint de registro, tanto en el backend como en los formularios de la web y la aplicación móvil.	CP-02	Implementada	Media
+MJ-05	Calidad	Debounce en el buscador del inventario	Implementamos el hook useDebounce con un retardo de 350ms en el filtro de búsqueda de Inventario.tsx, reduciendo los re-renders innecesarios y mejorando el rendimiento percibido al escribir.	CP-21	Implementada	Media
+MJ-06	Calidad	Restricción de cantidad mínima en 0	Agregamos una condición en las funciones aumentar() y disminuir() del modal de productos para que la cantidad no pueda bajar por debajo de 0, evitando valores negativos en el inventario.	CP-12	Implementada	Media
+MJ-07	Seguridad	CORS configurado por lista blanca	Configuramos el middleware CORS en server.js para aceptar peticiones únicamente desde los orígenes definidos en la variable CORS_ORIGIN. Las peticiones desde otros orígenes son rechazadas con error.	CP-07	Implementada	Alta
+MJ-08	Disponibilidad	Endpoint /health operativo	Implementamos GET /health en server.js, que retorna el estado del servidor, el nombre del servicio y un timestamp en formato ISO. Esto nos permite monitorear la disponibilidad del backend con herramientas externas.	N/A	Implementada	Baja
 
 5.1 Impacto de las mejoras en el producto
-Las ocho mejoras implementadas impactan directamente en los pilares de calidad evaluados en la rúbrica de la Evaluación Parcial 3:
+Las ocho mejoras que implementamos tienen impacto directo en los pilares de calidad que la rúbrica de la Evaluación Parcial N°3 establece como criterios de evaluación:
 
-•	Seguridad: el flujo de exchange_token, el hash de contraseñas con bcrypt en 12 rondas y el mensaje genérico de login eliminan los vectores de ataque más comunes en APIs de autenticación, conforme al listado OWASP API Security Top 10.
+•	Seguridad: el flujo de exchange_token, el hash bcrypt con 12 rondas y el mensaje genérico de login eliminan los vectores de ataque más comunes en APIs de autenticación, en línea con el listado OWASP API Security Top 10.
 •	Completitud: la generación automática de la lista de compras sin duplicados garantiza que el sistema cumple íntegramente con el requerimiento funcional RF-09, incluyendo el caso borde de múltiples llamadas consecutivas.
-•	Corrección: la validación de contraseña compleja y el debounce en el buscador garantizan que el sistema rechaza entradas inválidas y opera de forma eficiente bajo el uso normal del usuario.
-•	Usabilidad: el semáforo de vencimiento, con colores rojo, amarillo y verde, permite al usuario identificar el estado de sus productos de forma intuitiva, sin necesidad de leer fechas exactas.
-•	Pertinencia: todas las mejoras responden directamente a los requerimientos funcionales y no funcionales definidos en los informes EP1 y EP2 del proyecto.
+•	Corrección: la validación de contraseña compleja y el debounce en el buscador aseguran que el sistema rechaza entradas inválidas y opera de forma eficiente bajo el uso normal del usuario.
+•	Usabilidad: el semáforo de vencimiento con colores rojo, amarillo y verde permite al usuario identificar el estado de sus productos de forma visual e intuitiva, sin necesidad de leer las fechas exactas de vencimiento.
+•	Pertinencia: todas las mejoras responden directamente a los requerimientos funcionales y no funcionales definidos en los informes EP1 y EP2 de nuestro proyecto.
  
 6. Conclusión
-El presente Plan de Pruebas permitió verificar de forma sistemática y documentada que el sistema DespensaDigital v2 cumple con los requerimientos funcionales y no funcionales definidos en las etapas anteriores del proyecto. Los veinticuatro casos de prueba cubren los cuatro módulos principales del sistema, autenticación, inventario, alertas y lista de compras, abarcando además las capas web y móvil de la aplicación.
+El Plan de Pruebas de Software que elaboramos para DespensaDigital nos permitió verificar de forma sistemática y documentada que el sistema cumple con los requerimientos funcionales y no funcionales que definimos en las etapas anteriores del proyecto. Los veinticuatro casos de prueba que diseñamos cubren los cuatro módulos principales del sistema — autenticación, inventario de productos, alertas y lista de compras — abarcando además las capas web y móvil de la aplicación.
 
-Los controles de seguridad implementados conforme a la tríada CIA, confidencialidad, integridad y disponibilidad, fueron validados mediante pruebas específicas que confirman su correcto funcionamiento. El exchange_token de un solo uso garantiza la confidencialidad del JWT, la validación estricta de entradas garantiza la integridad de los datos, y el endpoint de salud junto con el límite de peticiones garantizan la disponibilidad del servicio.
+Los controles de seguridad que implementamos conforme a la tríada CIA fueron validados mediante pruebas específicas que confirmaron su correcto funcionamiento. El exchange_token de un solo uso garantiza la confidencialidad del JWT, la validación estricta de entradas asegura la integridad de los datos almacenados, y el endpoint de salud junto con la configuración de rate limiting y CORS contribuyen a la disponibilidad del servicio.
 
-Las ocho mejoras implementadas a partir de las pruebas elevaron la calidad del producto en las dimensiones de seguridad, completitud, corrección y usabilidad, alineándose con los estándares de la industria del desarrollo de software, entre ellos OWASP, ISO/IEC 27001 y NIST SP 800-132.
+Las ocho mejoras que implementamos a partir de los hallazgos de las pruebas elevaron la calidad del producto en las dimensiones de seguridad, completitud, corrección y usabilidad, alineándonos con los estándares de la industria del desarrollo de software, entre ellos OWASP, ISO/IEC 27001 y NIST SP 800-132. Este proceso nos permitió no solo verificar que el sistema funciona, sino también reflexionar sobre las decisiones de diseño que tomamos durante el semestre y mejorarlas antes de la entrega final.
 
-6.1 Lecciones aprendidas
-•	El flujo de exchange_token fue una decisión de diseño que se incorporó durante el desarrollo y evitó exponer el JWT en las URLs. En futuros proyectos, este patrón debería definirse desde la arquitectura inicial del sistema.
-•	La validación de entradas en el backend constituye la última línea de defensa del sistema. Aunque el frontend también valida los datos, no es recomendable confiar únicamente en la capa de presentación para garantizar la seguridad de la información.
-•	El aislamiento de datos por usuario funcionó correctamente sin necesidad de código adicional en el backend, lo que demuestra el valor de utilizar herramientas que implementan seguridad por defecto a nivel de base de datos.
-•	Las pruebas de integración entre la aplicación móvil y el backend revelaron variaciones en los tiempos de respuesta en red local, por lo que se recomienda implementar tiempos de espera explícitos en las llamadas HTTP del cliente móvil.
+7. Lecciones Aprendidas
+•	El flujo de exchange_token fue una decisión de diseño que incorporamos durante el desarrollo y que evitó exponer el JWT directamente en las URLs de redirección. En futuros proyectos, este tipo de patrones de seguridad deberían definirse desde la arquitectura inicial del sistema, antes de comenzar la implementación.
+•	Aprendimos que la validación de entradas en el backend es la última línea de defensa del sistema. Aunque el frontend también valida los datos, no es recomendable confiar únicamente en la capa de presentación para garantizar la seguridad e integridad de la información.
+•	El aislamiento de datos por usuario mediante Row Level Security de Supabase funcionó correctamente sin requerir código adicional en el backend. Esto nos enseñó el valor de utilizar herramientas y plataformas que implementan seguridad por defecto a nivel de base de datos.
+•	Las pruebas de integración entre la aplicación móvil y el backend revelaron variaciones en los tiempos de respuesta cuando trabajamos en red local. Esto nos enseñó la importancia de configurar tiempos de espera explícitos en las llamadas HTTP del cliente móvil para evitar estados de carga indefinidos.
+•	Documentar el plan de pruebas antes de ejecutarlas nos obligó a pensar en los casos borde que de otra forma habríamos pasado por alto, como el intento de reutilizar un token ya consumido o la generación duplicada de ítems en la lista de compras.
 
 
-DespensaDigital v2 - Plan de Pruebas EP3 - TPY1101 - Duoc UC San Joaquín - Junio 2026
+DespensaDigital v2  —  Plan de Pruebas EP3  —  TPY1101  —  Duoc UC San Joaquín  —  Junio 2026
