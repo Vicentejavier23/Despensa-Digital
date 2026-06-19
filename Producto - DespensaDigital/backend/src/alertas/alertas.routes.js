@@ -20,7 +20,7 @@ router.get('/', [
     return res.status(400).json({ error: errors.array()[0].msg });
 
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
     const dias      = parseInt(req.query.dias || '5', 10);
     const inclStock = req.query.stock_bajo !== 'false';
 
@@ -36,10 +36,10 @@ router.get('/', [
       FROM PRODUCTO p
       LEFT JOIN CATEGORIA_PRODUCTO c ON c.id_categoria = p.CATEGORIA_id_categoria
       LEFT JOIN TIPO_ALMACENAJE    a ON a.id_almacenaje = p.TIPO_ALMACENAJE_id
-      WHERE p.USUARIO_run_usuario = $1
+      WHERE p.USUARIO_id_usuario = $1
         AND p.fecha_vencimiento <= CURRENT_DATE + ($2 || ' days')::interval
       ORDER BY p.fecha_vencimiento ASC
-    `, [run_usuario, dias]);
+    `, [id_usuario, dias]);
 
     let porStockBajo = [];
     if (inclStock) {
@@ -55,10 +55,10 @@ router.get('/', [
         FROM PRODUCTO p
         LEFT JOIN CATEGORIA_PRODUCTO c ON c.id_categoria = p.CATEGORIA_id_categoria
         LEFT JOIN TIPO_ALMACENAJE    a ON a.id_almacenaje = p.TIPO_ALMACENAJE_id
-        WHERE p.USUARIO_run_usuario = $1
+        WHERE p.USUARIO_id_usuario = $1
           AND p.cantidad_unidad < p.stock_minimo
         ORDER BY p.cantidad_unidad ASC
-      `, [run_usuario]);
+      `, [id_usuario]);
       porStockBajo = rows;
     }
 
