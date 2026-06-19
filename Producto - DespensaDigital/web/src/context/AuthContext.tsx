@@ -33,7 +33,7 @@ interface AuthContextValue {
   logout:          () => void;
 }
 
-const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 const JWT_KEY     = 'dd_jwt';
 const USUARIO_KEY = 'dd_usuario';

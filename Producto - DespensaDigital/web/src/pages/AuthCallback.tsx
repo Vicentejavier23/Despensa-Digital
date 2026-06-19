@@ -59,6 +59,12 @@ export default function AuthCallback() {
       setMensajeError('No se recibió un código de autenticación válido. Vuelve a iniciar sesión desde la app.');
       return;
     }
+    const formatoValido = /^[a-f0-9]{64}$/i.test(code.trim());
+    if(!formatoValido){
+      setEstado('error')
+      setMensajeError('El código de autenticación tiene un formato inválido. Vuelve a iniciar sesión desde la app.');
+      return;
+    }
 
     (async () => {
       try {

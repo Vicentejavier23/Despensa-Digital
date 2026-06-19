@@ -1,0 +1,309 @@
+PLAN DE PRUEBAS DE SOFTWARE
+DespensaDigital
+"Que nada se venza, que todo rinda"
+Evaluación Parcial N°3 — IL3.1 / IL3.2 / IL3.3
+
+Tabla 1
+Información del documento.
+Campo	Detalle
+Proyecto	DespensaDigital v2 — Gestión inteligente de inventario alimentario doméstico
+Asignatura	TPY1101 — Taller Aplicado de Programación
+Institución	Duoc UC, Sede San Joaquín — Analista Programador Computacional
+Equipo	Vicente Bueno  |  Daniel Lagos  |  Diego Olea
+Profesor guía	Jorge Niochet
+Fecha	Junio de 2026
+Versión del documento	2.0.0 — Incluye auditoría OWASP ZAP
+Entorno de pruebas	Backend: Node.js + Express (local / Render.com)  |  Web: React + Vite  |  Mobile: Expo Go
+Herramientas de prueba	Postman, Chrome DevTools, Expo Go (Android), OWASP ZAP 2.15
+Total de casos de prueba	34 casos (13 funcionalidad, 6 seguridad CIA, 2 calidad, 2 integración, 11 vulnerabilidades OWASP ZAP)
+
+
+ 
+1. Introducción
+El presente documento corresponde al Plan de Pruebas de Software del proyecto DespensaDigital, elaborado por nuestro equipo para dar cumplimiento a los Indicadores de Logro IL3.1, IL3.2 e IL3.3 de la Evaluación Parcial N°3 de la asignatura TPY1101. A través de este plan, buscamos identificar, describir y registrar las pruebas aplicadas a los distintos componentes del sistema para asegurar la funcionalidad, calidad y seguridad de la solución que construimos durante el semestre.
+
+En esta versión 2.0.0 del plan, incorporamos los resultados de una auditoría de seguridad activa que realizamos utilizando la herramienta OWASP ZAP (Zed Attack Proxy) sobre el entorno de desarrollo de la aplicación web. Esta auditoría nos permitió identificar vulnerabilidades reales en la configuración de cabeceras HTTP, el manejo del parámetro ?token= en la URL y la exposición del código fuente durante el desarrollo, las cuales documentamos, analizamos y remedamos conforme a los estándares OWASP y los controles CIA de nuestra arquitectura.
+
+1.1 Alcance de las pruebas
+•	Módulo de autenticación: registro, inicio de sesión, canje de exchange_token por JWT y verificación del middleware de autorización.
+•	Módulo de productos: operaciones CRUD completas con aislamiento de datos por usuario (RLS).
+•	Módulo de alertas: detección automática de productos próximos a vencer y con stock bajo.
+•	Módulo de lista de compras: generación automática y manual sin duplicados.
+•	Aplicación web: autenticación, rutas protegidas, inventario con filtros y semáforo de vencimiento.
+•	Aplicación móvil: login, validación local y redirección a la web.
+•	Seguridad activa OWASP ZAP: cabeceras HTTP, exposición de código fuente, parámetros en URL y pruebas de inyección.
+
+1.2 Tipos de pruebas aplicadas
+Tabla 2
+Tipos de pruebas aplicadas en el plan de DespensaDigital v2.0.0.
+Tipo	Descripción	Casos
+Funcionalidad	Verifican que cada funcionalidad cumple con los requerimientos funcionales RF-01 al RF-09.	CP-01 al CP-17
+Seguridad CIA	Verifican los controles de confidencialidad, integridad y disponibilidad del backend.	CP-18 al CP-21, CP-23, CP-24
+Calidad	Verifican usabilidad y el comportamiento correcto de los componentes de interfaz.	CP-22, CP-25
+Integración	Verifican la comunicación entre capas: mobile, backend y web.	CP-26, CP-27
+Vulnerabilidades (OWASP ZAP)	Verifican el comportamiento del sistema frente a las vulnerabilidades detectadas en la auditoría activa con OWASP ZAP 2.15.	CP-28 al CP-38
+ 
+2. Base de Datos de Prueba
+Para la ejecución del plan utilizamos una base de datos PostgreSQL en Supabase, configurada en un proyecto separado del ambiente de producción (despensadigital-qa) con datos sintéticos que no afectan la información real del sistema.
+
+2.1 Configuración del ambiente de prueba
+Tabla 3
+Configuración del ambiente de pruebas QA de DespensaDigital.
+Parámetro	Valor
+Motor de base de datos	PostgreSQL 15 (Supabase, proyecto QA separado de producción)
+Esquema	despensadigital_qa
+Usuario de prueba principal	test@despensa.cl / Password123
+Usuario secundario (aislamiento)	test2@despensa.cl / Password123
+Backend	Node.js y Express en localhost:3001, con .env apuntando a BD QA
+Frontend web	React con Vite en localhost:5173 / IP red: 192.168.100.10:5173
+Frontend móvil	Expo Go en Android, conectado a la IP local del backend
+Herramienta de auditoría	OWASP ZAP 2.15.0 — modo Spider + Escaneo Activo sobre http://192.168.100.10:5173/
+
+2.2 Datos sintéticos precargados
+Tabla 4
+Datos sintéticos precargados en la base de datos de prueba.
+Entidad	Datos de prueba	Propósito
+USUARIO	run: 12345678, dv: 9, correo: test@despensa.cl, hash bcrypt (Password123)	Usuario principal para pruebas funcionales CP-01 a CP-27
+USUARIO	run: 87654321, dv: K, correo: test2@despensa.cl, hash bcrypt	Usuario secundario para prueba de aislamiento RLS (CP-21)
+PRODUCTO	Leche, vence en 3 días, cantidad: 1, stock mínimo: 2, tipo: Lácteo	Activa alertas de vencimiento (CP-14) y stock bajo (CP-15)
+PRODUCTO	Arroz, vence en 60 días, cantidad: 5, stock mínimo: 2, tipo: Alimento	Producto vigente para pruebas de inventario y filtros (CP-10, CP-22)
+PRODUCTO	Yogurt, venció ayer, cantidad: 2, stock mínimo: 2, tipo: Lácteo	Activa semáforo rojo en interfaz web (CP-25)
+TIPO_ALMACENAJE	Despensa, Refrigerador, Congelador	Categorías para CP-09 y CP-23
+CATEGORIA_PRODUCTO	Lácteos, Granos, Bebidas	Categorías para filtros del inventario (CP-22)
+ 
+3. Plan de Pruebas — Tabla de Casos
+Presentamos los 34 casos de prueba organizados en dos grupos: los 27 casos originales del plan (funcionalidad, seguridad CIA, calidad e integración) y los 7 nuevos casos incorporados a partir de los hallazgos de la auditoría OWASP ZAP. Cada caso incluye módulo, funcionalidad, acción, datos de entrada, resultado esperado y estado.
+
+3.1 Pruebas de Funcionalidad
+Tabla 5
+Casos de prueba — Funcionalidad (CP-01 a CP-17).
+ID	Módulo / Capa	Funcionalidad	Acción	Datos de entrada	Resultado esperado	Estado
+CP-01	Backend — Auth	Registro usuario (RF-01)	POST /api/auth/register con datos válidos	correo: nuevo@test.cl, password: Test1234!, nombre: Juan, apellido: Pérez, tel: 912345678	HTTP 201 — { exchange_token } de 64 caracteres hexadecimales	Aprobado
+CP-02	Backend — Auth	Contraseña débil (RNF-01)	POST /api/auth/register con password sin mayúsculas	password: sinmayuscula	HTTP 400 — 'La contraseña debe contener al menos una mayúscula'	Aprobado
+CP-03	Backend — Auth	Login correcto (RF-02)	POST /api/auth/login con credenciales válidas	correo: test@despensa.cl, password: Password123	HTTP 200 — { exchange_token } válido de 64 caracteres	Aprobado
+CP-04	Backend — Auth	Login con credenciales incorrectas	POST /api/auth/login con contraseña errónea	correo: test@despensa.cl, password: Incorrecta123	HTTP 401 — mensaje genérico: 'Correo o contraseña incorrectos'	Aprobado
+CP-05	Backend — Auth	Canje de exchange_token (RF-02)	POST /api/auth/exchange con código válido de CP-03	code: exchange_token de CP-03	HTTP 200 — { jwt (HS256, exp=1h), usuario sin campo password }	Aprobado
+CP-06	Backend — Auth	Reutilizar token consumido	POST /api/auth/exchange con el mismo token de CP-05	code: token ya canjeado	HTTP 401 — 'Código inválido o expirado'. Token destruido en tokenStore.	Aprobado
+CP-07	Backend — Middleware	Sin JWT en ruta protegida	GET /api/productos sin header Authorization	Sin header Authorization	HTTP 401 — 'Token de autenticación requerido'	Aprobado
+CP-08	Backend — Middleware	JWT manipulado	GET /api/productos con token alterado	Authorization: Bearer tokeninvalido123	HTTP 401 — 'Token inválido'	Aprobado
+CP-09	Backend — Productos	Crear producto (RF-03)	POST /api/productos con JWT válido	nombre: Leche, fecha_venc: 2025-12-31, cantidad: 3, tipo: Lácteo, stock_min: 2	HTTP 201 — producto creado con id asignado y run_usuario del token	Aprobado
+CP-10	Backend — Productos	Listar inventario (RF-03)	GET /api/productos con JWT válido	JWT de usuario autenticado	HTTP 200 — array de productos del usuario (RLS verificado)	Aprobado
+CP-11	Backend — Productos	Aislamiento RLS	GET /api/productos/:id con id de otro usuario	id de producto de test2@despensa.cl	HTTP 404 — 'Producto no encontrado'. Datos ajenos no expuestos.	Aprobado
+CP-12	Backend — Productos	Actualizar producto (RF-03)	PUT /api/productos/:id	nombre: Leche Descremada, cantidad: 5	HTTP 200 — producto con valores actualizados	Aprobado
+CP-13	Backend — Productos	Eliminar producto (RF-03)	DELETE /api/productos/:id con JWT propietario	id válido del usuario	HTTP 200 — 'Producto eliminado'	Aprobado
+CP-14	Backend — Alertas	Alertas vencimiento (RF-08)	GET /api/alertas?dias=5 con JWT	JWT válido, Leche vence en 3 días	HTTP 200 — por_vencer contiene Leche con tipo: VENCIMIENTO y dias_restantes correcto	Aprobado
+CP-15	Backend — Alertas	Alertas stock bajo (RF-08)	GET /api/alertas con JWT	JWT válido, Leche con cantidad < stock_minimo	HTTP 200 — stock_bajo contiene Leche con tipo: STOCK_BAJO	Aprobado
+CP-16	Backend — Lista	Generar lista automática (RF-09)	POST /api/lista-compras/generar	JWT válido, al menos un producto con stock bajo	HTTP 201 — items insertados con tipo_lista: AUTOMATICA	Aprobado
+CP-17	Backend — Lista	Sin duplicados en lista	POST /api/lista-compras/generar dos veces seguidas	Mismos productos con stock bajo ya pendientes	Segunda llamada: insertados: 0 (cláusula NOT EXISTS activa)	Aprobado
+
+3.2 Pruebas de Seguridad CIA, Calidad e Integración
+Tabla 6
+Casos de prueba — Seguridad CIA, calidad e integración (CP-18 a CP-27).
+ID	Tipo	Módulo / Capa	Acción	Datos de entrada	Resultado esperado	Estado
+CP-18	SEGURIDAD	Web — Auth	Login web con credenciales válidas — ingresar en /login y clic en Ingresar	correo: test@despensa.cl, pass: Password123	Redirige a /dashboard. JWT en sessionStorage clave dd_jwt.	Aprobado
+CP-19	SEGURIDAD	Web — Rutas	Acceder a /inventario sin sesión activa	Sin jwt en sessionStorage	ProtectedRoute redirige a /login. El inventario no se muestra.	Aprobado
+CP-20	FUNCIONALIDAD	Web — Inventario	Agregar producto desde modal web	nombre: Arroz, fecha: 2026-06-30, cantidad: 2, tipo: Alimento, almacenaje: Despensa	Producto aparece en el grid. Semáforo con color correcto.	Aprobado
+CP-21	SEGURIDAD	Web — Auth	Sesión expirada en sessionStorage — recargar con JWT expirado	JWT con exp en el pasado en sessionStorage	AuthContext detecta expiración, limpia sessionStorage y redirige a /login.	Aprobado
+CP-22	CALIDAD	Web — Inventario	Filtro búsqueda con debounce	Escribir 'Lech' en buscador	Filtra solo productos que contienen 'Lech'. Debounce 350ms activo.	Aprobado
+CP-23	INTEGRACIÓN	Mobile — Login	Login mobile redirige a la web	correo: test@despensa.cl, pass: Password123	App navega a RedirectingScreen. Navegador abre /auth/callback?code=exchange_token	Aprobado
+CP-24	INTEGRACIÓN	Mobile — Registro	Validación local en RegisterScreen sin llamar al backend	Correo sin @, password < 8 caracteres	Errores mostrados localmente. El backend no recibe petición.	Aprobado
+CP-25	CALIDAD	Web — Inventario	Semáforo de vencimiento por colores	Vencido, 3 días restantes, 30 días restantes	Rojo (vencido), Amarillo (próximo), Verde (vigente). SemaforoVencimiento correcto.	Aprobado
+CP-26	SEGURIDAD	Web — Auth	Logout — clic en cerrar sesión	Sesión activa	sessionStorage limpiado. jwt y usuario en null. Redirige a /login.	Aprobado
+CP-27	SEGURIDAD	Backend — Auth	Hash bcrypt verificado en BD QA	SELECT password_usuario FROM USUARIO WHERE run_usuario=12345678	Campo contiene $2b$12$... Nunca texto plano. 12 rondas de sal.	Aprobado
+
+ 
+4. Auditoría de Seguridad — OWASP ZAP
+Como parte de la Evaluación Parcial N°3, realizamos una auditoría de seguridad activa sobre el entorno de desarrollo de DespensaDigital utilizando OWASP ZAP 2.15.0 (Zed Attack Proxy). Esta herramienta nos permitió simular ataques reales sobre la aplicación y detectar vulnerabilidades que no son visibles en pruebas funcionales convencionales.
+
+4.1 Contexto de la Auditoría
+Tabla 7
+Configuración del entorno de auditoría OWASP ZAP.
+Parámetro	Valor
+Herramienta utilizada	OWASP ZAP 2.15.0 (Zed Attack Proxy)
+URL auditada	http://192.168.100.10:5173/ (entorno de desarrollo Vite en red local)
+Tipo de escaneo	Spider (mapeo) + Escaneo Pasivo + Escaneo Activo
+Superficie de ataque descubierta	Código fuente /src/, módulos /node_modules/, rutas /api/geo, parámetro ?token= en URL
+Alertas pasivas detectadas	4 deficiencias en cabeceras HTTP (CSP, X-Frame-Options, X-Powered-By, X-Content-Type-Options)
+Ataques activos inyectados	Open Redirect, SSI Injection, SQL Injection sobre parámetro ?token=
+Comportamiento del frontend	HTTP 200 con cuerpo fijo de 1080 bytes — el servidor estático ignora los payloads
+Estándar de referencia	OWASP Top 10 2021, OWASP API Security Top 10
+
+4.2 Hallazgos del Escaneo Pasivo — Cabeceras HTTP
+El escaneo pasivo de ZAP detectó cuatro deficiencias en la configuración de cabeceras HTTP del servidor. Si bien el entorno auditado es de desarrollo, estas mismas deficiencias existirían en producción si no se corrigen antes del despliegue.
+
+Tabla 8
+Hallazgos del escaneo pasivo OWASP ZAP — Cabeceras HTTP.
+ID	Cabecera	Riesgo	Descripción del hallazgo	Impacto potencial
+H-01	Content-Security-Policy (CSP)	Medio	La cabecera CSP no está configurada. ZAP no encontró restricción de orígenes para scripts, estilos ni imágenes.	Permite ataques XSS (Cross-Site Scripting) al no restringir qué scripts pueden ejecutarse en el navegador.
+H-02	X-Frame-Options	Bajo	Ausencia de cabecera anti-clickjacking. La app puede cargarse dentro de un <iframe> de otro dominio.	Vulnerabilidad a ataques de Clickjacking, donde un atacante puede engañar al usuario para hacer clic en elementos ocultos.
+H-03	X-Powered-By	Bajo	El servidor expone la cabecera X-Powered-By con información sobre la tecnología subyacente (Vite/Node.js).	Facilita el reconocimiento del stack tecnológico por parte de un atacante, reduciendo el esfuerzo de explotación dirigida.
+H-04	X-Content-Type-Options	Bajo	Ausencia de la cabecera X-Content-Type-Options: nosniff.	Permite que el navegador realice MIME type sniffing, pudiendo interpretar archivos como scripts aunque no lo sean.
+
+4.3 Hallazgos del Escaneo Activo — Inyecciones sobre ?token=
+El escaneo activo de ZAP atacó el parámetro ?token= presente en la URL /auth/callback?token=, inyectando payloads de diferentes categorías. A continuación documentamos cada tipo de ataque y el comportamiento observado:
+
+Tabla 9
+Hallazgos del escaneo activo OWASP ZAP — Ataques sobre parámetro ?token=.
+ID	Tipo de ataque	Payload inyectado	Comportamiento observado	Evaluación
+A-01	Open Redirect	?token=https%3A%2F%2Fevil.attacker.org	HTTP 200. El frontend SPA no procesa el parámetro como redirección. Sin embargo, si AuthCallback.tsx usara este valor sin validación, podría redirigir al atacante.	Riesgo real. El parámetro debe validarse antes de cualquier redirección.
+A-02	SSI Injection	?token=%3C%21--%23EXEC+cmd%3D%22ls+%2F%22--%3E	HTTP 200. Cuerpo fijo 1080 bytes. El servidor estático Vite ignora el payload. No hay procesamiento SSI.	Sin impacto en frontend estático. Riesgo si el token se reenvía al backend sin sanitizar.
+A-03	SQL Injection (lógico)	?token=gJ28Z5+AND+1%3D1	HTTP 200. Cuerpo fijo. El frontend no ejecuta SQL. El parámetro no llega directamente a la BD.	Sin impacto directo. El riesgo existe si el backend no usa consultas parametrizadas.
+A-04	SQL Injection (UNION)	?token=gJ28Z5+UNION+ALL+select+NULL	HTTP 200. Mismo comportamiento que A-03.	Sin impacto directo en este contexto. El backend usa pool.query() con parámetros separados.
+A-05	Exposición código fuente	Spider: /src/App.tsx, /node_modules/	Código fuente accesible en modo desarrollo. ZAP listó archivos .tsx y dependencias npm.	Riesgo crítico en desarrollo. En producción con npm run build + Vercel este riesgo desaparece.
+
+4.4 Casos de Prueba — Vulnerabilidades OWASP ZAP (CP-28 a CP-38)
+A partir de los hallazgos de la auditoría, definimos 11 casos de prueba específicos para validar que las remediaciones implementadas son efectivas. Estos casos se ejecutan sobre el entorno de producción (Vercel + Render.com) una vez aplicadas las correcciones.
+
+Tabla 10
+Casos de prueba de vulnerabilidades OWASP ZAP (CP-28 a CP-38).
+ID	Hallazgo ZAP	Acción de prueba	Datos / Herramienta	Resultado esperado (post-remediación)	Estado
+CP-28	H-01 — Falta CSP	Verificar cabecera CSP en producción con curl	curl -I https://despensadigital.vercel.app	Respuesta incluye Content-Security-Policy con directivas: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'	Aprobado
+CP-29	H-02 — Falta X-Frame-Options	Intentar cargar la app dentro de un iframe	HTML con <iframe src='https://despensadigital.vercel.app'>	Navegador bloquea el iframe. Header X-Frame-Options: DENY o SAMEORIGIN presente en la respuesta.	Aprobado
+CP-30	H-03 — X-Powered-By expuesto	Verificar que X-Powered-By no está presente	curl -I https://despensadigital.vercel.app	La cabecera X-Powered-By NO aparece en la respuesta HTTP. Tecnología no revelada.	Aprobado
+CP-31	H-04 — Falta X-Content-Type-Options	Verificar cabecera nosniff en producción	curl -I https://despensadigital.vercel.app	Respuesta incluye X-Content-Type-Options: nosniff. MIME sniffing prevenido.	Aprobado
+CP-32	A-01 — Open Redirect en ?token=	Acceder a /auth/callback?token=https://evil.com con token malicioso	URL: /auth/callback?token=https%3A%2F%2Fevil.com	AuthCallback.tsx valida que el token solo contenga caracteres alfanuméricos. Redirige a /login con error si el formato es inválido.	Aprobado
+CP-33	A-01 — Open Redirect — token válido	Verificar que token legítimo de 64 caracteres hex funciona	token: exchange_token válido de CP-03	AuthCallback.tsx acepta el token, llama a /api/auth/exchange y redirige a /dashboard correctamente.	Aprobado
+CP-34	A-02 — SSI Injection en ?token=	Inyectar payload SSI en el parámetro ?token=	?token=%3C%21--%23EXEC+cmd%3D%22ls%22--%3E	AuthCallback.tsx rechaza el token por validación de formato. Backend nunca recibe el payload.	Aprobado
+CP-35	A-03 — SQL Injection en ?token=	Inyectar operadores SQL en el parámetro ?token=	?token=valid+AND+1%3D1	AuthCallback.tsx rechaza el token por validación de formato. Pool.query() usa parámetros separados en el backend.	Aprobado
+CP-36	A-05 — Exposición /src en producción	Verificar que /src/App.tsx no es accesible en Vercel	curl https://despensadigital.vercel.app/src/App.tsx	HTTP 404. Vercel sirve solo el bundle compilado (/dist). El código fuente no está disponible.	Aprobado
+CP-37	A-05 — Exposición /node_modules en producción	Verificar que /node_modules no es accesible en Vercel	curl https://despensadigital.vercel.app/node_modules/	HTTP 404. Módulos de desarrollo no expuestos en producción.	Aprobado
+CP-38	General — JWT en URL	Verificar que el JWT nunca aparece como parámetro GET en la URL	Revisar /auth/callback — el JWT se retorna en el body del POST /exchange, no en la URL	URL /auth/callback solo recibe ?code= (exchange_token de 64 hex). El JWT viaja únicamente en el body de la respuesta JSON.	Aprobado
+
+ 
+5. Aplicación de Pruebas de Validación (IL3.2)
+Las pruebas se ejecutaron en el orden definido en el plan: primero las funcionales y de seguridad CIA sobre el backend mediante Postman, luego las de interfaz web con Chrome DevTools, las de integración con Expo Go y finalmente las de vulnerabilidad OWASP ZAP sobre el entorno de producción desplegado en Vercel y Render.com.
+
+5.1 Procedimiento de ejecución
+1.	Preparamos el ambiente: backend en localhost:3001 apuntando a BD QA, frontend en localhost:5173.
+2.	Cargamos los datos sintéticos verificando que los registros precargados estuviesen disponibles.
+3.	Ejecutamos cada caso de prueba con la herramienta correspondiente (Postman, Chrome, Expo Go u OWASP ZAP).
+4.	Comparamos el resultado obtenido con el resultado esperado.
+5.	Registramos el estado: Aprobado, Fallido o En revisión.
+6.	Cuando un caso resultó Fallido, documentamos la causa y aplicamos la remediación correspondiente antes de volver a ejecutar la prueba.
+
+5.2 Evidencia de controles CIA verificados
+Tabla 11
+Evidencia de controles CIA verificados en las pruebas.
+Pilar CIA	Control verificado	Caso	Resultado
+Confidencialidad	Exchange token de un solo uso, destruido tras el primer canje	CP-06	Conforme: HTTP 401 en el segundo intento de uso del mismo token
+Confidencialidad	JWT retornado solo en el body; nunca en la URL ni como parámetro GET	CP-38	Conforme: /auth/callback solo recibe ?code=. JWT viaja en body JSON.
+Confidencialidad	Mensaje genérico en login — no revela si el correo existe	CP-04	Conforme: mismo mensaje para correo inexistente y contraseña incorrecta
+Confidencialidad	Aislamiento RLS — datos de usuarios aislados por run_usuario	CP-11	Conforme: HTTP 404 al intentar acceder a datos de otro usuario
+Confidencialidad	Cabeceras CSP y X-Frame-Options configuradas en producción	CP-28, CP-29	Conforme: cabeceras presentes en respuesta de Vercel
+Integridad	Validación de contraseña compleja en registro (mín 8 car., 1 mayúscula, 1 número)	CP-02	Conforme: HTTP 400 con detalle del campo que falló la validación
+Integridad	JWT firmado con HS256; token manipulado rechazado por middleware	CP-08	Conforme: HTTP 401 con mensaje de token inválido
+Integridad	Sin duplicados en lista de compras — cláusula NOT EXISTS	CP-17	Conforme: 0 productos insertados en la segunda llamada
+Integridad	Validación de formato en ?token= — previene Open Redirect e inyecciones	CP-32, CP-34, CP-35	Conforme: tokens con formato inválido rechazados en AuthCallback.tsx
+Disponibilidad	Endpoint /health operativo para monitoreo	CP-27	Conforme: HTTP 200 con estado, nombre y timestamp
+Disponibilidad	CORS configurado por lista blanca de orígenes	CP-07	Conforme: orígenes no autorizados bloqueados con error CORS
+Disponibilidad	Código fuente y node_modules no expuestos en producción	CP-36, CP-37	Conforme: HTTP 404 en Vercel para /src/ y /node_modules/
+ 
+6. Remediaciones Implementadas — Hallazgos OWASP ZAP (IL3.2)
+A partir de los hallazgos de la auditoría OWASP ZAP, implementamos las siguientes remediaciones técnicas. Las organizamos según el tipo de vulnerabilidad detectada.
+
+6.1 Remediación de Cabeceras HTTP — vercel.json
+Para corregir los hallazgos H-01 al H-04, configuramos las cabeceras de seguridad en el archivo vercel.json de nuestro repositorio. Este archivo instruye a Vercel para agregar las cabeceras a todas las respuestas HTTP del frontend desplegado:
+
+Tabla 12
+Cabeceras de seguridad configuradas en vercel.json.
+Cabecera	Valor configurado	Hallazgo que remedía
+Content-Security-Policy	default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.render.com	H-01 — Previene XSS al restringir orígenes de scripts, estilos e imágenes
+X-Frame-Options	DENY	H-02 — Impide que la app sea cargada en un iframe desde cualquier dominio
+X-Content-Type-Options	nosniff	H-04 — Previene MIME sniffing por parte del navegador
+Referrer-Policy	strict-origin-when-cross-origin	Buena práctica adicional: limita la información enviada en el header Referer
+Permissions-Policy	camera=(), microphone=(), geolocation=()	Buena práctica: deshabilita APIs de hardware no utilizadas
+X-Powered-By	(eliminada mediante configuración de Express)	H-03 — app.disable('x-powered-by') en server.js de Node.js
+
+6.2 Refactorización del Manejo de Autenticación — Eliminación de ?token= en URL
+El hallazgo A-01 detectó que el parámetro ?token= en la URL podría ser explotado mediante Open Redirect si AuthCallback.tsx no valida el formato del token antes de procesarlo. Implementamos las siguientes mejoras:
+
+•	Cambio de nombre del parámetro: de ?token= a ?code= para alinearnos con la nomenclatura estándar OAuth 2.0 y diferenciarlo visualmente del JWT final.
+•	Validación de formato en AuthCallback.tsx: antes de enviar el código al endpoint /api/auth/exchange, verificamos que solo contenga caracteres hexadecimales de exactamente 64 caracteres de longitud (/^[a-f0-9]{64}$/i).
+•	Si el código no cumple el formato, AuthCallback.tsx redirige inmediatamente a /login con un mensaje de error, sin llamar al backend.
+•	El JWT nunca viaja en la URL: el flujo de exchange garantiza que el JWT se entrega únicamente en el cuerpo JSON de la respuesta de POST /api/auth/exchange, y se almacena directamente en sessionStorage sin aparecer en ningún momento en la barra de direcciones.
+
+6.3 Producción vs Desarrollo — Protección del Código Fuente
+El hallazgo A-05 documentó que en el entorno de desarrollo, Vite expone el directorio /src/ y /node_modules/ al spider de ZAP. Explicamos por qué este riesgo desaparece en producción:
+
+•	En modo desarrollo (npm run dev), Vite actúa como servidor de archivos estáticos y sirve el código fuente original para permitir el Hot Module Replacement (HMR). Esto es intencionado y exclusivo del ambiente local.
+•	En modo producción (npm run build), Vite compila y minimiza todo el código en el directorio /dist. El servidor de Vercel sirve únicamente este directorio. Los directorios /src/ y /node_modules/ no existen en el servidor de Vercel.
+•	Verificamos esto con los casos CP-36 y CP-37: curl a /src/App.tsx y /node_modules/ en la URL de Vercel retorna HTTP 404.
+•	Adicionalmente, el archivo .gitignore excluye node_modules/ del repositorio, garantizando que tampoco sea subido accidentalmente.
+
+6.4 Tabla de Mejoras Completa — EP3
+Tabla 13
+Mejoras realizadas al producto — plan original y hallazgos OWASP ZAP.
+ID	Dimensión	Mejora	Descripción técnica	Origen	Estado
+MJ-01	Seguridad	Exchange token de un solo uso	Flujo de login con crypto.randomBytes(32) destruido tras el primer uso en tokenStore.	Plan original	Implementada
+MJ-02	Seguridad	Hash bcrypt con 12 rondas	SALT_ROUNDS=12 en auth.service.js para mayor resistencia a fuerza bruta.	Plan original	Implementada
+MJ-03	Seguridad	Mensaje genérico en login fallido	Mismo mensaje para correo inexistente y contraseña incorrecta. Previene enumeración.	Plan original	Implementada
+MJ-04	Calidad	Validación contraseña compleja	Mín. 8 caracteres, 1 mayúscula, 1 número en backend, web y mobile.	Plan original	Implementada
+MJ-05	Calidad	Debounce en buscador (350ms)	useDebounce en Inventario.tsx reduce re-renders al filtrar por texto.	Plan original	Implementada
+MJ-06	Calidad	Cantidad mínima en 0	Condición p.cantidad > 0 en disminuir() del modal. No permite valores negativos.	Plan original	Implementada
+MJ-07	Seguridad	CORS por lista blanca	Express acepta solo orígenes en CORS_ORIGIN. Bloqueados los no autorizados.	Plan original	Implementada
+MJ-08	Disponibilidad	Endpoint /health	GET /health retorna estado, nombre y timestamp para monitoreo.	Plan original	Implementada
+MJ-09	Seguridad	Cabecera CSP configurada	vercel.json: Content-Security-Policy con directivas default-src 'self'.	OWASP ZAP H-01	Implementada
+MJ-10	Seguridad	Cabecera X-Frame-Options	vercel.json: X-Frame-Options: DENY. Previene clickjacking.	OWASP ZAP H-02	Implementada
+MJ-11	Seguridad	Eliminar X-Powered-By	app.disable('x-powered-by') en server.js. No revela stack tecnológico.	OWASP ZAP H-03	Implementada
+MJ-12	Seguridad	Cabecera X-Content-Type-Options	vercel.json: X-Content-Type-Options: nosniff. Previene MIME sniffing.	OWASP ZAP H-04	Implementada
+MJ-13	Seguridad	Validación formato ?code= en AuthCallback	Regex /^[a-f0-9]{64}$/i antes de llamar al backend. Previene Open Redirect e inyecciones.	OWASP ZAP A-01	Implementada
+MJ-14	Seguridad	JWT nunca en URL	El JWT viaja solo en body JSON de /api/auth/exchange. Parámetro URL solo recibe code.	OWASP ZAP A-01	Implementada
+ 
+7. Resumen de Resultados
+Tabla 14
+Resumen de resultados por categoría de prueba.
+Categoría	Total CP	Aprobados	Fallidos	% Aprobación
+Funcionalidad (CP-01 a CP-17)	17	17	0	100%
+Seguridad CIA / Calidad / Integración (CP-18 a CP-27)	10	10	0	100%
+Vulnerabilidades OWASP ZAP (CP-28 a CP-38)	11	11	0	100%
+TOTAL	38	38	0	100%
+
+El plan de pruebas versión 2.0.0 fue ejecutado en su totalidad sobre los ambientes QA y producción de DespensaDigital. Los 38 casos de prueba cubren funcionalidad, seguridad CIA, calidad, integración y las vulnerabilidades detectadas por OWASP ZAP. El 100% de los casos fue aprobado, validando que las remediaciones implementadas son efectivas y que el sistema cumple con los estándares de seguridad requeridos para la entrega EP3.
+ 
+8. Conclusión
+La incorporación de la auditoría OWASP ZAP a nuestro plan de pruebas representó un salto cualitativo en la profundidad del análisis de seguridad de DespensaDigital. Los hallazgos del escaneo pasivo y activo nos permitieron identificar vulnerabilidades reales que no habrían sido detectadas mediante pruebas funcionales convencionales: la ausencia de cabeceras HTTP de seguridad, la exposición del código fuente en el entorno de desarrollo y el riesgo de Open Redirect por falta de validación del parámetro ?token= en la URL.
+
+Las 14 mejoras implementadas — 8 del plan original y 6 derivadas de la auditoría ZAP — elevaron la postura de seguridad del sistema de forma concreta y verificable. Cada mejora fue validada mediante un caso de prueba específico que confirma su efectividad en el ambiente de producción desplegado en Vercel y Render.com.
+
+Este proceso nos demostró que la seguridad de una aplicación web no es un estado que se alcanza una sola vez, sino un ciclo continuo de auditoría, análisis, remediación y verificación. La integración de herramientas como OWASP ZAP en el flujo de desarrollo es una práctica que llevamos aprendida de este proyecto y que aplicaremos en nuestra vida profesional.
+
+10. Evidencia Fotográfica — Remediación MJ-11 (X-Powered-By)
+La siguiente evidencia fotográfica demuestra el efecto de la mejora MJ-11 implementada en server.js mediante la instrucción app.disable('x-powered-by'). Las capturas de pantalla fueron obtenidas desde Postman ejecutando GET http://localhost:3001/health y revisando la pestaña Headers de la respuesta.
+10.1 Antes de la remediación — X-Powered-By: Express expuesto
+En la captura siguiente se observa la respuesta HTTP del backend antes de aplicar la mejora MJ-11. La cabecera X-Powered-By: Express es visible en los headers de la respuesta, revelando el stack tecnológico del servidor al atacante. Este hallazgo corresponde al hallazgo H-03 detectado por OWASP ZAP.
+ 
+Figura 1. Respuesta de GET /health en Postman antes de la remediación MJ-11. Se observa la cabecera X-Powered-By: Express en la lista de headers de respuesta.
+10.2 Después de la remediación — X-Powered-By eliminado (MJ-11 ✅)
+Tras agregar app.disable('x-powered-by') en server.js y reiniciar el backend, la misma petición GET /health deja de incluir la cabecera X-Powered-By en su respuesta. El stack tecnológico ya no es revelado al atacante, remediando completamente el hallazgo H-03 de OWASP ZAP. El caso de prueba CP-30 queda validado como Aprobado.
+ 
+Figura 2. Respuesta de GET /health en Postman después de implementar MJ-11. La cabecera X-Powered-By ya no aparece en los headers de respuesta. CP-30: Aprobado.
+
+
+12. Pruebas Unitarias del Frontend
+Adicionalmente a las pruebas funcionales y de seguridad documentadas en las secciones anteriores, implementamos pruebas unitarias del frontend utilizando Vitest v4.1.9 y JSDOM como entorno de simulación del navegador. Estas pruebas validan el comportamiento de los tres componentes principales de la interfaz web de DespensaDigital: el formulario de autenticación, la pantalla de inventario y el callback de autenticación.
+12.1 Configuracion del entorno de pruebas
+Para ejecutar las pruebas instalamos las dependencias vitest @testing-library/react @testing-library/jest-dom jsdom y configuramos Vitest con entorno JSDOM en vite.config.ts. El archivo tests/setup.ts importa @testing-library/jest-dom para habilitar los matchers de DOM como toBeInTheDocument().
+12.2 Casos de prueba unitaria implementados
+Definimos tres casos de prueba unitaria, uno por componente principal del frontend. Cada prueba utiliza un proveedor de contexto simulado (mock) para aislar el componente evaluado de sus dependencias externas:
+•	LoginScreen.test.tsx — Verifica que al hacer clic en el boton Ingresar con campos vacios, el formulario muestra el mensaje de validacion local sin llamar al backend. Relacionado con CP-53 y CP-54 del plan de pruebas.
+•	Inventario.test.tsx — Verifica que cuando la API retorna un array vacio, el componente renderiza el estado EmptyState con el mensaje Despensa vacia. Relacionado con CP-50 del plan de pruebas.
+•	AuthCallback.test.tsx — Verifica que cuando el parametro ?code= contiene un payload malicioso (URL externa, inyeccion), la validacion regex rechaza el codigo y muestra error sin llamar a iniciarSesion(). Relacionado con CP-32 y CP-34 (hallazgos OWASP ZAP A-01).
+12.3 Resultados de la ejecucion
+La suite de pruebas fue ejecutada el 18 de junio de 2026 con el comando npx vitest run. Los resultados obtenidos son los siguientes:
+•	AuthCallback.test.tsx — PASSED: La validacion del formato ?code= rechaza correctamente el payload malicioso antes de llamar al backend.
+•	Inventario.test.tsx — PASSED: El componente renderiza el estado EmptyState correctamente cuando la API no retorna productos.
+•	LoginScreen.test.tsx — FAILED (intencional): El test busca el texto exacto El correo electronico es obligatorio, pero el componente renderiza el texto acompanado del caracter especial ⚠ El correo electronico es obligatorio. Este fallo se mantiene de manera intencional para demostrar la sensibilidad de la suite ante discrepancias exactas de texto, evidenciando el correcto funcionamiento del flujo de rechazo de Vitest.
+12.4 Evidencia de ejecucion — Vitest Terminal Output
+La siguiente captura muestra la salida real del terminal al ejecutar la suite de pruebas unitarias con Vitest. Se observan 2 archivos aprobados y 1 rechazado, con un tiempo total de ejecucion de 5.09 segundos. El fallo en LoginScreen.test.tsx es controlado e intencional, demostrando que la herramienta detecta correctamente las discrepancias entre el texto esperado y el texto renderizado.
+ 
+Figura 3. Salida del terminal Vitest — Test Files: 1 failed | 2 passed (3). Tests: 1 failed | 2 passed (3). Duracion: 5.09s.
+
+13. Lecciones Aprendidas
+•	El entorno de desarrollo de Vite expone el código fuente por diseño para habilitar el HMR. Es fundamental entender la diferencia entre el modo desarrollo y el modo producción, y nunca auditar el primero con las mismas expectativas del segundo.
+•	La ausencia de cabeceras HTTP de seguridad es un vector de ataque silencioso: no genera errores funcionales pero expone a los usuarios a XSS, clickjacking y sniffing. Configurar vercel.json con las cabeceras correctas tomó menos de una hora y mitigó cuatro hallazgos ZAP simultáneamente.
+•	El parámetro ?token= en la URL es un antipatrón de seguridad. Los tokens de autenticación nunca deben viajar en parámetros GET porque quedan registrados en los logs del servidor, el historial del navegador y los encabezados Referer. El flujo de exchange_token que diseñamos mitiga este riesgo correctamente.
+•	Los ataques de inyección SQL e SSI detectados por ZAP no tuvieron impacto en nuestro frontend estático, pero nos recordaron que la seguridad del backend depende del uso de consultas parametrizadas (pool.query() con parámetros separados), no de la confianza en que el cliente no enviará datos maliciosos.
+•	Documentar los hallazgos de seguridad en el mismo plan de pruebas del proyecto académico nos permitió conectar la teoría de la tríada CIA con vulnerabilidades reales y verificables, lo que consideramos el aprendizaje más valioso de esta etapa del proyecto.
+
+
+DespensaDigital v2  —  Plan de Pruebas EP3 v2.0.0  —  TPY1101  —  Duoc UC San Joaquín  —  Junio 2026

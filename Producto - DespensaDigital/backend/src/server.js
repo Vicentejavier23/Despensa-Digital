@@ -29,6 +29,7 @@ const alertasRoutes      = require('./alertas/alertas.routes');
 const errorHandler       = require('./middleware/errorHandler');
 
 const app = express();
+app.disable('x-powered-by'); 
 
 // Permite múltiples orígenes separados por coma en CORS_ORIGIN
 // Ej: http://localhost:5173,http://localhost:8081
