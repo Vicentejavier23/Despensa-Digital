@@ -128,13 +128,15 @@ async function registrarUsuario(datos) {
     client.release();
   }
 
-  const exchange_token = generarExchangeToken({
+  const payload = {
     id_usuario:      nuevoUsuario.id_usuario,
     correo_usuario:  correo_usuario.toLowerCase(),
     pri_nom_usuario: pri_nom_usuario.trim(),
-  });
+  };
+  const exchange_token = generarExchangeToken(payload);
+  const mobile_token   = generarExchangeToken(payload);
 
-  return { exchange_token };
+  return { exchange_token, mobile_token };
 }
 
 /**
@@ -158,13 +160,18 @@ async function autenticarUsuario({ correo_usuario, password_usuario }) {
   const coincide = await bcrypt.compare(password_usuario, usuario.password_usuario);
   if (!coincide) throw credencialesErr;
 
-  const exchange_token = generarExchangeToken({
+  const payload = {
     id_usuario:      usuario.id_usuario,
     correo_usuario:  usuario.correo_usuario,
     pri_nom_usuario: usuario.pri_nom_usuario,
-  });
+  };
 
-  return { exchange_token };
+  // exchange_token → para la redirección a la app web (un solo uso)
+  // mobile_token   → para que la app móvil obtenga el JWT directamente
+  const exchange_token = generarExchangeToken(payload);
+  const mobile_token   = generarExchangeToken(payload);
+
+  return { exchange_token, mobile_token };
 }
 
 module.exports = { registrarUsuario, autenticarUsuario, firmarJWT };
