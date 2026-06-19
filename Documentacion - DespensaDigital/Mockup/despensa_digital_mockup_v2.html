@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DespensaDigital — Mockup UI Completo</title>
+<style>
+  :root {
+    --azul:     #1F5C99;
+    --azul2:    #2E75B6;
+    --azulc:    #D5E8F0;
+    --verde:    #27AE60;
+    --verdec:   #E8F8F0;
+    --naranja:  #E67E22;
+    --naranjac: #FEF5E7;
+    --rojo:     #E74C3C;
+    --rojoc:    #FDEDEC;
+    --gris1:    #F5F7FA;
+    --gris2:    #E8ECF0;
+    --gris3:    #AAB4BE;
+    --texto:    #1A2332;
+    --texto2:   #5A6A7A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1A2332 0%, #2E4066 100%);
+    min-height: 100vh;
+    padding: 32px 20px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { color: #63B3ED; }
+  .header p { color: #8BA3BF; font-size: 13px; margin-top: 6px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 28px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .phone-label {
+    color: #8BA3BF;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .phone {
+    background: #0D0D0D;
+    border-radius: 38px;
+    padding: 10px 10px 14px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), inset 0 0 0 1px #333;
+    width: 220px;
+  }
+  .notch {
+    width: 70px; height: 18px;
+    background: #0D0D0D;
+    border-radius: 0 0 12px 12px;
+    margin: 0 auto 6px;
+  }
+  .screen {
+    border-radius: 28px;
+    overflow: hidden;
+    background: var(--gris1);
+    height: 420px;
+    display: flex;
+    flex-direction: column;
+    font-size: 10px;
+    position: relative;
+  }
+
+  /* ─── STATUS BAR ────────────────────────────────── */
+  .status-bar {
+    background: transparent;
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: #fff;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 10;
+  }
+  .status-bar.dark { color: var(--texto); }
+
+  /* ─── NAV BAR ───────────────────────────────────── */
+  .nav-bar {
+    background: #fff;
+    border-top: 1px solid var(--gris2);
+    padding: 6px 0 4px;
+    display: flex;
+    justify-content: space-around;
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    color: var(--gris3); font-size: 8px;
+  }
+  .nav-item.active { color: var(--azul); }
+  .nav-icon { font-size: 14px; }
+
+  /* ─── PANTALLA 1: LOGIN ─────────────────────────── */
+  .login-screen {
+    background: linear-gradient(160deg, var(--azul) 0%, var(--azul2) 60%, #1A3A5C 100%);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 16px 20px;
+    gap: 14px;
+  }
+  .login-logo {
+    width: 52px; height: 52px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .login-title { color: #fff; font-size: 16px; font-weight: 800; }
+  .login-sub   { color: rgba(255,255,255,0.65); font-size: 9px; text-align: center; }
+  .login-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 14px;
+    width: 100%;
+    display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .input-field {
+    background: var(--gris1);
+    border: 1px solid var(--gris2);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 9.5px;
+    color: var(--texto2);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .input-field span { font-size: 11px; }
+  .btn-primary {
+    background: var(--azul);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .btn-link { text-align: center; color: var(--azul2); font-size: 8.5px; }
+
+  /* ─── PANTALLA 2: DASHBOARD ─────────────────────── */
+  .dash-header {
+    background: var(--azul);
+    padding: 28px 14px 14px;
+    color: #fff;
+  }
+  .dash-greeting { font-size: 9px; opacity: 0.75; }
+  .dash-name     { font-size: 14px; font-weight: 800; }
+  .kpi-row {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px; padding: 10px;
+    background: var(--gris1);
+  }
+  .kpi-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 8px 6px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .kpi-num  { font-size: 16px; font-weight: 800; }
+  .kpi-lbl  { font-size: 7.5px; color: var(--texto2); margin-top: 1px; }
+  .kpi-ok   { color: var(--verde); }
+  .kpi-warn { color: var(--naranja); }
+  .kpi-bad  { color: var(--rojo); }
+  .section-title {
+    font-size: 10px; font-weight: 700; color: var(--texto);
+    padding: 6px 10px 2px;
+  }
+  .alert-item {
+    margin: 0 10px 5px;
+    background: var(--naranjac);
+    border-left: 3px solid var(--naranja);
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 8.5px;
+    color: var(--texto);
+  }
+  .alert-item.red {
+    background: var(--rojoc);
+    border-color: var(--rojo);
+  }
+  .alert-icon { font-size: 10px; }
+
+  /* ─── PANTALLA 3: INVENTARIO ────────────────────── */
+  .inv-header {
+    background: #fff;
+    padding: 28px 12px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--gris2);
+  }
+  .inv-title { font-size: 13px; font-weight: 800; color: var(--texto); }
+  .search-bar {
+    margin: 6px 10px;
+    background: var(--gris1);
+    border-radius: 20px;
+    padding: 5px 10px;
+    font-size: 9px;
+    color: var(--texto2);
+    display: flex; align-items: center; gap: 5px;
+    border: 1px solid var(--gris2);
+  }
+  .filter-row {
+    display: flex; gap: 5px; padding: 0 10px 6px; overflow: hidden;
+  }
+  .chip {
+    padding: 3px 8px; border-radius: 20px; font-size: 8px; font-weight: 600;
+    white-space: nowrap; border: 1px solid var(--gris2); color: var(--texto2);
+    background: #fff;
+  }
+  .chip.active { background: var(--azul); color: #fff; border-color: var(--azul); }
+  .prod-list { flex: 1; overflow: hidden; padding: 4px 10px; }
+  .prod-item {
+    background: #fff;
+    border-radius: 10px;
+    padding: 7px 8px;
+    margin-bottom: 5px;
+    display: flex; align-items: center; gap: 7px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .prod-emoji  { font-size: 18px; }
+  .prod-info   { flex: 1; }
+  .prod-name   { font-size: 9.5px; font-weight: 700; color: var(--texto); }
+  .prod-sub    { font-size: 8px; color: var(--texto2); }
+  .badge {
+    padding: 2px 6px; border-radius: 20px; font-size: 7.5px; font-weight: 700;
+  }
+  .badge-ok     { background: var(--verdec);   color: var(--verde); }
+  .badge-warn   { background: var(--naranjac); color: var(--naranja); }
+  .badge-bad    { background: var(--rojoc);    color: var(--rojo); }
+
+  /* ─── PANTALLA 4: AGREGAR PRODUCTO ─────────────── */
+  .form-header {
+    background: var(--azul);
+    padding: 28px 14px 12px;
+    color: #fff;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .form-title { font-size: 13px; font-weight: 800; }
+  .form-body  { flex: 1; padding: 10px; overflow: hidden; display: flex; flex-direction: column; gap: 7px; }
+  .form-group { display: flex; flex-direction: column; gap: 3px; }
+  .form-label { font-size: 8.5px; font-weight: 600; color: var(--texto2); }
+  .form-input {
+    background: var(--gris1);
+    border: 1.5px solid var(--gris2);
+    border-radius: 8px;
+    padding: 6px 9px;
+    font-size: 9.5px;
+    color: var(--texto);
+  }
+  .form-input.focused { border-color: var(--azul2); background: #fff; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .form-footer {
+    padding: 8px 10px;
+    background: #fff;
+    border-top: 1px solid var(--gris2);
+    display: flex; gap: 6px;
+  }
+  .btn-outline {
+    flex: 1; padding: 7px; border-radius: 8px;
+    border: 1.5px solid var(--gris2); text-align: center;
+    font-size: 9px; font-weight: 600; color: var(--texto2);
+  }
+  .btn-fill {
+    flex: 2; padding: 7px; border-radius: 8px;
+    background: var(--azul); text-align: center;
+    font-size: 9px; font-weight: 700; color: #fff;
+  }
+
+  /* ─── PANTALLA 5: ALERTAS ───────────────────────── */
+  .alerts-header {
+    background: #fff;
+    padding: 28px 12px 10px;
+    border-bottom: 1px solid var(--gris2);
+  }
+  .alerts-title { font-size: 13px; font-weight: 800; color: var(--texto); }
+  .alerts-subtitle { font-size: 8.5px; color: var(--texto2); }
+  .alert-card {
+    margin: 5px 10px;
+    border-radius: 10px;
+    padding: 8px 10px;
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .alert-card.warn { background: var(--naranjac); border-left: 3px solid var(--naranja); }
+  .alert-card.bad  { background: var(--rojoc);    border-left: 3px solid var(--rojo); }
+  .alert-card.ok   { background: var(--verdec);   border-left: 3px solid var(--verde); }
+  .alert-ico  { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .alert-body {}
+  .alert-msg  { font-size: 8.5px; font-weight: 600; color: var(--texto); }
+  .alert-time { font-size: 7.5px; color: var(--texto2); margin-top: 2px; }
+
+  /* ─── PANTALLA 6: LISTA COMPRAS ─────────────────── */
+  .lista-header {
+    background: var(--verde);
+    padding: 28px 14px 12px;
+    color: #fff;
+  }
+  .lista-title { font-size: 13px; font-weight: 800; }
+  .lista-sub   { font-size: 8.5px; opacity: 0.8; }
+  .lista-item {
+    background: #fff;
+    margin: 4px 10px;
+    border-radius: 10px;
+    padding: 7px 10px;
+    display: flex; align-items: center; gap: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .checkbox {
+    width: 14px; height: 14px;
+    border-radius: 4px;
+    border: 2px solid var(--gris2);
+    flex-shrink: 0;
+  }
+  .checkbox.checked {
+    background: var(--verde);
+    border-color: var(--verde);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 9px;
+  }
+  .lista-item.done .lista-item-name { text-decoration: line-through; color: var(--gris3); }
+  .lista-item-name { font-size: 9.5px; font-weight: 600; flex: 1; color: var(--texto); }
+  .lista-item-cant { font-size: 8.5px; color: var(--texto2); }
+  .tag-auto {
+    background: var(--azulc); color: var(--azul);
+    padding: 1px 5px; border-radius: 4px; font-size: 7px; font-weight: 700;
+  }
+  .gen-btn {
+    margin: 6px 10px;
+    background: var(--verde);
+    color: #fff;
+    border-radius: 8px;
+    padding: 7px;
+    text-align: center;
+    font-size: 9px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🥫 Despensa<span>Digital</span></h1>
+  <p>Prototipo de Interfaz — Estado de Avance 2 · Duoc UC TPY1101 · Abril 2026</p>
+</div>
+
+<div class="grid">
+
+  <!-- ═══ PANTALLA 1: LOGIN ═══════════════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">01 · Login</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="login-screen">
+          <div class="login-logo">🥫</div>
+          <div class="login-title">DespensaDigital</div>
+          <div class="login-sub">Gestión inteligente de tu despensa</div>
+          <div class="login-card">
+            <div style="font-size:11px;font-weight:800;color:var(--texto);margin-bottom:2px">Iniciar Sesión</div>
+            <div class="input-field"><span>✉️</span> correo@email.com</div>
+            <div class="input-field"><span>🔒</span> ••••••••</div>
+            <div class="btn-primary">Ingresar →</div>
+            <div class="btn-link">¿Olvidaste tu contraseña?</div>
+          </div>
+          <div style="color:rgba(255,255,255,0.5);font-size:8.5px">¿No tienes cuenta? <span style="color:#63B3ED;font-weight:700">Regístrate gratis</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANTALLA 2: REGISTRO ════════════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">02 · Registro</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="login-screen" style="padding-top:28px;gap:10px">
+          <div class="login-logo">✨</div>
+          <div class="login-title" style="font-size:14px">Crear cuenta</div>
+          <div class="login-card">
+            <div class="input-field"><span>👤</span> Nombre completo</div>
+            <div class="input-field"><span>✉️</span> correo@email.com</div>
+            <div class="input-field" style="border-color:var(--azul2);background:#fff"><span>🔒</span> Contraseña segura</div>
+            <div class="input-field"><span>🔒</span> Confirmar contraseña</div>
+            <div class="btn-primary">Crear cuenta →</div>
+          </div>
+          <div style="color:rgba(255,255,255,0.5);font-size:8px;text-align:center">Al registrarte aceptas nuestros<br><span style="color:#63B3ED">Términos y condiciones</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANTALLA 3: DASHBOARD ═══════════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">03 · Dashboard</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar">
+          <span>9:41</span><span>⚡ 87%</span>
+        </div>
+        <div class="dash-header">
+          <div class="dash-greeting">Buenos días,</div>
+          <div class="dash-name">Vicente 👋</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi-card"><div class="kpi-num kpi-ok">24</div><div class="kpi-lbl">Productos</div></div>
+          <div class="kpi-card"><div class="kpi-num kpi-warn">3</div><div class="kpi-lbl">Por vencer</div></div>
+          <div class="kpi-card"><div class="kpi-num kpi-bad">1</div><div class="kpi-lbl">Vencidos</div></div>
+        </div>
+        <div class="section-title">⚠️ Alertas recientes</div>
+        <div class="alert-item red">
+          <span class="alert-icon">🚨</span> <strong>Leche</strong> — venció ayer
+        </div>
+        <div class="alert-item">
+          <span class="alert-icon">⏰</span> <strong>Yogur</strong> — vence en 2 días
+        </div>
+        <div class="alert-item">
+          <span class="alert-icon">⏰</span> <strong>Pan de molde</strong> — vence mañana
+        </div>
+        <div class="section-title">🛒 Lista de compras</div>
+        <div class="alert-item" style="background:var(--azulc);border-color:var(--azul);color:var(--azul)">
+          5 productos pendientes de comprar
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item active"><div class="nav-icon">🏠</div>Inicio</div>
+          <div class="nav-item"><div class="nav-icon">📦</div>Inventario</div>
+          <div class="nav-item"><div class="nav-icon">🛒</div>Lista</div>
+          <div class="nav-item"><div class="nav-icon">🔔</div>Alertas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANTALLA 4: INVENTARIO ══════════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">04 · Inventario</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar dark" style="background:var(--gris1)">
+          <span>9:41</span><span>⚡ 87%</span>
+        </div>
+        <div class="inv-header">
+          <div class="inv-title">📦 Mi Despensa</div>
+          <div style="background:var(--azul);color:#fff;border-radius:6px;padding:4px 8px;font-size:9px;font-weight:700">+ Agregar</div>
+        </div>
+        <div class="search-bar">🔍 Buscar producto...</div>
+        <div class="filter-row">
+          <div class="chip active">Todos (24)</div>
+          <div class="chip">⚠️ Por vencer</div>
+          <div class="chip">✅ OK</div>
+          <div class="chip">🚨 Vencidos</div>
+        </div>
+        <div class="prod-list">
+          <div class="prod-item">
+            <div class="prod-emoji">🥛</div>
+            <div class="prod-info">
+              <div class="prod-name">Leche entera</div>
+              <div class="prod-sub">Soprole · 1 unidad</div>
+            </div>
+            <div class="badge badge-bad">Vencido</div>
+          </div>
+          <div class="prod-item">
+            <div class="prod-emoji">🧀</div>
+            <div class="prod-info">
+              <div class="prod-name">Yogur griego</div>
+              <div class="prod-sub">Nestlé · 2 unidades</div>
+            </div>
+            <div class="badge badge-warn">2 días</div>
+          </div>
+          <div class="prod-item">
+            <div class="prod-emoji">🍗</div>
+            <div class="prod-info">
+              <div class="prod-name">Pechuga de pollo</div>
+              <div class="prod-sub">San Jorge · 500g</div>
+            </div>
+            <div class="badge badge-warn">3 días</div>
+          </div>
+          <div class="prod-item">
+            <div class="prod-emoji">🥚</div>
+            <div class="prod-info">
+              <div class="prod-name">Huevos</div>
+              <div class="prod-sub">· 12 unidades</div>
+            </div>
+            <div class="badge badge-ok">18 días</div>
+          </div>
+          <div class="prod-item">
+            <div class="prod-emoji">🍝</div>
+            <div class="prod-info">
+              <div class="prod-name">Fideos espagueti</div>
+              <div class="prod-sub">Carozzi · 500g</div>
+            </div>
+            <div class="badge badge-ok">120 días</div>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item"><div class="nav-icon">🏠</div>Inicio</div>
+          <div class="nav-item active"><div class="nav-icon">📦</div>Inventario</div>
+          <div class="nav-item"><div class="nav-icon">🛒</div>Lista</div>
+          <div class="nav-item"><div class="nav-icon">🔔</div>Alertas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANTALLA 5: AGREGAR PRODUCTO ════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">05 · Agregar Producto</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="form-header">
+          <span>←</span>
+          <div class="form-title">Agregar producto</div>
+        </div>
+        <div class="form-body">
+          <div class="form-group">
+            <div class="form-label">NOMBRE DEL PRODUCTO *</div>
+            <div class="form-input focused">Leche entera</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">MARCA</div>
+            <div class="form-input">Soprole</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <div class="form-label">CANTIDAD *</div>
+              <div class="form-input">2</div>
+            </div>
+            <div class="form-group">
+              <div class="form-label">UNIDAD</div>
+              <div class="form-input">Unidad ▾</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">FECHA DE VENCIMIENTO</div>
+            <div class="form-input" style="border-color:var(--naranja)">📅 22/04/2026</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">CATEGORÍA</div>
+            <div class="form-input">🥛 Lácteos ▾</div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">CÓDIGO DE BARRAS</div>
+            <div class="form-input">📷 Escanear código</div>
+          </div>
+        </div>
+        <div class="form-footer">
+          <div class="btn-outline">Cancelar</div>
+          <div class="btn-fill">✓ Guardar producto</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANTALLA 6: DETALLE PRODUCTO ════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">06 · Detalle</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="form-header" style="background:var(--naranja)">
+          <span>←</span>
+          <div class="form-title">Detalle del producto</div>
+        </div>
+        <div style="padding:12px;display:flex;flex-direction:column;gap:8px;flex:1">
+          <div style="background:#fff;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+            <div style="font-size:32px">🥛</div>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:var(--texto)">Leche entera</div>
+              <div style="font-size:9px;color:var(--texto2)">Soprole · Lácteos</div>
+              <div class="badge badge-warn" style="margin-top:3px;display:inline-block">⚠️ Vence en 2 días</div>
+            </div>
+          </div>
+          <div style="background:#fff;border-radius:12px;padding:10px;box-shadow:0 1px 4px rgba(0,0,0,0.05)">
+            <div style="font-size:9px;font-weight:700;color:var(--texto2);margin-bottom:6px">INFORMACIÓN</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div style="font-size:8.5px"><span style="color:var(--texto2)">Cantidad:</span><br><strong>2 unidades</strong></div>
+              <div style="font-size:8.5px"><span style="color:var(--texto2)">Vencimiento:</span><br><strong>22/04/2026</strong></div>
+              <div style="font-size:8.5px"><span style="color:var(--texto2)">Código:</span><br><strong>7802900036526</strong></div>
+              <div style="font-size:8.5px"><span style="color:var(--texto2)">Ingresado:</span><br><strong>15/04/2026</strong></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <div style="flex:1;background:var(--azulc);color:var(--azul);border-radius:8px;padding:7px;text-align:center;font-size:9px;font-weight:700">✏️ Editar</div>
+            <div style="flex:1;background:var(--rojoc);color:var(--rojo);border-radius:8px;padding:7px;text-align:center;font-size:9px;font-weight:700">🗑️ Eliminar</div>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item"><div class="nav-icon">🏠</div>Inicio</div>
+          <div class="nav-item active"><div class="nav-icon">📦</div>Inventario</div>
+          <div class="nav-item"><div class="nav-icon">🛒</div>Lista</div>
+          <div class="nav-item"><div class="nav-icon">🔔</div>Alertas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANTALLA 7: ALERTAS ══════════════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">07 · Alertas</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="status-bar dark" style="background:#fff"></div>
+        <div class="alerts-header">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="alerts-title">🔔 Alertas</div>
+              <div class="alerts-subtitle">3 alertas activas</div>
+            </div>
+            <div style="background:var(--rojoc);color:var(--rojo);border-radius:6px;padding:3px 7px;font-size:8px;font-weight:700">3 nuevas</div>
+          </div>
+        </div>
+        <div style="flex:1;overflow:hidden;padding-top:6px">
+          <div class="alert-card bad">
+            <div class="alert-ico">🚨</div>
+            <div class="alert-body">
+              <div class="alert-msg">Leche entera — VENCIDA</div>
+              <div class="alert-time">Venció el 20/04/2026 · hace 2 días</div>
+            </div>
+          </div>
+          <div class="alert-card warn">
+            <div class="alert-ico">⏰</div>
+            <div class="alert-body">
+              <div class="alert-msg">Yogur griego — vence en 2 días</div>
+              <div class="alert-time">Vence el 23/04/2026 · hoy 21/04/2026</div>
+            </div>
+          </div>
+          <div class="alert-card warn">
+            <div class="alert-ico">⏰</div>
+            <div class="alert-body">
+              <div class="alert-msg">Pan de molde — vence mañana</div>
+              <div class="alert-time">Vence el 22/04/2026 · hoy 21/04/2026</div>
+            </div>
+          </div>
+          <div class="alert-card ok">
+            <div class="alert-ico">✅</div>
+            <div class="alert-body">
+              <div class="alert-msg">Huevos — Stock OK</div>
+              <div class="alert-time">Vence el 09/05/2026 · 18 días restantes</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item"><div class="nav-icon">🏠</div>Inicio</div>
+          <div class="nav-item"><div class="nav-icon">📦</div>Inventario</div>
+          <div class="nav-item"><div class="nav-icon">🛒</div>Lista</div>
+          <div class="nav-item active"><div class="nav-icon">🔔</div>Alertas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANTALLA 8: LISTA COMPRAS ═══════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">08 · Lista de Compras</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="lista-header">
+          <div class="lista-title">🛒 Lista de compras</div>
+          <div class="lista-sub">3 de 5 pendientes</div>
+        </div>
+        <div style="flex:1;overflow:hidden;padding-top:6px">
+          <div class="gen-btn">✨ Generar automática desde stock bajo</div>
+          <div class="lista-item">
+            <div class="checkbox checked">✓</div>
+            <div class="lista-item-name" style="text-decoration:line-through;color:var(--gris3)">Leche entera</div>
+            <div class="lista-item-cant">×2</div>
+          </div>
+          <div class="lista-item">
+            <div class="checkbox checked">✓</div>
+            <div class="lista-item-name" style="text-decoration:line-through;color:var(--gris3)">Pan de molde</div>
+            <div class="lista-item-cant">×1</div>
+          </div>
+          <div class="lista-item">
+            <div class="checkbox"></div>
+            <div class="lista-item-name">Yogur griego</div>
+            <div class="tag-auto">AUTO</div>
+            <div class="lista-item-cant">×3</div>
+          </div>
+          <div class="lista-item">
+            <div class="checkbox"></div>
+            <div class="lista-item-name">Pechuga de pollo</div>
+            <div class="tag-auto">AUTO</div>
+            <div class="lista-item-cant">×1</div>
+          </div>
+          <div class="lista-item">
+            <div class="checkbox"></div>
+            <div class="lista-item-name">Huevos</div>
+            <div class="lista-item-cant">×12</div>
+          </div>
+        </div>
+        <div class="nav-bar">
+          <div class="nav-item"><div class="nav-icon">🏠</div>Inicio</div>
+          <div class="nav-item"><div class="nav-icon">📦</div>Inventario</div>
+          <div class="nav-item active"><div class="nav-icon">🛒</div>Lista</div>
+          <div class="nav-item"><div class="nav-icon">🔔</div>Alertas</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PANTALLA 9: PERFIL ═══════════════════════════ -->
+  <div class="phone-wrap">
+    <div class="phone-label">09 · Perfil</div>
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="form-header" style="background:linear-gradient(135deg,var(--azul),var(--azul2));flex-direction:column;align-items:center;gap:6px;padding-bottom:16px">
+          <div style="width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:22px;border:2px solid rgba(255,255,255,0.4)">👤</div>
+          <div style="color:#fff;font-weight:800;font-size:12px">Vicente Bueno</div>
+          <div style="color:rgba(255,255,255,0.7);font-size:8.5px">vicente@email.com</div>
+        </div>
+        <div style="flex:1;padding:10px;display:flex;flex-direction:column;gap:6px">
+          <div style="background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.05)">
+            <div style="padding:8px 10px;border-bottom:1px solid var(--gris2);display:flex;align-items:center;gap:8px;font-size:9.5px">
+              <span>⚙️</span><span style="flex:1">Configuración de alertas</span><span style="color:var(--gris3)">›</span>
+            </div>
+            <div style="padding:8px 10px;border-bottom:1px solid var(--gris2);display:flex;align-items:center;gap:8px;font-size:9.5px">
+              <span>📊</span><span style="flex:1">Estadísticas de consumo</span><span style="color:var(--gris3)">›</span>
+            </div>
+            <div style="padding:8px 10px;border-bottom:1px solid var(--gris2);display:flex;align-items:center;justify-content:space-between;font-size:9.5px">
+              <div style="display:flex;align-items:center;gap:8px"><span>🔔</span><span>Notificaciones push</span></div>
+              <div style="background:var(--verde);width:24px;height:13px;border-radius:8px;position:relative">
+                <div style="position:absolute;right:2px;top:2px;width:9px;height:9px;background:#fff;border-radius:50%"></div>
+              </div>
+            </div>
+            <div style="padding:8px 10px;display:flex;align-items:center;gap:8px;font-size:9.5px">
+              <span>🌙</span><span style="flex:1">Modo oscuro</span><span style="color:var(--gris3)">›</span>
+            </div>
+          </div>
+          <div style="background:var(--rojoc);border-radius:10px;padding:8px 10px;text-align:center;color:var(--rojo);font-size:9.5px;font-weight:700">
+            🚪 Cerrar sesión
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center;color:#8BA3BF;font-size:11px;margin-top:28px;padding-bottom:20px">
+  DespensaDigital · Prototipo de interfaz · TPY1101 Duoc UC · Equipo: Bueno, Lagos, Olea · Abril 2026
+</div>
+
+</body>
+</html>

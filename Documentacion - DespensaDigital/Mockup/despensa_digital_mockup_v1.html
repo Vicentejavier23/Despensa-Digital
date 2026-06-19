@@ -1,0 +1,910 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, system-ui, sans-serif); }
+
+.mockup-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  padding: 24px 0;
+}
+
+.phone-frame {
+  background: #1a1a1a;
+  border-radius: 36px;
+  padding: 10px;
+  box-shadow: 0 0 0 2px #333;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.phone-notch {
+  width: 80px;
+  height: 20px;
+  background: #1a1a1a;
+  border-radius: 0 0 12px 12px;
+  margin-bottom: 4px;
+  z-index: 10;
+  position: relative;
+}
+
+.phone-screen {
+  width: 100%;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #f8f9fa;
+  min-height: 560px;
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+}
+
+.phone-label {
+  text-align: center;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* Colors */
+.bg-green { background: #2d7a4f; }
+.bg-green-light { background: #e8f5ee; }
+.bg-orange-light { background: #fff4e6; }
+.bg-red-light { background: #fff0f0; }
+.bg-white { background: #fff; }
+.text-green { color: #2d7a4f; }
+.text-orange { color: #e67e22; }
+.text-red { color: #e74c3c; }
+.text-gray { color: #888; }
+.text-dark { color: #1a1a1a; }
+.text-white { color: #fff; }
+
+/* =====================
+   SCREEN 1: LOGIN
+   ===================== */
+.login-screen {
+  background: #fff;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 20px 20px;
+}
+.login-logo-wrap {
+  width: 56px; height: 56px;
+  background: #e8f5ee;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
+}
+.login-logo-icon {
+  width: 32px; height: 32px;
+  background: #2d7a4f;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.login-title { font-size: 15px; font-weight: 500; color: #1a1a1a; margin-bottom: 2px; }
+.login-slogan { font-size: 9px; color: #888; margin-bottom: 20px; text-align: center; }
+.login-field {
+  width: 100%;
+  background: #f5f5f5;
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.field-icon {
+  width: 12px; height: 12px;
+  background: #bbb;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.field-text { font-size: 10px; color: #aaa; }
+.login-btn {
+  width: 100%;
+  background: #2d7a4f;
+  color: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.login-forgot { font-size: 9px; color: #2d7a4f; margin-bottom: 12px; }
+.login-divider {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; margin-bottom: 12px;
+}
+.divider-line { flex: 1; height: 0.5px; background: #ddd; }
+.divider-text { font-size: 9px; color: #aaa; }
+.google-btn {
+  width: 100%;
+  border: 0.5px solid #ddd;
+  border-radius: 10px;
+  padding: 8px;
+  text-align: center;
+  font-size: 10px;
+  color: #555;
+  margin-bottom: 16px;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.google-icon {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4285f4, #ea4335, #fbbc05, #34a853);
+}
+.login-register { font-size: 9px; color: #888; }
+.login-register span { color: #2d7a4f; }
+
+/* =====================
+   SCREEN 2: INICIO
+   ===================== */
+.screen-header {
+  background: #fff;
+  padding: 14px 14px 10px;
+  border-bottom: 0.5px solid #eee;
+}
+.header-row { display: flex; align-items: center; justify-content: space-between; }
+.greeting { font-size: 12px; font-weight: 500; color: #1a1a1a; }
+.greeting-sub { font-size: 9px; color: #888; }
+.avatar {
+  width: 28px; height: 28px;
+  background: #e8f5ee;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 500; color: #2d7a4f;
+}
+.bell-icon {
+  width: 22px; height: 22px;
+  background: #f5f5f5;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-right: 6px;
+}
+.search-bar {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-top: 8px;
+  font-size: 9px; color: #aaa;
+  display: flex; align-items: center; gap: 6px;
+}
+.search-dot { width: 10px; height: 10px; background: #ccc; border-radius: 50%; }
+.screen-body { flex: 1; padding: 12px 12px 0; overflow: hidden; }
+.alert-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.alert-card {
+  flex: 1;
+  border-radius: 10px;
+  padding: 10px;
+}
+.alert-card-orange { background: #fff4e6; }
+.alert-card-red { background: #fff0f0; }
+.alert-card-num { font-size: 18px; font-weight: 500; }
+.alert-card-label { font-size: 8px; color: #888; margin-bottom: 6px; }
+.alert-card-cta { font-size: 8px; font-weight: 500; }
+.section-title { font-size: 10px; font-weight: 500; color: #1a1a1a; margin-bottom: 8px; }
+.categories-row { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.cat-chip {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 4px 8px;
+  font-size: 8px; color: #555;
+  display: flex; align-items: center; gap: 4px;
+}
+.cat-dot { width: 6px; height: 6px; border-radius: 50%; }
+.activity-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 0;
+  border-bottom: 0.5px solid #f0f0f0;
+}
+.activity-icon {
+  width: 22px; height: 22px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; flex-shrink: 0;
+}
+.activity-text { font-size: 9px; color: #1a1a1a; }
+.activity-sub { font-size: 8px; color: #aaa; }
+.activity-time { font-size: 8px; color: #bbb; margin-left: auto; }
+
+/* Bottom Nav */
+.bottom-nav {
+  background: #fff;
+  border-top: 0.5px solid #eee;
+  display: flex;
+  padding: 8px 0 10px;
+}
+.nav-item {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+}
+.nav-dot {
+  width: 18px; height: 18px;
+  border-radius: 6px;
+}
+.nav-label { font-size: 7px; }
+.nav-active .nav-dot { background: #2d7a4f; }
+.nav-active .nav-label { color: #2d7a4f; font-weight: 500; }
+.nav-inactive .nav-dot { background: #e5e5e5; }
+.nav-inactive .nav-label { color: #bbb; }
+
+/* =====================
+   SCREEN 3: PRODUCTOS
+   ===================== */
+.tabs-row {
+  display: flex;
+  padding: 0 12px;
+  background: #fff;
+  border-bottom: 0.5px solid #eee;
+  gap: 4px;
+}
+.tab {
+  padding: 8px 10px;
+  font-size: 9px;
+  border-bottom: 2px solid transparent;
+  color: #888;
+}
+.tab.active { color: #2d7a4f; border-bottom-color: #2d7a4f; font-weight: 500; }
+.tab-badge {
+  display: inline-block;
+  background: #e74c3c;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 7px;
+  padding: 1px 4px;
+  margin-left: 3px;
+}
+.tab-badge.orange { background: #e67e22; }
+.product-list { padding: 10px 12px; flex: 1; overflow: hidden; }
+.product-card {
+  background: #fff;
+  border-radius: 10px;
+  border: 0.5px solid #eee;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 8px;
+}
+.product-img {
+  width: 32px; height: 32px;
+  background: #e8f5ee;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.product-info { flex: 1; }
+.product-name { font-size: 10px; font-weight: 500; color: #1a1a1a; }
+.product-cat { font-size: 8px; color: #888; }
+.product-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.expiry-badge {
+  font-size: 7px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.expiry-green { background: #e8f5ee; color: #2d7a4f; }
+.expiry-orange { background: #fff4e6; color: #e67e22; }
+.expiry-red { background: #fff0f0; color: #e74c3c; }
+.product-qty { font-size: 8px; color: #888; }
+.fab {
+  position: absolute;
+  bottom: 48px; right: 14px;
+  width: 28px; height: 28px;
+  background: #2d7a4f;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; font-weight: 300;
+}
+.product-screen-wrap { position: relative; flex: 1; display: flex; flex-direction: column; }
+
+/* =====================
+   SCREEN 4: DETALLE
+   ===================== */
+.detail-img {
+  height: 100px;
+  background: linear-gradient(180deg, #e8f5ee 0%, #c8e8d8 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 40px;
+  position: relative;
+}
+.back-btn {
+  position: absolute;
+  top: 10px; left: 10px;
+  width: 22px; height: 22px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #555;
+}
+.detail-body { padding: 12px; flex: 1; }
+.detail-name { font-size: 14px; font-weight: 500; color: #1a1a1a; margin-bottom: 4px; }
+.status-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 8px; font-weight: 500;
+  margin-bottom: 10px;
+}
+.status-orange { background: #fff4e6; color: #e67e22; }
+.spec-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.spec-row {
+  display: flex;
+  padding: 5px 0;
+  border-bottom: 0.5px solid #eee;
+}
+.spec-row:last-child { border-bottom: none; }
+.spec-label { font-size: 9px; color: #888; width: 100px; flex-shrink: 0; }
+.spec-value { font-size: 9px; color: #1a1a1a; font-weight: 500; }
+.detail-actions { display: flex; gap: 8px; padding: 10px 12px; }
+.btn-secondary {
+  flex: 1; border: 0.5px solid #ddd;
+  border-radius: 8px; padding: 8px;
+  text-align: center; font-size: 9px; color: #555;
+}
+.btn-primary {
+  flex: 1; background: #2d7a4f;
+  border-radius: 8px; padding: 8px;
+  text-align: center; font-size: 9px; color: #fff; font-weight: 500;
+}
+
+/* =====================
+   SCREEN 5: LISTA
+   ===================== */
+.list-header { background: #fff; padding: 12px 14px; border-bottom: 0.5px solid #eee; }
+.list-title { font-size: 13px; font-weight: 500; color: #1a1a1a; }
+.list-subtitle { font-size: 8px; color: #888; }
+.auto-btn {
+  margin: 10px 12px;
+  background: #e8f5ee;
+  color: #2d7a4f;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 9px; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.auto-icon { width: 14px; height: 14px; background: #2d7a4f; border-radius: 50%; }
+.list-section { padding: 0 12px; margin-bottom: 8px; }
+.list-section-title { font-size: 9px; color: #888; margin-bottom: 6px; font-weight: 500; }
+.list-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 0;
+  border-bottom: 0.5px solid #f0f0f0;
+}
+.checkbox {
+  width: 14px; height: 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.checkbox.checked {
+  background: #2d7a4f;
+  border-color: #2d7a4f;
+  position: relative;
+}
+.list-item-text { font-size: 9px; color: #1a1a1a; flex: 1; }
+.list-item-text.done { text-decoration: line-through; color: #aaa; }
+.list-qty { font-size: 8px; color: #888; }
+.add-row {
+  display: flex; gap: 6px; margin: 8px 12px;
+}
+.add-input {
+  flex: 1; background: #f5f5f5;
+  border-radius: 8px; padding: 7px 10px;
+  font-size: 9px; color: #aaa;
+}
+.add-btn-circle {
+  width: 28px; height: 28px;
+  background: #2d7a4f; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; font-weight: 300;
+}
+.share-btn {
+  margin: 6px 12px;
+  border: 0.5px solid #ddd;
+  border-radius: 8px; padding: 7px;
+  text-align: center; font-size: 9px; color: #555;
+}
+
+/* =====================
+   SCREEN 6: PERFIL
+   ===================== */
+.profile-header {
+  background: #2d7a4f;
+  padding: 20px 14px 16px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.profile-avatar {
+  width: 48px; height: 48px;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 500; color: #fff;
+  margin-bottom: 6px;
+  border: 2px solid rgba(255,255,255,0.4);
+}
+.profile-name { font-size: 13px; font-weight: 500; color: #fff; }
+.profile-email { font-size: 9px; color: rgba(255,255,255,0.7); }
+.stats-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 8px; padding: 10px 12px;
+}
+.stat-card {
+  background: #fff;
+  border: 0.5px solid #eee;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+.stat-num { font-size: 16px; font-weight: 500; margin-bottom: 2px; }
+.stat-label { font-size: 8px; color: #888; }
+.mini-chart {
+  display: flex; align-items: flex-end; gap: 3px;
+  height: 20px; margin-top: 4px;
+}
+.bar {
+  flex: 1; background: #e8f5ee;
+  border-radius: 2px 2px 0 0;
+  min-height: 3px;
+}
+.bar.active { background: #2d7a4f; }
+.settings-section { padding: 0 12px; margin-bottom: 4px; }
+.settings-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0;
+  border-bottom: 0.5px solid #f0f0f0;
+}
+.settings-icon {
+  width: 22px; height: 22px;
+  background: #f0f0f0; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+.settings-label { font-size: 9px; color: #1a1a1a; flex: 1; }
+.settings-arrow { font-size: 10px; color: #ccc; }
+.toggle {
+  width: 24px; height: 13px;
+  background: #2d7a4f; border-radius: 8px;
+  position: relative;
+}
+.toggle-circle {
+  width: 11px; height: 11px;
+  background: #fff; border-radius: 50%;
+  position: absolute; top: 1px; right: 1px;
+}
+.logout-btn {
+  margin: 8px 12px;
+  background: #fff0f0;
+  border-radius: 8px; padding: 8px;
+  text-align: center; font-size: 9px; color: #e74c3c; font-weight: 500;
+}
+</style>
+
+<h2 class="sr-only">Mockup de la aplicación móvil Despensa Digital con 6 pantallas: Login, Inicio, Productos, Detalle, Lista de Compras y Perfil</h2>
+
+<div style="padding: 0 4px;">
+  <p style="font-size: 11px; color: var(--color-text-secondary); margin-bottom: 16px; text-align: center; letter-spacing: 0.5px; text-transform: uppercase;">Despensa Digital — Mockup UI</p>
+  
+  <div class="mockup-grid">
+
+    <!-- SCREEN 1: LOGIN -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="login-screen">
+            <div class="login-logo-wrap">
+              <div class="login-logo-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="7" width="14" height="10" rx="2" fill="white" fill-opacity="0.9"/><path d="M7 7V5a3 3 0 016 0v2" stroke="white" stroke-width="1.5" stroke-linecap="round"/><circle cx="10" cy="12" r="1.5" fill="#2d7a4f"/></svg>
+              </div>
+            </div>
+            <div class="login-title">Despensa Digital</div>
+            <div class="login-slogan">Que nada venza, que todo rinda</div>
+            
+            <div class="login-field">
+              <div class="field-icon" style="border-radius: 3px;"></div>
+              <span class="field-text">Correo electrónico</span>
+            </div>
+            <div class="login-field">
+              <div class="field-icon" style="background:#ddd;"></div>
+              <span class="field-text">Contraseña</span>
+              <div style="width:10px;height:7px;border:1.5px solid #ccc;border-radius:2px;margin-left:auto;"></div>
+            </div>
+            
+            <div class="login-btn">Iniciar sesión</div>
+            <div class="login-forgot">¿Olvidaste tu contraseña?</div>
+            
+            <div class="login-divider">
+              <div class="divider-line"></div>
+              <span class="divider-text">o continúa con</span>
+              <div class="divider-line"></div>
+            </div>
+            
+            <div class="google-btn">
+              <div class="google-icon"></div>
+              Continuar con Google
+            </div>
+            
+            <div class="login-register">¿No tienes cuenta? <span>Regístrate</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">01 · Login</div>
+    </div>
+
+    <!-- SCREEN 2: INICIO -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="screen-header">
+            <div class="header-row">
+              <div>
+                <div class="greeting">¡Hola, Vicente!</div>
+                <div class="greeting-sub">Revisa tu despensa hoy</div>
+              </div>
+              <div style="display:flex;align-items:center;">
+                <div class="bell-icon">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M6 1a3.5 3.5 0 013.5 3.5c0 2 .5 3 1 3.5H1.5c.5-.5 1-1.5 1-3.5A3.5 3.5 0 016 1z" stroke="#888" stroke-width="1"/><path d="M5 9.5a1 1 0 002 0" stroke="#888" stroke-width="1"/></svg>
+                </div>
+                <div class="avatar">VB</div>
+              </div>
+            </div>
+            <div class="search-bar">
+              <div class="search-dot"></div>
+              <span>Buscar producto...</span>
+            </div>
+          </div>
+          
+          <div class="screen-body">
+            <div style="font-size:9px;color:#888;margin-bottom:8px;">Alertas activas</div>
+            <div class="alert-row">
+              <div class="alert-card alert-card-orange">
+                <div class="alert-card-num text-orange">7</div>
+                <div class="alert-card-label">Próximos a vencer</div>
+                <div class="alert-card-cta text-orange">Ver todos →</div>
+              </div>
+              <div class="alert-card alert-card-red">
+                <div class="alert-card-num text-red">3</div>
+                <div class="alert-card-label">Productos agotados</div>
+                <div class="alert-card-cta text-red">Ver todos →</div>
+              </div>
+            </div>
+            
+            <div class="section-title">Tu despensa</div>
+            <div class="categories-row">
+              <div class="cat-chip"><div class="cat-dot" style="background:#4ecdc4;"></div>Lácteos 4</div>
+              <div class="cat-chip"><div class="cat-dot" style="background:#e74c3c;"></div>Carnes 2</div>
+              <div class="cat-chip"><div class="cat-dot" style="background:#2ecc71;"></div>Verduras 8</div>
+              <div class="cat-chip"><div class="cat-dot" style="background:#f39c12;"></div>Conservas 5</div>
+            </div>
+            
+            <div class="section-title">Actividad reciente</div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:#e8f5ee;">
+                <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#2d7a4f" fill-opacity="0.3"/><path d="M3 5l1.5 1.5L7 3.5" stroke="#2d7a4f" stroke-width="1.2"/></svg>
+              </div>
+              <div>
+                <div class="activity-text">Leche agregada</div>
+                <div class="activity-sub">Vence 15 ene</div>
+              </div>
+              <div class="activity-time">hace 2h</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:#fff4e6;">
+                <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#e67e22" fill-opacity="0.3"/><path d="M5 3v2l1.5 1.5" stroke="#e67e22" stroke-width="1.2" stroke-linecap="round"/></svg>
+              </div>
+              <div>
+                <div class="activity-text">Yogur próximo a vencer</div>
+                <div class="activity-sub">Vence en 2 días</div>
+              </div>
+              <div class="activity-time">hace 5h</div>
+            </div>
+            <div class="activity-item">
+              <div class="activity-icon" style="background:#fff0f0;">
+                <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="#e74c3c" fill-opacity="0.3"/><path d="M3.5 3.5l3 3M6.5 3.5l-3 3" stroke="#e74c3c" stroke-width="1.2"/></svg>
+              </div>
+              <div>
+                <div class="activity-text">Queso agotado</div>
+                <div class="activity-sub">Stock en 0</div>
+              </div>
+              <div class="activity-time">ayer</div>
+            </div>
+          </div>
+          
+          <div class="bottom-nav">
+            <div class="nav-item nav-active"><div class="nav-dot"></div><span class="nav-label">Inicio</span></div>
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Productos</span></div>
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Lista</span></div>
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Perfil</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">02 · Inicio</div>
+    </div>
+
+    <!-- SCREEN 3: PRODUCTOS -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="screen-header">
+            <div class="header-row">
+              <div class="greeting">Mis Productos</div>
+              <div style="width:22px;height:22px;background:#2d7a4f;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:300;">+</div>
+            </div>
+          </div>
+          
+          <div class="tabs-row">
+            <div class="tab active">Todos</div>
+            <div class="tab">Agotados<span class="tab-badge">3</span></div>
+            <div class="tab">Por vencer<span class="tab-badge orange">7</span></div>
+          </div>
+          
+          <div class="product-screen-wrap">
+            <div class="product-list">
+              <div class="product-card">
+                <div class="product-img" style="font-size:16px;">🥛</div>
+                <div class="product-info">
+                  <div class="product-name">Leche Entera</div>
+                  <div class="product-cat">Lácteos · 2 litros</div>
+                  <div style="font-size:8px;color:#aaa;margin-top:2px;">Fresca, pasteurizada</div>
+                </div>
+                <div class="product-right">
+                  <span class="expiry-badge expiry-green">15 ene</span>
+                  <span class="product-qty">2 un</span>
+                </div>
+              </div>
+              <div class="product-card">
+                <div class="product-img" style="font-size:16px;">🧀</div>
+                <div class="product-info">
+                  <div class="product-name">Queso Gauda</div>
+                  <div class="product-cat">Lácteos · 200g</div>
+                  <div style="font-size:8px;color:#aaa;margin-top:2px;">Laminado, refrigerar</div>
+                </div>
+                <div class="product-right">
+                  <span class="expiry-badge expiry-orange">en 3d</span>
+                  <span class="product-qty">1 un</span>
+                </div>
+              </div>
+              <div class="product-card">
+                <div class="product-img" style="font-size:16px;">🍗</div>
+                <div class="product-info">
+                  <div class="product-name">Pechuga Pollo</div>
+                  <div class="product-cat">Carnes · 500g</div>
+                  <div style="font-size:8px;color:#aaa;margin-top:2px;">Fresco, congelar</div>
+                </div>
+                <div class="product-right">
+                  <span class="expiry-badge expiry-red">vencido</span>
+                  <span class="product-qty">0 un</span>
+                </div>
+              </div>
+              <div class="product-card">
+                <div class="product-img" style="font-size:16px;">🥦</div>
+                <div class="product-info">
+                  <div class="product-name">Brócoli</div>
+                  <div class="product-cat">Verduras · unidad</div>
+                  <div style="font-size:8px;color:#aaa;margin-top:2px;">Refrigerar</div>
+                </div>
+                <div class="product-right">
+                  <span class="expiry-badge expiry-green">20 ene</span>
+                  <span class="product-qty">3 un</span>
+                </div>
+              </div>
+            </div>
+            <div class="fab">+</div>
+          </div>
+          
+          <div class="bottom-nav">
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Inicio</span></div>
+            <div class="nav-item nav-active"><div class="nav-dot"></div><span class="nav-label">Productos</span></div>
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Lista</span></div>
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Perfil</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">03 · Productos</div>
+    </div>
+
+    <!-- SCREEN 4: DETALLE -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="detail-img">
+            🧀
+            <div class="back-btn">←</div>
+          </div>
+          <div class="detail-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+              <div class="detail-name">Queso Gauda</div>
+            </div>
+            <div class="status-chip status-orange">Próximo a vencer</div>
+            
+            <div class="spec-card">
+              <div class="spec-row">
+                <div class="spec-label">Categoría</div>
+                <div class="spec-value">Lácteos</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Cantidad</div>
+                <div class="spec-value">1 unidad</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Peso</div>
+                <div class="spec-value">200 gramos</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Vencimiento</div>
+                <div class="spec-value" style="color:#e67e22;">Vence en 3 días</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Descripción</div>
+                <div class="spec-value">Laminado, refrigerar bajo 5°C</div>
+              </div>
+              <div class="spec-row">
+                <div class="spec-label">Ingresado</div>
+                <div class="spec-value">8 ene 2026</div>
+              </div>
+            </div>
+            
+            <div style="font-size:9px;font-weight:500;color:#1a1a1a;margin-bottom:6px;">Historial de consumo</div>
+            <div style="display:flex;align-items:flex-end;gap:3px;height:24px;margin-bottom:10px;">
+              <div style="flex:1;background:#e8f5ee;border-radius:2px 2px 0 0;height:60%;"></div>
+              <div style="flex:1;background:#e8f5ee;border-radius:2px 2px 0 0;height:80%;"></div>
+              <div style="flex:1;background:#2d7a4f;border-radius:2px 2px 0 0;height:100%;"></div>
+              <div style="flex:1;background:#e8f5ee;border-radius:2px 2px 0 0;height:40%;"></div>
+              <div style="flex:1;background:#e8f5ee;border-radius:2px 2px 0 0;height:70%;"></div>
+              <div style="flex:1;background:#e8f5ee;border-radius:2px 2px 0 0;height:20%;"></div>
+            </div>
+          </div>
+          <div class="detail-actions">
+            <div class="btn-secondary">Editar</div>
+            <div class="btn-primary">Marcar consumido</div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">04 · Detalle producto</div>
+    </div>
+
+    <!-- SCREEN 5: LISTA -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="list-header">
+            <div class="header-row">
+              <div>
+                <div class="list-title">Lista de Compras</div>
+                <div class="list-subtitle">Actualizada hace 1h · 5 pendientes</div>
+              </div>
+              <div style="font-size:9px;color:#2d7a4f;font-weight:500;">Compartir</div>
+            </div>
+          </div>
+          
+          <div class="auto-btn">
+            <div class="auto-icon"></div>
+            Generar automáticamente
+          </div>
+          
+          <div class="list-section">
+            <div class="list-section-title">Sugeridos (agotados o bajos)</div>
+            <div class="list-item">
+              <div class="checkbox checked"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+              <div class="list-item-text done">Queso Gauda</div>
+              <div class="list-qty">1 un</div>
+            </div>
+            <div class="list-item">
+              <div class="checkbox"></div>
+              <div class="list-item-text">Pechuga de Pollo</div>
+              <div class="list-qty">500g</div>
+            </div>
+            <div class="list-item">
+              <div class="checkbox"></div>
+              <div class="list-item-text">Yogur natural</div>
+              <div class="list-qty">4 un</div>
+            </div>
+          </div>
+          
+          <div class="list-section">
+            <div class="list-section-title">Agregados manualmente</div>
+            <div class="list-item">
+              <div class="checkbox"></div>
+              <div class="list-item-text">Aceite de oliva</div>
+              <div class="list-qty">1 bot</div>
+            </div>
+            <div class="list-item">
+              <div class="checkbox"></div>
+              <div class="list-item-text">Arroz integral</div>
+              <div class="list-qty">1 kg</div>
+            </div>
+          </div>
+          
+          <div class="add-row">
+            <div class="add-input">Agregar producto...</div>
+            <div class="add-btn-circle">+</div>
+          </div>
+          
+          <div class="share-btn">Limpiar completados</div>
+          
+          <div class="bottom-nav">
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Inicio</span></div>
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Productos</span></div>
+            <div class="nav-item nav-active"><div class="nav-dot"></div><span class="nav-label">Lista</span></div>
+            <div class="nav-item nav-inactive"><div class="nav-dot"></div><span class="nav-label">Perfil</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="phone-label">05 · Lista de compras</div>
+    </div>
+
+    <!-- SCREEN 6: PERFIL -->
+    <div>
+      <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="profile-header">
+            <div class="profile-avatar">VB</div>
+            <div class="profile-name">Vicente Bueno</div>
+            <div class="profile-email">vicente@email.com</div>
+            <div style="margin-top:8px;background:rgba(255,255,255,0.15);border-radius:8px;padding:4px 12px;font-size:8px;color:rgba(255,255,255,0.9);">Editar perfil</div>
+          </div>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-num text-red">4</div>
+              <div class="stat-label">Vencidos este mes</div>
+              <div class="mini-chart">
+                <div class="bar" style="height:60%;"></div>
+                <div class="bar" style="height:40%;"></div>
+                <div class="bar" style="height:80%;"></div>
+                <div class="bar active" style="height:100%;"></div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num text-green">87%</div>
+              <div class="stat-label">Eficiencia consumo</div>
+              <div style="height:4px;background:#eee;border-radius:4px;margin-top:6px;"><div style="height:100%;width:87%;background:#2d7a4f;border-radius:4px;"></div></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num" style="color:#888;">2.3</div>
+              <div class="stat-label">Días prom. con alertas</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num text-green">$18k</div>
+              <div class="stat-label">Ahorro estimado</div>
+              <div style="font-size:7px;color:#2d7a4f;margin-top:2px;">este mes</div>
+            </div>
+          </div>
+          
+          <div class="settings-section">
+            <div class="settings-item">
+              <div class="settings-icon"><div style="width:8px;height:8px;border-radius:50%;background:#888;"></div></div>
+              <div class="settings-label">Notificaciones</div>
+              <div class="toggle"><div class="toggle-circle"></div></div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-icon"><div style="width:8px;height:8px;border-radius:2px;background:#888;"></div></div>
+              <div class="settings-label">Días de alerta anticipada: 3</div>
+              <div class="settings-arrow">›</div>
+            </div>
+            <div class="settings-item">
+              <div class="settings-icon"><div style="width:8px;height:4px;border-radius:2px;background:#888;margin:2px auto;"></div></div>
+              <div class="settings-label">Tema de la app</div>
+              <div class="settings-arrow">›</div>
+            </div>
+          </div>
+          
+          <div class="logout-btn">Cerrar sesión</div>
+        </div>
+      </div>
+      <div class="phone-label">06 · Perfil</div>
+    </div>
+
+  </div>
+</div>
