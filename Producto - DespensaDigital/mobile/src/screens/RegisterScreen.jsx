@@ -162,9 +162,9 @@ export default function RegisterScreen({ navigation }) {
       numero_direccion:  parseInt(numeroDireccion, 10) || 0,
     };
 
-    const callbackUrl = await ejecutarRegistro(payload);
-    if (callbackUrl) {
-      navigation.navigate('Redirecting', { callbackUrl });
+    const result = await ejecutarRegistro(payload);
+    if (result) {
+      navigation.navigate('Main', { jwt: result.jwt, usuario: result.usuario });
     } else {
       Alert.alert(
         'Error al crear cuenta',
