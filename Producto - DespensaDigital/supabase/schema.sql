@@ -38,8 +38,7 @@ CREATE TABLE IF NOT EXISTS COMUNA (
 
 -- ─── Usuario ──────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS USUARIO (
-  run_usuario       BIGINT       PRIMARY KEY CHECK (run_usuario BETWEEN 1000000 AND 99999999),
-  dvrun_usuario     CHAR(1)      NOT NULL CHECK (dvrun_usuario ~ '^[0-9K]$'),
+  id_usuario        SERIAL       PRIMARY KEY,
   pri_nom_usuario   VARCHAR(80)  NOT NULL,
   seg_nom_usuario   VARCHAR(80),
   pri_ape_usuario   VARCHAR(80)  NOT NULL,
@@ -60,8 +59,8 @@ CREATE TABLE IF NOT EXISTS DIRECCION (
   calle_direccion       VARCHAR(200) NOT NULL DEFAULT 'Sin calle',
   numero_direccion      INT          NOT NULL DEFAULT 0,
   COMUNA_id_comuna      INT          REFERENCES COMUNA(id_comuna) ON DELETE SET NULL,
-  USUARIO_run_usuario   BIGINT       NOT NULL REFERENCES USUARIO(run_usuario) ON DELETE CASCADE,
-  UNIQUE(USUARIO_run_usuario)
+  USUARIO_id_usuario    INT          NOT NULL REFERENCES USUARIO(id_usuario) ON DELETE CASCADE,
+  UNIQUE(USUARIO_id_usuario)
 );
 
 -- ─── Categoría de producto ────────────────────────────────────
@@ -93,10 +92,10 @@ CREATE TABLE IF NOT EXISTS PRODUCTO (
   fecha_apertura           DATE,
   CATEGORIA_id_categoria   INT          REFERENCES CATEGORIA_PRODUCTO(id_categoria) ON DELETE SET NULL,
   TIPO_ALMACENAJE_id       INT          REFERENCES TIPO_ALMACENAJE(id_almacenaje)   ON DELETE SET NULL,
-  USUARIO_run_usuario      BIGINT       NOT NULL REFERENCES USUARIO(run_usuario)     ON DELETE CASCADE
+  USUARIO_id_usuario       INT          NOT NULL REFERENCES USUARIO(id_usuario)     ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_producto_usuario      ON PRODUCTO (USUARIO_run_usuario);
+CREATE INDEX IF NOT EXISTS idx_producto_usuario      ON PRODUCTO (USUARIO_id_usuario);
 CREATE INDEX IF NOT EXISTS idx_producto_vencimiento  ON PRODUCTO (fecha_vencimiento);
 
 -- ─── Patología ────────────────────────────────────────────────
@@ -107,10 +106,10 @@ CREATE TABLE IF NOT EXISTS PATOLOGIAS (
     CHECK (tipo_patologia IN ('Crónica','Alérgica','Intolerancia','Otra')),
   fecha_diagnostico   DATE,
   patologia_activa    BOOLEAN      NOT NULL DEFAULT TRUE,
-  USUARIO_run_usuario BIGINT       NOT NULL REFERENCES USUARIO(run_usuario) ON DELETE CASCADE
+  USUARIO_id_usuario  INT          NOT NULL REFERENCES USUARIO(id_usuario) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_patologia_usuario ON PATOLOGIAS (USUARIO_run_usuario);
+CREATE INDEX IF NOT EXISTS idx_patologia_usuario ON PATOLOGIAS (USUARIO_id_usuario);
 
 -- ─── Lista de compras ─────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS LISTA_COMPRAS (
@@ -121,10 +120,10 @@ CREATE TABLE IF NOT EXISTS LISTA_COMPRAS (
   tipo_lista           VARCHAR(20) NOT NULL DEFAULT 'MANUAL'
     CHECK (tipo_lista IN ('AUTOMATICA','MANUAL')),
   PRODUCTO_id_producto INT         NOT NULL REFERENCES PRODUCTO(id_producto) ON DELETE CASCADE,
-  USUARIO_run_usuario  BIGINT      NOT NULL REFERENCES USUARIO(run_usuario)  ON DELETE CASCADE
+  USUARIO_id_usuario   INT         NOT NULL REFERENCES USUARIO(id_usuario)  ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_lista_usuario ON LISTA_COMPRAS (USUARIO_run_usuario);
+CREATE INDEX IF NOT EXISTS idx_lista_usuario ON LISTA_COMPRAS (USUARIO_id_usuario);
 
 -- ─── Datos geográficos iniciales (Chile) ──────────────────────
 INSERT INTO PAIS (nombre_pais) VALUES
@@ -203,40 +202,42 @@ ON CONFLICT DO NOTHING;
 -- ─── Usuarios de prueba ───────────────────────────────────────
 -- Usuario 1: test@despensa.cl / Password123
 INSERT INTO USUARIO (
-  run_usuario, dvrun_usuario, pri_nom_usuario, pri_ape_usuario,
+  pri_nom_usuario, pri_ape_usuario,
   correo_usuario, num_tel_usuario, password_usuario, fecha_nac_usuario
 ) VALUES (
-  12345678, '9', 'Test', 'Usuario',
+  'Test', 'Usuario',
   'test@despensa.cl', 912345678,
   '$2b$12$4AU0cqJOrAt/3knJRhfVh.s5YPVtA2.X5P.jg3641ttX.XD62G6py',
   '1990-01-01'
 ) ON CONFLICT DO NOTHING;
 
 -- Dirección del usuario 1 (Santiago Centro)
-WITH u AS (SELECT 12345678 AS run), c AS (SELECT id_comuna FROM COMUNA WHERE nombre_comuna = 'Santiago Centro' LIMIT 1)
-INSERT INTO DIRECCION (calle_direccion, numero_direccion, COMUNA_id_comuna, USUARIO_run_usuario)
-SELECT 'Av. Libertador', 1234, c.id_comuna, u.run FROM u, c
+WITH u AS (SELECT id_usuario FROM USUARIO WHERE correo_usuario = 'test@despensa.cl'),
+     c AS (SELECT id_comuna FROM COMUNA WHERE nombre_comuna = 'Santiago Centro' LIMIT 1)
+INSERT INTO DIRECCION (calle_direccion, numero_direccion, COMUNA_id_comuna, USUARIO_id_usuario)
+SELECT 'Av. Libertador', 1234, c.id_comuna, u.id_usuario FROM u, c
 ON CONFLICT DO NOTHING;
 
 -- Usuario 2: admin@despensa.cl / Admin2024!
 INSERT INTO USUARIO (
-  run_usuario, dvrun_usuario, pri_nom_usuario, pri_ape_usuario,
+  pri_nom_usuario, pri_ape_usuario,
   correo_usuario, num_tel_usuario, password_usuario, fecha_nac_usuario
 ) VALUES (
-  11111111, '1', 'Admin', 'DespensaDigital',
+  'Admin', 'DespensaDigital',
   'admin@despensa.cl', 998765432,
   '$2b$12$x7jBGCLruw.Yp0grYKrowuqNoCrj8aLhR.K.R7x0x/XYHd9zCXnB2',
   '1995-06-15'
 ) ON CONFLICT DO NOTHING;
 
 -- Dirección del usuario 2 (Providencia)
-WITH u AS (SELECT 11111111 AS run), c AS (SELECT id_comuna FROM COMUNA WHERE nombre_comuna = 'Providencia' LIMIT 1)
-INSERT INTO DIRECCION (calle_direccion, numero_direccion, COMUNA_id_comuna, USUARIO_run_usuario)
-SELECT 'Av. Providencia', 560, c.id_comuna, u.run FROM u, c
+WITH u AS (SELECT id_usuario FROM USUARIO WHERE correo_usuario = 'admin@despensa.cl'),
+     c AS (SELECT id_comuna FROM COMUNA WHERE nombre_comuna = 'Providencia' LIMIT 1)
+INSERT INTO DIRECCION (calle_direccion, numero_direccion, COMUNA_id_comuna, USUARIO_id_usuario)
+SELECT 'Av. Providencia', 560, c.id_comuna, u.id_usuario FROM u, c
 ON CONFLICT DO NOTHING;
 
 -- Productos de prueba para test@despensa.cl
-WITH u AS (SELECT 12345678 AS run),
+WITH u AS (SELECT id_usuario FROM USUARIO WHERE correo_usuario = 'test@despensa.cl'),
      cat_lacteo    AS (SELECT id_categoria FROM CATEGORIA_PRODUCTO WHERE nombre_categoria = 'Lácteos'           LIMIT 1),
      cat_fruta     AS (SELECT id_categoria FROM CATEGORIA_PRODUCTO WHERE nombre_categoria = 'Frutas'            LIMIT 1),
      cat_cereal    AS (SELECT id_categoria FROM CATEGORIA_PRODUCTO WHERE nombre_categoria = 'Granos y cereales' LIMIT 1),
@@ -245,9 +246,9 @@ WITH u AS (SELECT 12345678 AS run),
 INSERT INTO PRODUCTO (
   nombre_producto, marca_producto, fecha_vencimiento,
   cantidad_unidad, stock_minimo, tipo_producto,
-  CATEGORIA_id_categoria, TIPO_ALMACENAJE_id, USUARIO_run_usuario
+  CATEGORIA_id_categoria, TIPO_ALMACENAJE_id, USUARIO_id_usuario
 )
-SELECT nombre, marca, vence, cant, stock, tipo, cat, alm, (SELECT run FROM u)
+SELECT nombre, marca, vence, cant, stock, tipo, cat, alm, (SELECT id_usuario FROM u)
 FROM (VALUES
   ('Leche entera',     'Soprole',   CURRENT_DATE + 5,   2, 2, 'Lácteo',    (SELECT id_categoria FROM cat_lacteo),   (SELECT id_almacenaje FROM alm_refrig)),
   ('Yogur natural',    'Nestlé',    CURRENT_DATE + 3,   3, 2, 'Lácteo',    (SELECT id_categoria FROM cat_lacteo),   (SELECT id_almacenaje FROM alm_refrig)),

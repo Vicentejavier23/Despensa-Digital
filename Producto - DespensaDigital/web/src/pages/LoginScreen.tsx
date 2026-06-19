@@ -7,7 +7,6 @@ import type { Pais, Region, Ciudad, Comuna } from '../types';
 // ─── Tipos de error por campo ─────────────────────────────────────────────────
 type LoginErrors = Partial<Record<'correo' | 'password', string>>;
 type RegisterErrors = Partial<Record<
-  | 'run' | 'dv'
   | 'nombre' | 'segNombre' | 'apellido' | 'segApellido'
   | 'correo' | 'telefono' | 'fechaNac'
   | 'password' | 'confirmPassword'
@@ -15,19 +14,6 @@ type RegisterErrors = Partial<Record<
   | 'calle' | 'numeroDireccion',
   string
 >>;
-
-// ─── Validador RUT (módulo 11) ────────────────────────────────────────────────
-function calcularDV(rut: number): string {
-  let suma = 0, mul = 2, n = rut;
-  while (n > 0) { suma += (n % 10) * mul; n = Math.floor(n / 10); mul = mul === 7 ? 2 : mul + 1; }
-  const r = suma % 11;
-  return r === 0 ? '0' : r === 1 ? 'K' : String(11 - r);
-}
-function validarRut(run: string, dv: string): boolean {
-  const n = parseInt(run.replace(/\./g, ''), 10);
-  if (isNaN(n) || n < 1000000 || n > 99999999) return false;
-  return calcularDV(n) === dv.toUpperCase();
-}
 
 export default function LoginScreen() {
   const navigate   = useNavigate();
@@ -45,8 +31,6 @@ export default function LoginScreen() {
 
   // ── Register fields ──
   // Identidad
-  const [run,             setRun]             = useState('');
-  const [dv,              setDv]              = useState('');
   const [nombre,          setNombre]          = useState('');
   const [segNombre,       setSegNombre]       = useState('');
   const [apellido,        setApellido]        = useState('');
@@ -111,19 +95,6 @@ export default function LoginScreen() {
   // ── VALIDACIÓN REGISTRO ───────────────────────────────────────────────────
   function validarRegistro(): RegisterErrors {
     const errs: RegisterErrors = {};
-
-    // RUT
-    const runLimpio = run.replace(/\./g, '').trim();
-    if (!runLimpio)
-      errs.run = 'El RUT es obligatorio';
-    else if (isNaN(Number(runLimpio)) || Number(runLimpio) < 1000000 || Number(runLimpio) > 99999999)
-      errs.run = 'RUT inválido — debe tener entre 7 y 8 dígitos';
-    if (!dv.trim())
-      errs.dv = 'El dígito verificador es obligatorio';
-    else if (!/^[0-9kK]$/.test(dv.trim()))
-      errs.dv = 'Solo se acepta un número o la letra K';
-    else if (runLimpio && !validarRut(runLimpio, dv.trim()))
-      errs.dv = 'Dígito verificador incorrecto para ese RUT';
 
     // Nombre y apellidos
     if (!nombre.trim())
@@ -238,14 +209,10 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const runLimpio = parseInt(run.replace(/\./g, '').trim(), 10);
-
       const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          run_usuario:       runLimpio,
-          dvrun_usuario:     dv.trim().toUpperCase(),
           pri_nom_usuario:   nombre.trim(),
           seg_nom_usuario:   segNombre.trim() || null,
           pri_ape_usuario:   apellido.trim(),
@@ -264,7 +231,6 @@ export default function LoginScreen() {
       if (!res.ok) {
         const msg: string = data.error ?? 'Error al registrarse';
         if (msg.toLowerCase().includes('correo'))       setRegErrors({ correo: msg });
-        else if (msg.toLowerCase().includes('rut'))     setRegErrors({ run: msg });
         else if (msg.toLowerCase().includes('comuna'))  setRegErrors({ comuna: msg });
         else setRegErrors({ nombre: msg });
         setLoading(false);
@@ -287,7 +253,6 @@ export default function LoginScreen() {
       if (!exchRes.ok || !exchData.jwt) {
         // Exchange falló → ir a login con mensaje de éxito
         setNombre(''); setSegNombre(''); setApellido(''); setSegApellido('');
-        setRun(''); setDv('');
         setCorreo(''); setTelefono(''); setFechaNac('');
         setPassword(''); setConfirmPassword('');
         setCalle(''); setNumeroDireccion('');
@@ -369,34 +334,6 @@ export default function LoginScreen() {
         {/* ── REGISTRO ── */}
         {mode === 'register' && (
           <form onSubmit={handleRegister} noValidate style={s.form}>
-
-            {/* ── RUT ── */}
-            <div style={s.sectionTitle}>🪪 RUT</div>
-            <div style={s.rutRow}>
-              <Field label="Número RUT *" error={regErrors.run} style={{ flex: 1 }}>
-                <input
-                  type="text"
-                  placeholder="12345678"
-                  value={run}
-                  onChange={e => setRun(e.target.value.replace(/[^0-9.]/g, ''))}
-                  style={{ ...s.input, ...(regErrors.run ? s.inputError : {}) }}
-                  disabled={loading}
-                  maxLength={9}
-                />
-              </Field>
-              <span style={s.rutDash}>-</span>
-              <Field label="DV *" error={regErrors.dv} style={{ width: 64 }}>
-                <input
-                  type="text"
-                  placeholder="K"
-                  value={dv}
-                  onChange={e => setDv(e.target.value.replace(/[^0-9kK]/g, '').slice(0, 1))}
-                  style={{ ...s.input, ...(regErrors.dv ? s.inputError : {}), textAlign: 'center', textTransform: 'uppercase' }}
-                  disabled={loading}
-                  maxLength={1}
-                />
-              </Field>
-            </div>
 
             {/* ── Nombre y Apellidos ── */}
             <div style={s.sectionTitle}>👤 Datos personales</div>
@@ -591,12 +528,6 @@ const s: Record<string, React.CSSProperties> = {
   form:  { display: 'flex', flexDirection: 'column', gap: 14 },
   row:   { display: 'flex', gap: 12 },
   label: { fontSize: 'var(--font-size-sm)', fontWeight: 600, color: 'var(--color-text)' },
-
-  rutRow: { display: 'flex', alignItems: 'flex-start', gap: 8 },
-  rutDash: {
-    fontSize: 22, fontWeight: 700, color: 'var(--color-text-muted)',
-    marginTop: 26, flexShrink: 0,
-  },
 
   input: {
     width: '100%', padding: '10px 12px', fontSize: 'var(--font-size-sm)',

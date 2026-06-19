@@ -54,9 +54,9 @@ export default function LoginScreen({ navigation }) {
   async function handleLogin() {
     setErrorBanner('');
     if (!validar()) return;
-    const callbackUrl = await ejecutarLogin(correo.trim().toLowerCase(), password);
-    if (callbackUrl) {
-      navigation.navigate('Redirecting', { callbackUrl });
+    const result = await ejecutarLogin(correo.trim().toLowerCase(), password);
+    if (result) {
+      navigation.navigate('Main', { jwt: result.jwt, usuario: result.usuario });
     } else {
       setErrorBanner('Correo o contraseña incorrectos. Verifica tus datos e intenta de nuevo.');
     }

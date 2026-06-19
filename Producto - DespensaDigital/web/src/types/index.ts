@@ -21,8 +21,7 @@ export interface Comuna {
 
 // ─── Usuario ──────────────────────────────────────────────────────────────────
 export interface Usuario {
-  run_usuario: number;
-  dvrun_usuario: string;
+  id_usuario: number;
   pri_nom_usuario: string;
   seg_nom_usuario?: string | null;
   pri_ape_usuario: string;

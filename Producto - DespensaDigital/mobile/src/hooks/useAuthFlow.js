@@ -5,55 +5,68 @@
  * Proyecto  : DespensaDigital v2
  * Curso     : TPY1101 — Duoc UC
  *
- * Este hook encapsula todo el flujo de autenticación de la app móvil:
+ * Flujo de autenticación:
  *
  *  Login:
- *   1. Envía correo + contraseña al backend → recibe exchange_token
- *   2. Construye la URL: <webCallbackUrl>/auth/callback?code=<token>
- *   3. Abre esa URL en el navegador del sistema (Linking.openURL)
- *   4. La web completa el login y guarda el JWT
+ *   1. Envía correo + contraseña al backend → recibe exchange_token + mobile_token
+ *   2. Usa mobile_token para obtener JWT + datos del usuario (queda en la app)
+ *   3. Retorna { callbackUrl, jwt, usuario } para navegar a MainScreen
+ *      y también abre el navegador web con el exchange_token
  *
  *  Registro:
- *   - Mismo flujo que login, pero primero crea la cuenta
+ *   - Mismo flujo que login pero crea la cuenta primero.
  *
- * La URL base de la web se lee de app.config.js → extra.webCallbackUrl
- * Por defecto apunta a http://localhost:5173 (modo escritorio)
- * Para celular real: definir LOCAL_IP=<ip> al arrancar Expo
+ * De esta forma la app móvil tiene su propia sesión autenticada
+ * (para Patologías y Lista de compras) sin depender del navegador.
  * ============================================================
  */
 import { useState, useCallback } from 'react';
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 import { login, register } from '../api/authApi';
 
 const WEB_CALLBACK_URL =
   Constants.expoConfig?.extra?.webCallbackUrl ?? 'http://localhost:5173';
 
-/**
- * Hook que encapsula todo el flujo de autenticación mobile.
- * Login ahora usa CORREO ELECTRÓNICO en vez de RUT.
- */
+const API_BASE = Platform.OS === 'web'
+  ? 'http://localhost:3001'
+  : (Constants.expoConfig?.extra?.apiBaseUrl ?? 'http://localhost:3001');
+
+/** Canjea un token de exchange por JWT + usuario */
+async function exchangeToken(token) {
+  const res = await fetch(`${API_BASE}/api/auth/exchange`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ code: token }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error ?? 'Error al autenticar');
+  return data; // { jwt, usuario }
+}
+
 export function useAuthFlow() {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState(null);
 
   const limpiarError = useCallback(() => setError(null), []);
 
-  // Solo construye la URL — RedirectingScreen se encarga de abrirla
   const redirigirAlNavegador = useCallback((exchange_token) => {
     return `${WEB_CALLBACK_URL}/auth/callback?code=${exchange_token}`;
   }, []);
 
   /**
    * Login por CORREO ELECTRÓNICO.
-   * @param {string} correo_usuario
-   * @param {string} password_usuario
+   * Retorna { callbackUrl, jwt, usuario } o null si falla.
    */
   const ejecutarLogin = useCallback(async (correo_usuario, password_usuario) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     try {
-      const { exchange_token } = await login({ correo_usuario, password_usuario });
-      return redirigirAlNavegador(exchange_token);
+      const { exchange_token, mobile_token } = await login({ correo_usuario, password_usuario });
+      // mobile_token → JWT para uso dentro de la app
+      const { jwt, usuario } = await exchangeToken(mobile_token);
+      // exchange_token → URL para abrir la versión web
+      const callbackUrl = redirigirAlNavegador(exchange_token);
+      return { callbackUrl, jwt, usuario };
     } catch (err) {
       setError(err.message ?? 'Error al iniciar sesión. Intenta de nuevo.');
       return null;
@@ -63,14 +76,16 @@ export function useAuthFlow() {
   }, [redirigirAlNavegador]);
 
   /**
-   * Registro — sin cambios en la firma, el payload ya incluye correo.
+   * Registro.
+   * Retorna { callbackUrl, jwt, usuario } o null si falla.
    */
   const ejecutarRegistro = useCallback(async (payload) => {
-    setLoading(true);
-    setError(null);
+    setLoading(true); setError(null);
     try {
-      const { exchange_token } = await register(payload);
-      return redirigirAlNavegador(exchange_token);
+      const { exchange_token, mobile_token } = await register(payload);
+      const { jwt, usuario } = await exchangeToken(mobile_token);
+      const callbackUrl = redirigirAlNavegador(exchange_token);
+      return { callbackUrl, jwt, usuario };
     } catch (err) {
       setError(err.message ?? 'Error al crear la cuenta. Intenta de nuevo.');
       return null;

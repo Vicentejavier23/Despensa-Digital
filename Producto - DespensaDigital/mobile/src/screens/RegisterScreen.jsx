@@ -18,24 +18,7 @@ const C = {
   danger: '#EF4444',
 };
 
-// ─── Validador RUT (módulo 11) ────────────────────────────────────────────────
-function calcularDV(rut) {
-  let suma = 0, mul = 2, n = rut;
-  while (n > 0) { suma += (n % 10) * mul; n = Math.floor(n / 10); mul = mul === 7 ? 2 : mul + 1; }
-  const r = suma % 11;
-  return r === 0 ? '0' : r === 1 ? 'K' : String(11 - r);
-}
-function validarRut(run, dv) {
-  const n = parseInt(String(run).replace(/\./g, ''), 10);
-  if (isNaN(n) || n < 1000000 || n > 99999999) return false;
-  return calcularDV(n) === String(dv).toUpperCase();
-}
-
 export default function RegisterScreen({ navigation }) {
-  // ── RUT ───────────────────────────────────────────────────────
-  const [run,           setRun]          = useState('');
-  const [dv,            setDv]           = useState('');
-
   // ── Campos personales ──────────────────────────────────────────
   const [nombre,        setNombre]       = useState('');
   const [segNombre,     setSegNombre]    = useState('');
@@ -66,7 +49,6 @@ export default function RegisterScreen({ navigation }) {
 
   // ── Errores ───────────────────────────────────────────────────
   const [err, setErr] = useState({
-    run: '', dv: '',
     nombre: '', segNombre: '', apellido: '', segApellido: '',
     correo: '', telefono: '', fechaNac: '',
     pais: '', region: '', ciudad: '', comuna: '',
@@ -78,7 +60,6 @@ export default function RegisterScreen({ navigation }) {
   const { loading, ejecutarRegistro } = useAuthFlow();
 
   // refs para navegación entre campos
-  const dvRef       = useRef(null);
   const segNomRef   = useRef(null);
   const apRef       = useRef(null);
   const segApRef    = useRef(null);
@@ -131,7 +112,6 @@ export default function RegisterScreen({ navigation }) {
 
   function validarTodo() {
     const e = {
-      run: '', dv: '',
       nombre: '', segNombre: '', apellido: '', segApellido: '',
       correo: '', telefono: '', fechaNac: '',
       pais: '', region: '', ciudad: '', comuna: '',
@@ -139,21 +119,6 @@ export default function RegisterScreen({ navigation }) {
       password: '', confirm: '',
     };
     let ok = true;
-
-    // RUT
-    const runLimpio = run.replace(/\./g, '').trim();
-    if (!runLimpio) {
-      e.run = 'El RUT es obligatorio'; ok = false;
-    } else if (isNaN(Number(runLimpio)) || Number(runLimpio) < 1000000 || Number(runLimpio) > 99999999) {
-      e.run = 'RUT inválido — entre 7 y 8 dígitos'; ok = false;
-    }
-    if (!dv.trim()) {
-      e.dv = 'El DV es obligatorio'; ok = false;
-    } else if (!/^[0-9kK]$/.test(dv.trim())) {
-      e.dv = 'Solo un número o K'; ok = false;
-    } else if (runLimpio && !validarRut(runLimpio, dv.trim())) {
-      e.dv = 'DV incorrecto para ese RUT'; ok = false;
-    }
 
     // Nombre y apellidos
     if (!nombre.trim())   { e.nombre   = 'El nombre es obligatorio';   ok = false; }
@@ -183,11 +148,7 @@ export default function RegisterScreen({ navigation }) {
   async function handleRegistro() {
     if (!validarTodo()) return;
 
-    const runLimpio = parseInt(run.replace(/\./g, '').trim(), 10);
-
     const payload = {
-      run_usuario:       runLimpio,
-      dvrun_usuario:     dv.trim().toUpperCase(),
       pri_nom_usuario:   nombre.trim(),
       seg_nom_usuario:   segNombre.trim() || null,
       pri_ape_usuario:   apellido.trim(),
@@ -201,13 +162,13 @@ export default function RegisterScreen({ navigation }) {
       numero_direccion:  parseInt(numeroDireccion, 10) || 0,
     };
 
-    const callbackUrl = await ejecutarRegistro(payload);
-    if (callbackUrl) {
-      navigation.navigate('Redirecting', { callbackUrl });
+    const result = await ejecutarRegistro(payload);
+    if (result) {
+      navigation.navigate('Main', { jwt: result.jwt, usuario: result.usuario });
     } else {
       Alert.alert(
         'Error al crear cuenta',
-        'Es posible que el RUT o el correo ya estén registrados.',
+        'Es posible que el correo ya esté registrado.',
         [{ text: 'OK' }]
       );
     }
@@ -240,40 +201,6 @@ export default function RegisterScreen({ navigation }) {
               <Text style={[s.tabText, s.tabTextActive]}>Registrarse</Text>
             </View>
           </View>
-
-          {/* ── RUT ── */}
-          <Text style={s.sectionTitle}>🪪 RUT</Text>
-          <Row>
-            <Field label="Número RUT *" error={err.run} flex={3}>
-              <TI
-                placeholder="12345678"
-                value={run}
-                onChangeText={v => { setRun(v.replace(/[^0-9.]/g, '')); clrErr('run')(); }}
-                error={!!err.run}
-                keyboardType="numeric"
-                maxLength={9}
-                onSubmitEditing={() => dvRef.current?.focus()}
-                returnKeyType="next"
-              />
-            </Field>
-            <View style={s.rutDashWrap}>
-              <Text style={s.rutDash}>-</Text>
-            </View>
-            <Field label="DV *" error={err.dv} flex={1}>
-              <TI
-                ref={dvRef}
-                placeholder="K"
-                value={dv}
-                onChangeText={v => { setDv(v.replace(/[^0-9kK]/g, '').slice(0, 1).toUpperCase()); clrErr('dv')(); }}
-                error={!!err.dv}
-                autoCapitalize="characters"
-                maxLength={1}
-                style={s.inputCenter}
-                onSubmitEditing={() => segNomRef.current?.focus()}
-                returnKeyType="next"
-              />
-            </Field>
-          </Row>
 
           {/* ── Datos personales ── */}
           <Text style={s.sectionTitle}>👤 Datos personales</Text>
@@ -504,8 +431,6 @@ const s = StyleSheet.create({
     backgroundColor: C.surface, overflow: 'hidden',
   },
   picker:    { height: 44, color: C.text },
-  rutDashWrap: { justifyContent: 'center', paddingTop: 22, paddingHorizontal: 2 },
-  rutDash:   { fontSize: 22, fontWeight: '700', color: C.muted },
   btn:    { backgroundColor: C.p700, borderRadius: 8, paddingVertical: 12, alignItems: 'center', marginTop: 4 },
   btnDis: { opacity: 0.55 },
   btnTxt: { color: '#fff', fontSize: 16, fontFamily: 'Nunito_700Bold' },

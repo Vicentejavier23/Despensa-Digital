@@ -13,7 +13,7 @@
  * Funcionamiento:
  *  1. Lee el header: Authorization: Bearer <token>
  *  2. Verifica la firma del JWT con JWT_SECRET
- *  3. Si es válido: adjunta req.usuario = { run_usuario, correo_usuario, iat, exp }
+ *  3. Si es válido: adjunta req.usuario = { id_usuario, correo_usuario, iat, exp }
  *  4. Si es inválido o expirado: responde 401 con mensaje de error
  *
  * El JWT expira en 1 hora. Cuando expira, el usuario debe volver
@@ -40,7 +40,7 @@ function verificarJWT(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    req.usuario = decoded; // { run_usuario, correo_usuario, iat, exp }
+    req.usuario = decoded; // { id_usuario, correo_usuario, iat, exp }
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
