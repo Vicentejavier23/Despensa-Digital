@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet,
   TouchableOpacity, TextInput, ActivityIndicator, Dimensions,
@@ -7,7 +7,7 @@ import { useAuthFlow } from '../hooks/useAuthFlow';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
-// â”€â”€â”€ Design tokens idÃ©nticos a la web â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Design tokens idénticos a la web ────────────────────────────
 const C = {
   bg:         '#F4F7F5',
   surface:    '#FFFFFF',
@@ -39,13 +39,13 @@ export default function LoginScreen({ navigation }) {
   function validar() {
     let ok = true;
     if (!correo.trim()) {
-      setErrCorreo('El correo electrÃ³nico es obligatorio'); ok = false;
+      setErrCorreo('El correo electrónico es obligatorio'); ok = false;
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo.trim())) {
-      setErrCorreo('Ingresa un correo vÃ¡lido (ej: nombre@gmail.com)'); ok = false;
+      setErrCorreo('Ingresa un correo válido (ej: nombre@gmail.com)'); ok = false;
     } else setErrCorreo('');
 
     if (!password) {
-      setErrPassword('La contraseÃ±a es obligatoria'); ok = false;
+      setErrPassword('La contraseña es obligatoria'); ok = false;
     } else setErrPassword('');
 
     return ok;
@@ -56,9 +56,13 @@ export default function LoginScreen({ navigation }) {
     if (!validar()) return;
     const result = await ejecutarLogin(correo.trim().toLowerCase(), password);
     if (result) {
-      navigation.navigate('Main', { jwt: result.jwt, usuario: result.usuario });
+      navigation.navigate('Redirecting', {
+        callbackUrl: result.callbackUrl,
+        jwt: result.jwt,
+        usuario: result.usuario,
+      });
     } else {
-      setErrorBanner('Correo o contraseÃ±a incorrectos. Verifica tus datos e intenta de nuevo.');
+      setErrorBanner('Correo o contraseña incorrectos. Verifica tus datos e intenta de nuevo.');
     }
   }
 
@@ -71,12 +75,12 @@ export default function LoginScreen({ navigation }) {
         showsVerticalScrollIndicator
         bounces={false}
       >
-        {/* â”€â”€ Tarjeta â”€â”€ */}
+        {/* ── Tarjeta ── */}
         <View style={s.card}>
 
           {/* Header */}
           <View style={s.header}>
-            <Text style={s.logo}>ðŸ¥—</Text>
+            <Text style={s.logo}>🥗</Text>
             <Text style={s.titulo}>DespensaDigital</Text>
             <Text style={s.subtitulo}>Gestor de despensa inteligente</Text>
           </View>
@@ -84,7 +88,7 @@ export default function LoginScreen({ navigation }) {
           {/* Tabs */}
           <View style={s.tabs}>
             <View style={[s.tab, s.tabActive]}>
-              <Text style={[s.tabText, s.tabTextActive]}>Iniciar sesiÃ³n</Text>
+              <Text style={[s.tabText, s.tabTextActive]}>Iniciar sesión</Text>
             </View>
             <TouchableOpacity
               style={s.tab}
@@ -97,12 +101,12 @@ export default function LoginScreen({ navigation }) {
           {/* Banner error */}
           {!!errorBanner && (
             <View style={s.banner}>
-              <Text style={s.bannerText}>âš  {errorBanner}</Text>
+              <Text style={s.bannerText}>⚠ {errorBanner}</Text>
             </View>
           )}
 
           {/* Campo correo */}
-          <Field label="Correo electrÃ³nico" error={errCorreo}>
+          <Field label="Correo electrónico" error={errCorreo}>
             <TextInput
               style={[s.input, focusCorreo && s.inputFocus, !!errCorreo && s.inputErr]}
               placeholder="tucorreo@gmail.com"
@@ -119,12 +123,12 @@ export default function LoginScreen({ navigation }) {
             />
           </Field>
 
-          {/* Campo contraseÃ±a */}
-          <Field label="ContraseÃ±a" error={errPassword}>
+          {/* Campo contraseña */}
+          <Field label="Contraseña" error={errPassword}>
             <TextInput
               ref={passRef}
               style={[s.input, focusPass && s.inputFocus, !!errPassword && s.inputErr]}
-              placeholder="Tu contraseÃ±a"
+              placeholder="Tu contraseña"
               placeholderTextColor={C.muted}
               value={password}
               onChangeText={t => { setPassword(t); setErrPassword(''); setErrorBanner(''); }}
@@ -137,7 +141,7 @@ export default function LoginScreen({ navigation }) {
             />
           </Field>
 
-          {/* BotÃ³n principal */}
+          {/* Botón principal */}
           <TouchableOpacity
             style={[s.btn, loading && s.btnDisabled]}
             onPress={handleLogin}
@@ -146,13 +150,13 @@ export default function LoginScreen({ navigation }) {
           >
             {loading
               ? <ActivityIndicator color="#fff" />
-              : <Text style={s.btnText}>Ingresar â†’</Text>
+              : <Text style={s.btnText}>Ingresar →</Text>
             }
           </TouchableOpacity>
 
           {/* Hint */}
           <Text style={s.hint}>
-            ðŸ’¡ Prueba: <Text style={{ fontFamily: 'Nunito_700Bold' }}>test@despensa.cl</Text> / <Text style={{ fontFamily: 'Nunito_700Bold' }}>Password123</Text>
+            💡 Prueba: <Text style={{ fontFamily: 'Nunito_700Bold' }}>test@despensa.cl</Text> / <Text style={{ fontFamily: 'Nunito_700Bold' }}>Password123</Text>
           </Text>
         </View>
       </ScrollView>
@@ -165,7 +169,7 @@ function Field({ label, error, children }) {
     <View style={{ marginBottom: 14 }}>
       <Text style={s.label}>{label}</Text>
       {children}
-      {!!error && <Text style={s.fieldErr}>âš  {error}</Text>}
+      {!!error && <Text style={s.fieldErr}>⚠ {error}</Text>}
     </View>
   );
 }
@@ -256,4 +260,3 @@ const s = StyleSheet.create({
 
   hint: { fontSize: 12, color: C.muted, textAlign: 'center', marginTop: 12, fontFamily: 'Nunito_400Regular' },
 });
-

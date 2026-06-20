@@ -21,26 +21,28 @@ const COLORS = {
 
 /**
  * Pantalla de transición que se muestra después de login/registro exitoso.
- * Recibe { callbackUrl } como parámetro de navegación.
+ * Recibe { callbackUrl, jwt, usuario } como parámetros de navegación.
  *
- * Al montarse abre el navegador nativo con la URL de callback.
- * Incluye botón "Intentar de nuevo" por si el usuario cerró el navegador.
+ * Al montarse abre el navegador nativo con la URL de callback y luego
+ * navega a Main para que el usuario pueda usar la app móvil.
  */
-export default function RedirectingScreen({ route }) {
-  const { callbackUrl } = route.params ?? {};
+export default function RedirectingScreen({ route, navigation }) {
+  const { callbackUrl, jwt, usuario } = route.params ?? {};
 
-  // Animación de pulso para el ícono
   const pulso = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // Abrir el navegador nativo al montar
     if (callbackUrl) {
-      Linking.openURL(callbackUrl).catch(() => {
-        // Si falla silenciosamente, el usuario puede usar "Intentar de nuevo"
-      });
+      Linking.openURL(callbackUrl).catch(() => {});
     }
 
-    // Animación de pulso continuo
+    // Ir a Main después de 2 segundos
+    const navTimer = setTimeout(() => {
+      if (jwt && usuario) {
+        navigation.navigate('Main', { jwt, usuario });
+      }
+    }, 2000);
+
     const anim = Animated.loop(
       Animated.sequence([
         Animated.timing(pulso, {
@@ -56,7 +58,11 @@ export default function RedirectingScreen({ route }) {
       ])
     );
     anim.start();
-    return () => anim.stop();
+
+    return () => {
+      anim.stop();
+      clearTimeout(navTimer);
+    };
   }, [callbackUrl, pulso]);
 
   async function handleReintentar() {

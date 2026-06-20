@@ -25,7 +25,7 @@ module.exports = {
       },
     },
     extra: {
-      apiBaseUrl:     `http://${ip}:3001`,
+      apiBaseUrl:     `http://${ip}:3002`,
       webCallbackUrl: `http://${ip}:5173`,
       eas: {
         projectId: '9d5a2290-b708-4aa7-babe-a9fdb5a71cfd',

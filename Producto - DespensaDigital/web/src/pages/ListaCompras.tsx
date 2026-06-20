@@ -47,7 +47,7 @@ export default function ListaCompras() {
           estado_lista: false,
         }));
         setItems(prev => [...nuevos, ...prev]);
-        mostrarBanner(`🤖 ${res.insertados} producto(s) agregados automáticamente por stock bajo.`);
+        mostrarBanner(`${res.insertados} producto(s) agregados automáticamente por stock bajo.`);
       }
     } catch { mostrarBanner('Error al generar la lista. Intenta de nuevo.', 'warn'); }
     finally { setGenerando(false); }
@@ -124,7 +124,7 @@ export default function ListaCompras() {
             disabled={generando}
             style={{ padding:'0.55rem 1rem', borderRadius:'var(--radius-md)', background:'#EFF6FF', color:'#1D4ED8', fontWeight:700, fontSize:'var(--font-size-sm)', transition:'all var(--transition)', opacity:generando ? 0.7:1 }}
           >
-            {generando ? '⏳ Generando…' : '🤖 Generar automáticamente'}
+            {generando ? '⏳ Generando…' : 'Generar automáticamente'}
           </button>
           <button
             onClick={() => setMostrarForm(v => !v)}
@@ -205,7 +205,7 @@ export default function ListaCompras() {
         <EmptyState
           emoji="🛒"
           titulo="Lista vacía"
-          descripcion="Usa '🤖 Generar automáticamente' para detectar productos con stock bajo, o agrega items manualmente."
+          descripcion="Usa 'Generar automáticamente' para detectar productos con stock bajo, o agrega items manualmente."
         />
       ) : (
         <>
@@ -271,7 +271,7 @@ function ItemRow({ item, onToggle, onEliminar, toggling, dimmed, isLast }: ItemR
           {item.marca_producto && <span style={{ fontSize:'var(--font-size-xs)', color:'var(--color-text-muted)' }}>{item.marca_producto}</span>}
           <span style={{ fontSize:'var(--font-size-xs)', color:'var(--color-text-muted)' }}>×{item.cantidad_producto}</span>
           <span style={{ fontSize:'0.65rem', fontWeight:700, padding:'1px 6px', borderRadius:'var(--radius-full)', background:item.tipo_lista === 'AUTOMATICA' ? '#DBEAFE':'#F3F4F6', color:item.tipo_lista === 'AUTOMATICA' ? '#1E40AF':'#6B7280' }}>
-            {item.tipo_lista === 'AUTOMATICA' ? '🤖 Auto' : 'Manual'}
+            {item.tipo_lista === 'AUTOMATICA' ? 'Auto' : 'Manual'}
           </span>
         </div>
       </div>
