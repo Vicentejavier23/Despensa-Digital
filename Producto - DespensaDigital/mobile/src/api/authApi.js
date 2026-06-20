@@ -1,18 +1,32 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-// En web siempre usa localhost (el proxy de Metro lo resuelve).
-// En nativo usa la IP configurada en app.config.js (LOCAL_IP para celular/emulador).
 const API_BASE_URL = Platform.OS === 'web'
   ? 'http://localhost:3002'
   : (Constants.expoConfig?.extra?.apiBaseUrl ?? 'http://localhost:3002');
 
+const TIMEOUT_MS = 10000; // 10 segundos
+
 async function apiPost(endpoint, body) {
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+
+  let response;
+  try {
+    response = await fetch(`${API_BASE_URL}${endpoint}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+  } catch (fetchErr) {
+    if (fetchErr.name === 'AbortError') {
+      throw new Error('El servidor no responde. Verifica que el backend esté corriendo y que estés en la misma red Wi-Fi.');
+    }
+    throw new Error('No se pudo conectar al servidor. Verifica tu conexión a internet.');
+  } finally {
+    clearTimeout(timer);
+  }
 
   const data = await response.json();
 
@@ -28,19 +42,10 @@ async function apiPost(endpoint, body) {
   return data;
 }
 
-/**
- * POST /api/auth/login
- * Ahora usa CORREO ELECTRÓNICO en lugar de RUT.
- * @param {{ correo_usuario: string, password_usuario: string }} credenciales
- * @returns {Promise<{ exchange_token: string }>}
- */
 export async function login({ correo_usuario, password_usuario }) {
   return apiPost('/api/auth/login', { correo_usuario, password_usuario });
 }
 
-/**
- * POST /api/auth/register
- */
 export async function register(payload) {
   return apiPost('/api/auth/register', payload);
 }
