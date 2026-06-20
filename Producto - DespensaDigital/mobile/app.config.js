@@ -1,4 +1,4 @@
-// Para probar en celular: LOCAL_IP=192.168.x.x npx expo start
+﻿// Para probar en celular: LOCAL_IP=192.168.x.x npx expo start
 const ip = process.env.LOCAL_IP || (process.env.API_BASE_URL ? (process.env.API_BASE_URL.match(/https?:\/\/([^:/]+)/)?.[1] || 'localhost') : 'localhost');
 
 module.exports = {
@@ -33,3 +33,4 @@ module.exports = {
     },
   },
 };
+

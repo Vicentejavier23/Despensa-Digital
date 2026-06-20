@@ -1,14 +1,14 @@
-/**
+﻿/**
  * mobileApiClient.js
  * Cliente HTTP autenticado para las pantallas nativas de DespensaDigital.
- * El JWT se pasa como parámetro en cada llamada (sin AsyncStorage).
+ * El JWT se pasa como parÃ¡metro en cada llamada (sin AsyncStorage).
  */
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
 const API_BASE = Platform.OS === 'web'
-  ? 'http://localhost:3001'
-  : (Constants.expoConfig?.extra?.apiBaseUrl ?? 'http://localhost:3001');
+  ? 'http://localhost:3002'
+  : (Constants.expoConfig?.extra?.apiBaseUrl ?? 'http://localhost:3002');
 
 async function req(endpoint, jwt, options = {}) {
   const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -25,7 +25,7 @@ async function req(endpoint, jwt, options = {}) {
 }
 
 export const createApiClient = (jwt) => ({
-  // Patologías
+  // PatologÃ­as
   getPatologias:     ()           => req('/api/patologias', jwt),
   crearPatologia:    (body)       => req('/api/patologias', jwt, { method:'POST', body: JSON.stringify(body) }),
   togglePatologia:   (id, activa) => req(`/api/patologias/${id}`, jwt, { method:'PATCH', body: JSON.stringify({ patologia_activa: activa }) }),
@@ -41,3 +41,4 @@ export const createApiClient = (jwt) => ({
   // Productos (para selector en lista manual)
   getProductos:     ()                    => req('/api/productos', jwt),
 });
+

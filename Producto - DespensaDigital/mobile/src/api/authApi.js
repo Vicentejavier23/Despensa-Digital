@@ -4,8 +4,8 @@ import { Platform } from 'react-native';
 // En web siempre usa localhost (el proxy de Metro lo resuelve).
 // En nativo usa la IP configurada en app.config.js (LOCAL_IP para celular/emulador).
 const API_BASE_URL = Platform.OS === 'web'
-  ? 'http://localhost:3001'
-  : (Constants.expoConfig?.extra?.apiBaseUrl ?? 'http://localhost:3001');
+  ? 'http://localhost:3002'
+  : (Constants.expoConfig?.extra?.apiBaseUrl ?? 'http://localhost:3002');
 
 async function apiPost(endpoint, body) {
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
