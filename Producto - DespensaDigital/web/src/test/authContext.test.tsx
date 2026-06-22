@@ -24,8 +24,9 @@ describe('AuthContext — sesión de usuario', () => {
 
     act(() => {
       ctx.iniciarSesion('jwt-de-prueba', {
-        id_usuario: 1, nombre_usuario: 'Test', correo_usuario: 'test@despensa.cl',
-        apellido_usuario: '', num_tel_usuario: 0, fecha_nac_usuario: '',
+        id_usuario: 1, pri_nom_usuario: 'Test', pri_ape_usuario: 'User',
+        correo_usuario: 'test@despensa.cl', num_tel_usuario: 0,
+        fecha_nac_usuario: '', fecha_reg_usuario: '',
       });
     });
 
@@ -45,8 +46,9 @@ describe('AuthContext — sesión de usuario', () => {
 
     act(() => {
       ctx.iniciarSesion('jwt-de-prueba', {
-        id_usuario: 1, nombre_usuario: 'Test', correo_usuario: 'test@despensa.cl',
-        apellido_usuario: '', num_tel_usuario: 0, fecha_nac_usuario: '',
+        id_usuario: 1, pri_nom_usuario: 'Test', pri_ape_usuario: 'User',
+        correo_usuario: 'test@despensa.cl', num_tel_usuario: 0,
+        fecha_nac_usuario: '', fecha_reg_usuario: '',
       });
     });
 
