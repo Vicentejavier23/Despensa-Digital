@@ -1,12 +1,28 @@
-# 🥗 DespensaDigital
+# DespensaDigital
 
 > *"Que nada se venza, que todo rinda"*
 
-Aplicación para gestionar el inventario del hogar, con alertas de vencimiento, lista de compras automática y control de patologías alimentarias.
+Aplicación fullstack para gestionar el inventario del hogar: alertas de vencimiento, lista de compras automática y control de patologías alimentarias.
 
 **Asignatura:** Taller de Programación — Duoc UC San Joaquín  
 **Equipo:** Vicente Bueno · Daniel Lagos · Diego Olea  
 **Profesor:** Jorge Niochet
+
+---
+
+## Tabla de contenidos
+
+- [Stack tecnológico](#stack-tecnológico)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Inicio rápido](#inicio-rápido)
+  - [1. Supabase](#1-configurar-supabase)
+  - [2. Backend](#2-configurar-el-backend)
+  - [3. Web](#3-configurar-la-web)
+  - [4. Mobile](#4-configurar-la-app-móvil)
+- [Usuarios de prueba](#usuarios-de-prueba)
+- [API Reference](#api-reference)
+- [Documentación](#documentación)
+- [Estado del proyecto](#estado-del-proyecto)
 
 ---
 
@@ -25,16 +41,26 @@ Aplicación para gestionar el inventario del hogar, con alertas de vencimiento, 
 ## Estructura del proyecto
 
 ```
-Producto - DespensaDigital/
-├── backend/          → API REST Express (puerto 3001)
-├── web/              → App React/Vite (puerto 5173)
-├── mobile/           → App Expo React Native
-└── supabase/         → Schema SQL + migraciones
+Despensa-Digital/
+├── Producto - DespensaDigital/
+│   ├── backend/          → API REST Express (puerto 3002)
+│   ├── web/              → App React/Vite (puerto 5173)
+│   ├── mobile/           → App Expo React Native
+│   └── supabase/         → Schema SQL + migraciones
+├── Documentacion - DespensaDigital/
+│   ├── Diagramas/        → Diagramas de arquitectura y MER
+│   ├── Mockup/           → Mockups de la interfaz
+│   ├── plan_pruebas/     → Plan de pruebas y evidencia
+│   └── ...
+└── Gestion - DespensaDigital/
+    └── CartaGantt_DespensaDigital_final_2026.xlsx
 ```
 
 ---
 
-## 1. Configurar Supabase
+## Inicio rápido
+
+### 1. Configurar Supabase
 
 1. Crea un proyecto en [supabase.com](https://supabase.com)
 2. Ve a **SQL Editor** y ejecuta `supabase/schema.sql` completo
@@ -43,7 +69,7 @@ Producto - DespensaDigital/
 
 ---
 
-## 2. Configurar el backend
+### 2. Configurar el backend
 
 ```bash
 cd "Producto - DespensaDigital/backend"
@@ -53,7 +79,7 @@ cp .env.example .env
 Edita `.env`:
 
 ```env
-PORT=3001
+PORT=3002
 NODE_ENV=development
 
 # Supabase → Settings → Database → Connection string (puerto 6543)
@@ -70,11 +96,11 @@ npm install
 npm run dev        # nodemon — recarga automática
 ```
 
-Verifica: `GET http://localhost:3001/health` → `{ "status": "ok" }`
+Verifica: `GET http://localhost:3002/health` → `{ "status": "ok" }`
 
 ---
 
-## 3. Configurar la web
+### 3. Configurar la web
 
 ```bash
 cd "Producto - DespensaDigital/web"
@@ -85,7 +111,7 @@ npm run dev            # http://localhost:5173
 
 ---
 
-## 4. Configurar la app móvil (opcional)
+### 4. Configurar la app móvil
 
 ```bash
 cd "Producto - DespensaDigital/mobile"
@@ -113,22 +139,50 @@ LOCAL_IP=192.168.x.x npx expo start
 
 ---
 
-## Endpoints principales
+## API Reference
+
+### Autenticación
 
 | Método | Ruta | Auth | Descripción |
-|--------|------|------|-------------|
-| POST | `/api/auth/register` | ❌ | Registrar usuario |
-| POST | `/api/auth/login` | ❌ | Iniciar sesión → exchange_token |
-| POST | `/api/auth/exchange` | ❌ | Canjear token → JWT |
-| GET | `/api/productos` | ✅ | Listar productos del usuario |
-| GET | `/api/productos/metricas` | ✅ | Totales, vencidos, por vencer |
-| POST | `/api/productos` | ✅ | Agregar producto |
-| PUT | `/api/productos/:id` | ✅ | Editar producto |
-| DELETE | `/api/productos/:id` | ✅ | Eliminar producto |
-| GET | `/api/patologias` | ✅ | Listar patologías |
-| POST | `/api/lista-compras/generar` | ✅ | Generar lista automática (stock bajo) |
-| GET | `/api/alertas` | ✅ | Alertas de vencimiento y stock |
-| GET | `/api/geo/paises` | ❌ | Países disponibles |
+|--------|------|:----:|-------------|
+| POST | `/api/auth/register` | — | Registrar usuario |
+| POST | `/api/auth/login` | — | Iniciar sesión → exchange_token |
+| POST | `/api/auth/exchange` | — | Canjear token → JWT |
+
+### Productos
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|:----:|-------------|
+| GET | `/api/productos` | JWT | Listar productos del usuario |
+| GET | `/api/productos/metricas` | JWT | Totales, vencidos, por vencer |
+| POST | `/api/productos` | JWT | Agregar producto |
+| PUT | `/api/productos/:id` | JWT | Editar producto |
+| DELETE | `/api/productos/:id` | JWT | Eliminar producto |
+
+### Otros
+
+| Método | Ruta | Auth | Descripción |
+|--------|------|:----:|-------------|
+| GET | `/api/patologias` | JWT | Listar patologías |
+| POST | `/api/lista-compras/generar` | JWT | Generar lista automática (stock bajo) |
+| GET | `/api/alertas` | JWT | Alertas de vencimiento y stock |
+| GET | `/api/geo/paises` | — | Países disponibles |
+
+---
+
+## Documentación
+
+La documentación del proyecto se encuentra en `Documentacion - DespensaDigital/`:
+
+- **Diagramas** — Arquitectura del sistema y modelo entidad-relación
+- **Mockup** — Diseños de la interfaz de usuario
+- **plan_pruebas** — Plan de pruebas completo con evidencia
+- **matriz_trazabilidad** — Trazabilidad de requisitos
+- **MER_DESPENSA_FINAL** — Modelo entidad-relación final
+
+La planificación y gestión del proyecto está en `Gestion - DespensaDigital/`:
+
+- **CartaGantt_DespensaDigital_final_2026.xlsx** — Carta Gantt del proyecto
 
 ---
 
@@ -140,5 +194,6 @@ LOCAL_IP=192.168.x.x npx expo start
 - [x] Backend API REST (auth, productos, patologías, lista compras, alertas, geo)
 - [x] Web frontend (login, registro, dashboard, inventario, patologías, lista compras, perfil)
 - [x] App móvil (login, registro, flujo exchange → web)
-- [ ] Pruebas automatizadas
+- [x] Plan de pruebas y tests unitarios
+- [x] Diagramas de arquitectura y evidencia
 - [ ] Despliegue en producción
