@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { getPaises, getRegiones, getCiudades, getComunas } from '../api/geoApi';
 import type { Pais, Region, Ciudad, Comuna } from '../types';
 
+const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+
 // ─── Tipos de error por campo ─────────────────────────────────────────────────
 type LoginErrors = Partial<Record<'correo' | 'password', string>>;
 type RegisterErrors = Partial<Record<
@@ -155,7 +157,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ correo_usuario: loginCorreo.trim().toLowerCase(), password_usuario: loginPassword }),
@@ -178,7 +180,7 @@ export default function LoginScreen() {
         return;
       }
 
-      const exchRes = await fetch('/api/auth/exchange', {
+      const exchRes = await fetch(`${API_BASE}/api/auth/exchange`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: data.exchange_token }),
@@ -209,7 +211,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -243,7 +245,7 @@ export default function LoginScreen() {
         return;
       }
 
-      const exchRes = await fetch('/api/auth/exchange', {
+      const exchRes = await fetch(`${API_BASE}/api/auth/exchange`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: data.exchange_token }),
