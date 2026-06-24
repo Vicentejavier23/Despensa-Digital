@@ -2,7 +2,7 @@
 
 > *"Que nada se venza, que todo rinda"*
 
-Aplicación fullstack para gestionar el inventario del hogar: alertas de vencimiento, lista de compras automática y control de patologías alimentarias. Cuenta con web app, app móvil (Android/iOS) y API REST, todas desplegadas en producción.
+Aplicación fullstack para gestionar el inventario del hogar: alertas de vencimiento, lista de compras automática y control de patologías alimentarias. Cuenta con web app, app móvil (Android) y API REST, todas desplegadas en producción.
 
 **Asignatura:** Taller de Programación — Duoc UC San Joaquín  
 **Equipo:** Vicente Bueno · Daniel Lagos · Diego Olea  
