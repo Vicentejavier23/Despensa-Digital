@@ -2,7 +2,7 @@
 
 > *"Que nada se venza, que todo rinda"*
 
-Aplicación fullstack para gestionar el inventario del hogar: alertas de vencimiento, lista de compras automática y control de patologías alimentarias.
+Aplicación fullstack para gestionar el inventario del hogar: alertas de vencimiento, lista de compras automática y control de patologías alimentarias. Cuenta con web app, app móvil (Android/iOS) y API REST, todas desplegadas en producción.
 
 **Asignatura:** Taller de Programación — Duoc UC San Joaquín  
 **Equipo:** Vicente Bueno · Daniel Lagos · Diego Olea  
@@ -12,6 +12,7 @@ Aplicación fullstack para gestionar el inventario del hogar: alertas de vencimi
 
 ## Tabla de contenidos
 
+- [Deployments](#deployments)
 - [Stack tecnológico](#stack-tecnológico)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Inicio rápido](#inicio-rápido)
@@ -23,6 +24,16 @@ Aplicación fullstack para gestionar el inventario del hogar: alertas de vencimi
 - [API Reference](#api-reference)
 - [Documentación](#documentación)
 - [Estado del proyecto](#estado-del-proyecto)
+
+---
+
+## Deployments
+
+| Servicio | URL | Plataforma |
+|----------|-----|-----------|
+| Web App | https://despensa-digital.vercel.app | Vercel |
+| Backend API | https://modest-wisdom-production-2e58.up.railway.app | Railway |
+| App Móvil | Expo Go / build EAS | Expo |
 
 ---
 
@@ -196,4 +207,4 @@ La planificación y gestión del proyecto está en `Gestion - DespensaDigital/`:
 - [x] App móvil (login, registro, flujo exchange → web)
 - [x] Plan de pruebas y tests unitarios
 - [x] Diagramas de arquitectura y evidencia
-- [ ] Despliegue en producción
+- [x] Despliegue en producción (web → Vercel, backend → Railway)
