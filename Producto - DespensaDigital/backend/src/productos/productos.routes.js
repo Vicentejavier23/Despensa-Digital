@@ -45,7 +45,7 @@ async function resolverAlmacenaje(client, tipo) {
 // Filtros: ?q=texto  &tipo=Alimento  &almacenaje=Despensa  &estado=proximo|vencido|ok
 router.get('/', async (req, res, next) => {
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
     const { q, tipo, almacenaje } = req.query;
 
     let sql = `
@@ -59,9 +59,9 @@ router.get('/', async (req, res, next) => {
       FROM PRODUCTO p
       LEFT JOIN CATEGORIA_PRODUCTO c ON c.id_categoria = p.CATEGORIA_id_categoria
       LEFT JOIN TIPO_ALMACENAJE    a ON a.id_almacenaje = p.TIPO_ALMACENAJE_id
-      WHERE p.USUARIO_run_usuario = $1
+      WHERE p.USUARIO_id_usuario = $1
     `;
-    const params = [run_usuario];
+    const params = [id_usuario];
 
     if (q) {
       params.push(`%${q}%`);
@@ -86,7 +86,7 @@ router.get('/', async (req, res, next) => {
 // ─── GET /api/productos/metricas ──────────────────────────────────────────────
 router.get('/metricas', async (req, res, next) => {
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
 
     const { rows } = await pool.query(`
       SELECT
@@ -99,11 +99,11 @@ router.get('/metricas', async (req, res, next) => {
         )::int AS vencidos,
         (
           SELECT COUNT(*)::int FROM LISTA_COMPRAS
-          WHERE USUARIO_run_usuario = $1 AND estado_lista = false
+          WHERE USUARIO_id_usuario = $1 AND estado_lista = false
         ) AS items_lista_pendiente
       FROM PRODUCTO
-      WHERE USUARIO_run_usuario = $1
-    `, [run_usuario]);
+      WHERE USUARIO_id_usuario = $1
+    `, [id_usuario]);
 
     res.json(rows[0]);
   } catch (err) { next(err); }
@@ -115,15 +115,15 @@ router.get('/:id',
   validar,
   async (req, res, next) => {
     try {
-      const { run_usuario } = req.usuario;
+      const { id_usuario } = req.usuario;
       const { rows } = await pool.query(`
         SELECT
           p.*, c.nombre_categoria, a.tipo_almacenaje
         FROM PRODUCTO p
         LEFT JOIN CATEGORIA_PRODUCTO c ON c.id_categoria = p.CATEGORIA_id_categoria
         LEFT JOIN TIPO_ALMACENAJE    a ON a.id_almacenaje = p.TIPO_ALMACENAJE_id
-        WHERE p.id_producto = $1 AND p.USUARIO_run_usuario = $2
-      `, [req.params.id, run_usuario]);
+        WHERE p.id_producto = $1 AND p.USUARIO_id_usuario = $2
+      `, [req.params.id, id_usuario]);
 
       if (rows.length === 0) return res.status(404).json({ error: 'Producto no encontrado' });
       res.json(rows[0]);
@@ -143,7 +143,7 @@ router.post('/', [
 ], validar, async (req, res, next) => {
   const client = await pool.connect();
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
     const {
       nombre_producto, marca_producto, cod_barra_producto,
       fecha_vencimiento, cantidad_unidad, stock_minimo = 2,
@@ -159,7 +159,7 @@ router.post('/', [
         nombre_producto, marca_producto, cod_barra_producto,
         fecha_vencimiento, cantidad_unidad, stock_minimo,
         tipo_producto, peso_gramos, mililitros, fecha_apertura,
-        CATEGORIA_id_categoria, TIPO_ALMACENAJE_id, USUARIO_run_usuario
+        CATEGORIA_id_categoria, TIPO_ALMACENAJE_id, USUARIO_id_usuario
       ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
       RETURNING *
     `, [
@@ -175,7 +175,7 @@ router.post('/', [
       fecha_apertura || null,
       id_categoria,
       id_almacenaje,
-      run_usuario,
+      id_usuario,
     ]);
 
     res.status(201).json(rows[0]);
@@ -190,7 +190,7 @@ router.put('/:id',
   async (req, res, next) => {
     const client = await pool.connect();
     try {
-      const { run_usuario } = req.usuario;
+      const { id_usuario } = req.usuario;
       const {
         nombre_producto, marca_producto, cod_barra_producto,
         fecha_vencimiento, cantidad_unidad, stock_minimo,
@@ -219,7 +219,7 @@ router.put('/:id',
           fecha_apertura         = COALESCE($10, fecha_apertura),
           CATEGORIA_id_categoria = COALESCE($11, CATEGORIA_id_categoria),
           TIPO_ALMACENAJE_id     = COALESCE($12, TIPO_ALMACENAJE_id)
-        WHERE id_producto = $13 AND USUARIO_run_usuario = $14
+        WHERE id_producto = $13 AND USUARIO_id_usuario = $14
         RETURNING *
       `, [
         nombre_producto    || null,
@@ -235,7 +235,7 @@ router.put('/:id',
         id_categoria       ?? null,
         id_almacenaje      ?? null,
         req.params.id,
-        run_usuario,
+        id_usuario,
       ]);
 
       if (rows.length === 0) return res.status(404).json({ error: 'Producto no encontrado' });
@@ -251,10 +251,10 @@ router.delete('/:id',
   validar,
   async (req, res, next) => {
     try {
-      const { run_usuario } = req.usuario;
+      const { id_usuario } = req.usuario;
       const { rowCount } = await pool.query(
-        'DELETE FROM PRODUCTO WHERE id_producto = $1 AND USUARIO_run_usuario = $2',
-        [req.params.id, run_usuario]
+        'DELETE FROM PRODUCTO WHERE id_producto = $1 AND USUARIO_id_usuario = $2',
+        [req.params.id, id_usuario]
       );
       if (rowCount === 0) return res.status(404).json({ error: 'Producto no encontrado' });
       res.json({ mensaje: 'Producto eliminado' });

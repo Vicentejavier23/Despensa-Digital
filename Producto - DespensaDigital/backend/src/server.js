@@ -67,11 +67,14 @@ app.use((req, res) => {
 
 app.use(errorHandler);
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`[Server] ✅ DespensaDigital API v2 corriendo`);
-  console.log(`[Server] 📡 Local:  http://localhost:${PORT}`);
-  console.log(`[Server] 📱 Red:    http://<TU_IP>:${PORT}`);
-  console.log(`[Server] 🌐 CORS -> ${CORS_ORIGIN}`);
-});
+// Solo levanta el puerto si se ejecuta directamente (no durante tests)
+if (require.main === module) {
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[Server] ✅ DespensaDigital API v2 corriendo`);
+    console.log(`[Server] 📡 Local:  http://localhost:${PORT}`);
+    console.log(`[Server] 📱 Red:    http://<TU_IP>:${PORT}`);
+    console.log(`[Server] 🌐 CORS -> ${CORS_ORIGIN}`);
+  });
+}
 
 module.exports = app;

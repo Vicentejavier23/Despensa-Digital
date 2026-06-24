@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { getPaises, getRegiones, getCiudades, getComunas } from '../api/geoApi';
 import type { Pais, Region, Ciudad, Comuna } from '../types';
 
+const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+
 // ─── Tipos de error por campo ─────────────────────────────────────────────────
 type LoginErrors = Partial<Record<'correo' | 'password', string>>;
 type RegisterErrors = Partial<Record<
@@ -155,7 +157,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ correo_usuario: loginCorreo.trim().toLowerCase(), password_usuario: loginPassword }),
@@ -178,7 +180,7 @@ export default function LoginScreen() {
         return;
       }
 
-      const exchRes = await fetch('/api/auth/exchange', {
+      const exchRes = await fetch(`${API_BASE}/api/auth/exchange`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: data.exchange_token }),
@@ -209,7 +211,7 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${API_BASE}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -243,7 +245,7 @@ export default function LoginScreen() {
         return;
       }
 
-      const exchRes = await fetch('/api/auth/exchange', {
+      const exchRes = await fetch(`${API_BASE}/api/auth/exchange`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: data.exchange_token }),
@@ -335,8 +337,9 @@ export default function LoginScreen() {
         {mode === 'register' && (
           <form onSubmit={handleRegister} noValidate style={s.form}>
 
+
             {/* ── Nombre y Apellidos ── */}
-            <div style={s.sectionTitle}>👤 Datos personales</div>
+            <div style={s.sectionTitle}> Datos personales</div>
 
             <div style={s.row}>
               <Field label="Nombre *" error={regErrors.nombre} style={{ flex: 1 }}>
@@ -365,7 +368,7 @@ export default function LoginScreen() {
             </div>
 
             {/* ── Contacto ── */}
-            <div style={s.sectionTitle}>📬 Contacto</div>
+            <div style={s.sectionTitle}> Contacto</div>
 
             <Field label="Correo electrónico *" error={regErrors.correo}>
               <input type="email" placeholder="tucorreo@gmail.com" value={correo}
@@ -388,7 +391,7 @@ export default function LoginScreen() {
             </div>
 
             {/* ── Ubicación ── */}
-            <div style={s.sectionTitle}>📍 Ubicación</div>
+            <div style={s.sectionTitle}> Ubicación</div>
 
             <Field label="País *" error={regErrors.pais}>
               <select value={selPais} onChange={e => onPaisChange(e.target.value)}
@@ -427,7 +430,7 @@ export default function LoginScreen() {
             </Field>
 
             {/* ── Dirección ── */}
-            <div style={s.sectionTitle}>🏠 Dirección</div>
+            <div style={s.sectionTitle}> Dirección</div>
 
             <div style={s.row}>
               <Field label="Calle" error={regErrors.calle} style={{ flex: 2 }}>
@@ -443,7 +446,7 @@ export default function LoginScreen() {
             </div>
 
             {/* ── Contraseña ── */}
-            <div style={s.sectionTitle}>🔒 Contraseña</div>
+            <div style={s.sectionTitle}> Contraseña</div>
 
             <div style={s.row}>
               <Field label="Contraseña *" error={regErrors.password} style={{ flex: 1 }}>

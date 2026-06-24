@@ -202,8 +202,9 @@ export default function RegisterScreen({ navigation }) {
             </View>
           </View>
 
+
           {/* ── Datos personales ── */}
-          <Text style={s.sectionTitle}>👤 Datos personales</Text>
+          <Text style={s.sectionTitle}> Datos personales</Text>
 
           <Row>
             <Field label="Nombre *" error={err.nombre} flex={1}>
@@ -236,7 +237,7 @@ export default function RegisterScreen({ navigation }) {
           </Row>
 
           {/* ── Contacto ── */}
-          <Text style={s.sectionTitle}>📬 Contacto</Text>
+          <Text style={s.sectionTitle}> Contacto</Text>
 
           <Field label="Correo electrónico *" error={err.correo}>
             <TI ref={coRef} placeholder="tucorreo@gmail.com" value={correo}
@@ -260,7 +261,7 @@ export default function RegisterScreen({ navigation }) {
           </Row>
 
           {/* ── Ubicación ── */}
-          <Text style={s.sectionTitle}>📍 Ubicación</Text>
+          <Text style={s.sectionTitle}> Ubicación</Text>
 
           <Field label="País *" error={err.pais}>
             <PickerField
@@ -308,7 +309,7 @@ export default function RegisterScreen({ navigation }) {
           </Field>
 
           {/* ── Dirección ── */}
-          <Text style={s.sectionTitle}>🏠 Dirección</Text>
+          <Text style={s.sectionTitle}> Dirección</Text>
 
           <Row>
             <Field label="Calle" error={err.calle} flex={2}>
@@ -326,7 +327,7 @@ export default function RegisterScreen({ navigation }) {
           </Row>
 
           {/* ── Contraseña ── */}
-          <Text style={s.sectionTitle}>🔒 Contraseña</Text>
+          <Text style={s.sectionTitle}> Contraseña</Text>
 
           <Row>
             <Field label="Contraseña *" error={err.password} flex={1}>

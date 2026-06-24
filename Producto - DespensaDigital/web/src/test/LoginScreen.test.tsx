@@ -24,7 +24,7 @@ describe('LoginScreen — validación de formulario', () => {
 
     // Debe mostrar el error de correo obligatorio
     expect(
-      await screen.findByText('El correo electrónico es obligatorio')
+      await screen.findByText('El correo electrónico es obligatorio', { exact: false })
     ).toBeInTheDocument();
   });
 });

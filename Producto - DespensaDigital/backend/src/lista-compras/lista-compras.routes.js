@@ -14,7 +14,7 @@ router.use(verificarJWT);
 // GET /api/lista-compras
 router.get('/', async (req, res, next) => {
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
     const { rows } = await pool.query(`
       SELECT
         lc.id_lista, lc.fecha_lista, lc.estado_lista,
@@ -23,9 +23,9 @@ router.get('/', async (req, res, next) => {
         p.cantidad_unidad, p.stock_minimo
       FROM LISTA_COMPRAS lc
       JOIN PRODUCTO p ON p.id_producto = lc.PRODUCTO_id_producto
-      WHERE lc.USUARIO_run_usuario = $1
+      WHERE lc.USUARIO_id_usuario = $1
       ORDER BY lc.estado_lista ASC, lc.fecha_lista DESC
-    `, [run_usuario]);
+    `, [id_usuario]);
     res.json(rows);
   } catch (err) { next(err); }
 });
@@ -35,22 +35,22 @@ router.get('/', async (req, res, next) => {
 // e inserta uno a uno en LISTA_COMPRAS (evita duplicados pendientes)
 router.post('/generar', async (req, res, next) => {
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
 
     // Productos con stock bajo que NO tienen entrada pendiente ya en la lista
     const { rows: faltantes } = await pool.query(`
       SELECT p.id_producto, p.nombre_producto, p.stock_minimo, p.cantidad_unidad,
              (p.stock_minimo - p.cantidad_unidad) AS cantidad_a_pedir
       FROM PRODUCTO p
-      WHERE p.USUARIO_run_usuario = $1
+      WHERE p.USUARIO_id_usuario = $1
         AND p.cantidad_unidad < p.stock_minimo
         AND NOT EXISTS (
           SELECT 1 FROM LISTA_COMPRAS lc
           WHERE lc.PRODUCTO_id_producto = p.id_producto
-            AND lc.USUARIO_run_usuario  = $1
+            AND lc.USUARIO_id_usuario  = $1
             AND lc.estado_lista = false
         )
-    `, [run_usuario]);
+    `, [id_usuario]);
 
     if (faltantes.length === 0) {
       return res.json({ mensaje: 'No hay productos con stock bajo sin cubrir', insertados: 0, items: [] });
@@ -64,10 +64,10 @@ router.post('/generar', async (req, res, next) => {
         const { rows } = await client.query(`
           INSERT INTO LISTA_COMPRAS
             (fecha_lista, estado_lista, cantidad_producto, tipo_lista,
-             USUARIO_run_usuario, PRODUCTO_id_producto)
+             USUARIO_id_usuario, PRODUCTO_id_producto)
           VALUES (CURRENT_DATE, false, $1, 'AUTOMATICA', $2, $3)
           RETURNING *
-        `, [prod.cantidad_a_pedir, run_usuario, prod.id_producto]);
+        `, [prod.cantidad_a_pedir, id_usuario, prod.id_producto]);
         insertados.push({ ...rows[0], nombre_producto: prod.nombre_producto });
       }
       await client.query('COMMIT');
@@ -95,22 +95,22 @@ router.post('/', [
   if (!errors.isEmpty()) return res.status(400).json({ error: errors.array()[0].msg });
 
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
     const { id_producto, cantidad_producto, tipo_lista } = req.body;
 
     const { rows: check } = await pool.query(
-      'SELECT id_producto FROM PRODUCTO WHERE id_producto = $1 AND USUARIO_run_usuario = $2',
-      [id_producto, run_usuario]
+      'SELECT id_producto FROM PRODUCTO WHERE id_producto = $1 AND USUARIO_id_usuario = $2',
+      [id_producto, id_usuario]
     );
     if (check.length === 0) return res.status(404).json({ error: 'Producto no encontrado' });
 
     const { rows } = await pool.query(`
       INSERT INTO LISTA_COMPRAS
         (fecha_lista, estado_lista, cantidad_producto, tipo_lista,
-         USUARIO_run_usuario, PRODUCTO_id_producto)
+         USUARIO_id_usuario, PRODUCTO_id_producto)
       VALUES (CURRENT_DATE, false, $1, $2, $3, $4)
       RETURNING *
-    `, [cantidad_producto, tipo_lista || 'MANUAL', run_usuario, id_producto]);
+    `, [cantidad_producto, tipo_lista || 'MANUAL', id_usuario, id_producto]);
 
     res.status(201).json(rows[0]);
   } catch (err) { next(err); }
@@ -119,16 +119,16 @@ router.post('/', [
 // PATCH /api/lista-compras/:id
 router.patch('/:id', async (req, res, next) => {
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
     const { estado_lista, cantidad_producto } = req.body;
 
     const { rows } = await pool.query(`
       UPDATE LISTA_COMPRAS SET
         estado_lista      = COALESCE($1, estado_lista),
         cantidad_producto = COALESCE($2, cantidad_producto)
-      WHERE id_lista = $3 AND USUARIO_run_usuario = $4
+      WHERE id_lista = $3 AND USUARIO_id_usuario = $4
       RETURNING *
-    `, [estado_lista ?? null, cantidad_producto ?? null, req.params.id, run_usuario]);
+    `, [estado_lista ?? null, cantidad_producto ?? null, req.params.id, id_usuario]);
 
     if (rows.length === 0) return res.status(404).json({ error: 'Item no encontrado' });
     res.json(rows[0]);
@@ -138,10 +138,10 @@ router.patch('/:id', async (req, res, next) => {
 // DELETE /api/lista-compras/:id
 router.delete('/:id', async (req, res, next) => {
   try {
-    const { run_usuario } = req.usuario;
+    const { id_usuario } = req.usuario;
     const { rowCount } = await pool.query(
-      'DELETE FROM LISTA_COMPRAS WHERE id_lista = $1 AND USUARIO_run_usuario = $2',
-      [req.params.id, run_usuario]
+      'DELETE FROM LISTA_COMPRAS WHERE id_lista = $1 AND USUARIO_id_usuario = $2',
+      [req.params.id, id_usuario]
     );
     if (rowCount === 0) return res.status(404).json({ error: 'Item no encontrado' });
     res.json({ mensaje: 'Item eliminado de la lista' });

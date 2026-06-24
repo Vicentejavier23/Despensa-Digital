@@ -34,7 +34,7 @@ export default function LoginScreen({ navigation }) {
   const [focusPass,   setFocusPass]   = useState(false);
 
   const passRef = useRef(null);
-  const { loading, ejecutarLogin } = useAuthFlow();
+  const { loading, error: authError, ejecutarLogin } = useAuthFlow();
 
   function validar() {
     let ok = true;
@@ -56,7 +56,11 @@ export default function LoginScreen({ navigation }) {
     if (!validar()) return;
     const result = await ejecutarLogin(correo.trim().toLowerCase(), password);
     if (result) {
-      navigation.navigate('Main', { jwt: result.jwt, usuario: result.usuario });
+      navigation.navigate('Redirecting', {
+        callbackUrl: result.callbackUrl,
+        jwt: result.jwt,
+        usuario: result.usuario,
+      });
     } else {
       setErrorBanner('Correo o contraseña incorrectos. Verifica tus datos e intenta de nuevo.');
     }
