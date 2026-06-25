@@ -10,6 +10,11 @@ function buildUrl(endpoint: string): string {
   return `/api/${path}`;
 }
 
+const cleanEndpoint = endpoint
+  .replace(/^\/?api\//i, '') 
+  .replace(/^\/?api/i, '')   
+  .replace(/^\//, '');        
+
 export async function apiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
