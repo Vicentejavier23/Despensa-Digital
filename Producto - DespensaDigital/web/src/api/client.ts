@@ -1,48 +1,64 @@
-const BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
+// Asegúrate de exportar correctamente lo que tus otros componentes consumen
+export const client = {
+  async request(endpoint: string, options: RequestInit = {}) {
+    // 1. Limpieza absoluta con expresiones regulares seguras
+    const cleanEndpoint = endpoint
+      .replace(/^\/?api\//i, '')  // Quita "api/" o "/api/" al inicio
+      .replace(/^\/?api/i, '')   // Quita "api" o "/api" sueltos
+      .replace(/^\//, '');        // Remueve cualquier barra diagonal inicial sobrante
 
-function buildUrl(endpoint: string): string {
-  const path = endpoint.replace(/^\/?api\//, '').replace(/^\/+/, '');
-  if (BASE && BASE !== '/api') {
-    // Absolute base (e.g. http://localhost:3001 or full Railway URL for local prod builds)
-    return `${BASE}/api/${path}`;
+    // 2. Construcción de la URL usando el proxy relativo de Vercel
+    const url = `/api/${cleanEndpoint}`;
+
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+
+    const config: RequestInit = {
+      ...options,
+      headers,
+    };
+
+    const response = await fetch(url, config);
+    
+    if (!response.ok) {
+      throw new Error(`Error en la petición: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // Simplificadores para que no fallen las exportaciones de get, post, etc.
+  get(endpoint: string, options?: RequestInit) {
+    return this.request(endpoint, { ...options, method: 'GET' });
+  },
+  
+  post(endpoint: string, data?: any, options?: RequestInit) {
+    return this.request(endpoint, {
+      ...options,
+      method: 'POST',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  },
+
+  put(endpoint: string, data?: any, options?: RequestInit) {
+    return this.request(endpoint, {
+      ...options,
+      method: 'PUT',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  },
+
+  patch(endpoint: string, data?: any, options?: RequestInit) {
+    return this.request(endpoint, {
+      ...options,
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+    });
+  },
+
+  del(endpoint: string, options?: RequestInit) {
+    return this.request(endpoint, { ...options, method: 'DELETE' });
   }
-  // Relative /api/... — handled by Vite proxy in dev or Vercel rewrite in prod
-  return `/api/${path}`;
-}
-
-const cleanEndpoint = endpoint
-  .replace(/^\/?api\//i, '') 
-  .replace(/^\/?api/i, '')   
-  .replace(/^\//, '');        
-
-export async function apiRequest<T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> {
-  const jwt = sessionStorage.getItem('dd_jwt');
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    ...(options.headers as Record<string, string>),
-  };
-  if (jwt) headers['Authorization'] = `Bearer ${jwt}`;
-
-  const res = await fetch(buildUrl(endpoint), { ...options, headers });
-
-  let data: any = {};
-  try { data = await res.json(); } catch {}
-
-  if (!res.ok) {
-    const err = new Error(data?.error ?? 'Error del servidor');
-    (err as Error & { status: number }).status = res.status;
-    throw err;
-  }
-  return data as T;
-}
-
-export const get   = <T>(url: string) => apiRequest<T>(url);
-export const post  = <T>(url: string, body: unknown) => apiRequest<T>(url, { method: 'POST', body: JSON.stringify(body) });
-export const put   = <T>(url: string, body: unknown) => apiRequest<T>(url, { method: 'PUT', body: JSON.stringify(body) });
-export const patch = <T>(url: string, body: unknown) => apiRequest<T>(url, { method: 'PATCH', body: JSON.stringify(body) });
-export const del   = <T>(url: string) => apiRequest<T>(url, { method: 'DELETE' });
-
-export const client = { get, post, put, patch, delete: del };
+};
