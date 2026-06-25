@@ -1,0 +1,38 @@
+import { test, expect } from '@playwright/test';
+
+test('Flujo completo: Login, Inventario, Patologías y Lista de Compras', async ({ page }) => {
+  await page.goto('/login');
+  await page.getByRole('textbox', { name: 'tucorreo@gmail.com' }).click();
+  await page.getByRole('textbox', { name: 'tucorreo@gmail.com' }).fill('a@gmail.com');
+  await page.getByRole('textbox', { name: 'Tu contraseña' }).click();
+  await page.getByRole('textbox', { name: 'Tu contraseña' }).fill('Contraseña1');
+  await page.getByRole('button', { name: 'Ingresar →' }).click();
+  await page.getByRole('link', { name: '📦 Inventario' }).click();
+  await page.getByRole('button', { name: '+ Agregar producto' }).click();
+  await page.getByRole('textbox', { name: 'Ej: Leche entera' }).click();
+  await page.getByRole('textbox', { name: 'Ej: Leche entera' }).fill('leche');
+  await page.getByRole('textbox', { name: 'Ej: Colún' }).click();
+  await page.getByRole('textbox', { name: 'Ej: Colún' }).fill('soprole');
+  await page.getByRole('combobox').first().selectOption('Lácteo');
+  await page.getByRole('combobox').nth(1).selectOption('Lácteos');
+  await page.getByRole('combobox').nth(2).selectOption('Refrigerador');
+  await page.getByRole('textbox').nth(2).fill('2026-11-23');
+  await page.getByRole('combobox').nth(3).selectOption('Litro (l)');
+  await page.getByPlaceholder('Ej: 500').click();
+  await page.getByPlaceholder('Ej: 500').fill('1');
+  await page.getByRole('textbox').nth(3).fill('2026-06-25');
+  await page.getByRole('button', { name: 'Agregar producto', exact: true }).click();
+  await page.getByRole('link', { name: '🩺 Patologías' }).click();
+  await page.getByRole('button', { name: '+ Nueva patología' }).click();
+  await page.getByRole('textbox', { name: 'Ej: Diabetes tipo' }).fill('alergico a nueces');
+  await page.getByRole('combobox').selectOption('Alérgica');
+  await page.locator('input[type="date"]').fill('2026-06-25');
+  await page.getByRole('button', { name: 'Guardar patología' }).click();
+  await page.getByRole('link', { name: '🛒 Lista compras' }).click();
+  await page.getByRole('button', { name: '+ Agregar producto' }).click();
+  await page.getByRole('combobox').selectOption('9');
+  await page.getByRole('button', { name: 'Agregar' }).click();
+  await page.getByRole('link', { name: '🔔 Alertas' }).click();
+  await page.getByRole('link', { name: '👤 Mi perfil' }).click();
+  await page.getByRole('button', { name: '⏻ Cerrar sesión' }).click();
+});
