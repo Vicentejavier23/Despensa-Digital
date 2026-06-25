@@ -5,8 +5,10 @@ export async function request<T = any>(endpoint: string, options: RequestInit = 
     .replace(/^\/?api/i, '')
     .replace(/^\//, '');
   const url = `/api/${cleanEndpoint}`;
+  const token = sessionStorage.getItem('dd_jwt');
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(options.headers as Record<string, string>),
   };
   const response = await fetch(url, { ...options, headers });
