@@ -2,9 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getPaises, getRegiones, getCiudades, getComunas } from '../api/geoApi';
+import { post } from '../api/client';
 import type { Pais, Region, Ciudad, Comuna } from '../types';
-
-const API_BASE = (import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '');
 
 // ─── Tipos de error por campo ─────────────────────────────────────────────────
 type LoginErrors = Partial<Record<'correo' | 'password', string>>;
@@ -157,22 +156,10 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ correo_usuario: loginCorreo.trim().toLowerCase(), password_usuario: loginPassword }),
+      const data = await post<any>('auth/login', {
+        correo_usuario: loginCorreo.trim().toLowerCase(),
+        password_usuario: loginPassword,
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        const msg: string = data.error ?? 'Error al iniciar sesión';
-        if (msg.toLowerCase().includes('correo') || msg.toLowerCase().includes('credenciales'))
-          setLoginErrors({ correo: 'Correo o contraseña incorrectos' });
-        else
-          setLoginErrors({ password: msg });
-        setLoading(false);
-        return;
-      }
 
       if (!data.exchange_token) {
         setLoginErrors({ correo: 'Respuesta inválida del servidor' });
@@ -180,14 +167,9 @@ export default function LoginScreen() {
         return;
       }
 
-      const exchRes = await fetch(`${API_BASE}/api/auth/exchange`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: data.exchange_token }),
-      });
-      const exchData = await exchRes.json();
+      const exchData = await post<any>('auth/exchange', { code: data.exchange_token });
 
-      if (!exchRes.ok || !exchData.jwt) {
+      if (!exchData.jwt) {
         setLoginErrors({ correo: exchData.error ?? 'Error al obtener sesión' });
         setLoading(false);
         return;
@@ -197,7 +179,11 @@ export default function LoginScreen() {
       navigate('/dashboard', { replace: true });
 
     } catch (err: unknown) {
-      setLoginErrors({ correo: err instanceof Error ? err.message : 'Error de conexión con el servidor' });
+      const msg = err instanceof Error ? err.message : 'Error de conexión con el servidor';
+      if (msg.toLowerCase().includes('correo') || msg.toLowerCase().includes('credenciales'))
+        setLoginErrors({ correo: 'Correo o contraseña incorrectos' });
+      else
+        setLoginErrors({ password: msg });
       setLoading(false);
     }
   };
@@ -211,33 +197,19 @@ export default function LoginScreen() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          pri_nom_usuario:   nombre.trim(),
-          seg_nom_usuario:   segNombre.trim() || null,
-          pri_ape_usuario:   apellido.trim(),
-          seg_ape_usuario:   segApellido.trim() || null,
-          correo_usuario:    correo.trim().toLowerCase(),
-          num_tel_usuario:   parseInt(telefono, 10),
-          password_usuario:  password,
-          fecha_nac_usuario: fechaNac,
-          id_comuna:         parseInt(selComuna, 10),
-          calle_direccion:   calle.trim() || 'Sin calle',
-          numero_direccion:  parseInt(numeroDireccion, 10) || 0,
-        }),
+      const data = await post<any>('auth/register', {
+        pri_nom_usuario:   nombre.trim(),
+        seg_nom_usuario:   segNombre.trim() || null,
+        pri_ape_usuario:   apellido.trim(),
+        seg_ape_usuario:   segApellido.trim() || null,
+        correo_usuario:    correo.trim().toLowerCase(),
+        num_tel_usuario:   parseInt(telefono, 10),
+        password_usuario:  password,
+        fecha_nac_usuario: fechaNac,
+        id_comuna:         parseInt(selComuna, 10),
+        calle_direccion:   calle.trim() || 'Sin calle',
+        numero_direccion:  parseInt(numeroDireccion, 10) || 0,
       });
-      const data = await res.json();
-
-      if (!res.ok) {
-        const msg: string = data.error ?? 'Error al registrarse';
-        if (msg.toLowerCase().includes('correo'))       setRegErrors({ correo: msg });
-        else if (msg.toLowerCase().includes('comuna'))  setRegErrors({ comuna: msg });
-        else setRegErrors({ nombre: msg });
-        setLoading(false);
-        return;
-      }
 
       if (!data.exchange_token) {
         setRegErrors({ nombre: 'Respuesta inválida del servidor' });
@@ -245,15 +217,12 @@ export default function LoginScreen() {
         return;
       }
 
-      const exchRes = await fetch(`${API_BASE}/api/auth/exchange`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: data.exchange_token }),
-      });
-      const exchData = await exchRes.json();
-
-      if (!exchRes.ok || !exchData.jwt) {
-        // Exchange falló → ir a login con mensaje de éxito
+      try {
+        const exchData = await post<any>('auth/exchange', { code: data.exchange_token });
+        iniciarSesion(exchData.jwt, exchData.usuario);
+        navigate('/dashboard', { replace: true });
+      } catch {
+        // Registro ok pero exchange falló → redirigir a login con mensaje de éxito
         setNombre(''); setSegNombre(''); setApellido(''); setSegApellido('');
         setCorreo(''); setTelefono(''); setFechaNac('');
         setPassword(''); setConfirmPassword('');
@@ -262,14 +231,13 @@ export default function LoginScreen() {
         setMode('login');
         setLoginErrors({ correo: '✅ Cuenta creada. Inicia sesión con tu correo y contraseña.' });
         setLoading(false);
-        return;
       }
 
-      iniciarSesion(exchData.jwt, exchData.usuario);
-      navigate('/dashboard', { replace: true });
-
     } catch (err: unknown) {
-      setRegErrors({ nombre: err instanceof Error ? err.message : 'Error de conexión con el servidor' });
+      const msg = err instanceof Error ? err.message : 'Error de conexión con el servidor';
+      if (msg.toLowerCase().includes('correo'))       setRegErrors({ correo: msg });
+      else if (msg.toLowerCase().includes('comuna'))  setRegErrors({ comuna: msg });
+      else setRegErrors({ nombre: msg });
       setLoading(false);
     }
   };
