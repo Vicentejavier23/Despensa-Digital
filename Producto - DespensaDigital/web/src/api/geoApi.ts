@@ -8,7 +8,7 @@ async function geoFetch<T>(url: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-export const getPaises   = ()                  => geoFetch<Pais[]>('/api/geo/paises');
-export const getRegiones = (id_pais: number)   => geoFetch<Region[]>(`/api/geo/regiones?id_pais=${id_pais}`);
-export const getCiudades = (id_region: number) => geoFetch<Ciudad[]>(`/api/geo/ciudades?id_region=${id_region}`);
-export const getComunas  = (id_ciudad: number) => geoFetch<Comuna[]>(`/api/geo/comunas?id_ciudad=${id_ciudad}`);
+export const getPaises   = ()                  => geoFetch<Pais[]>('/geo/paises');
+export const getRegiones = (id_pais: number)   => geoFetch<Region[]>(`/geo/regiones?id_pais=${id_pais}`);
+export const getCiudades = (id_region: number) => geoFetch<Ciudad[]>(`/geo/ciudades?id_region=${id_region}`);
+export const getComunas  = (id_ciudad: number) => geoFetch<Comuna[]>(`/geo/comunas?id_ciudad=${id_ciudad}`);
