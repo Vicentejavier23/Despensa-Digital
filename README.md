@@ -31,7 +31,7 @@ Aplicación fullstack para gestionar el inventario del hogar: alertas de vencimi
 
 | Servicio | URL | Plataforma |
 |----------|-----|-----------|
-| Web App | https://despensa-digital.vercel.app | Vercel |
+| Web App | https://despensa-digital-d73e1alew-despensa-digital.vercel.app | Vercel |
 | Backend API | https://modest-wisdom-production-2e58.up.railway.app | Railway |
 | App Móvil | Expo Go / build EAS | Expo |
 
