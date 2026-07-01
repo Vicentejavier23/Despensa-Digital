@@ -9,6 +9,7 @@ import LoginScreen from './pages/LoginScreen';
 // Layout + rutas protegidas
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import InstallBanner from './components/InstallBanner';
 import Dashboard from './pages/Dashboard';
 import Inventario from './pages/Inventario';
 import Patologias from './pages/Patologias';
@@ -27,6 +28,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <InstallBanner />
         <Routes>
           {/* Rutas públicas */}
           <Route path="/login" element={<LoginScreen />} />
