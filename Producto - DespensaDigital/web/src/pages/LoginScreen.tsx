@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getPaises, getRegiones, getCiudades, getComunas } from '../api/geoApi';
-import { post } from '../api/client';
+import { post, ApiError } from '../api/client';
 import type { Pais, Region, Ciudad, Comuna } from '../types';
 
 // ─── Tipos de error por campo ─────────────────────────────────────────────────
@@ -179,11 +179,19 @@ export default function LoginScreen() {
       navigate('/dashboard', { replace: true });
 
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error de conexión con el servidor';
-      if (msg.toLowerCase().includes('correo') || msg.toLowerCase().includes('credenciales'))
-        setLoginErrors({ correo: 'Correo o contraseña incorrectos' });
-      else
-        setLoginErrors({ password: msg });
+      if (err instanceof ApiError) {
+        if (err.status === 401 || err.status === 400 || err.status === 404)
+          // Credenciales inválidas → mensaje bajo la contraseña
+          setLoginErrors({ password: 'Correo o contraseña incorrectos' });
+        else if (err.status === 429)
+          setLoginErrors({ correo: 'Demasiados intentos. Espera un momento e inténtalo de nuevo.' });
+        else if (err.status >= 500)
+          setLoginErrors({ correo: 'El servidor no está disponible por ahora. Inténtalo más tarde.' });
+        else
+          setLoginErrors({ correo: 'No pudimos iniciar sesión. Revisa tus datos e inténtalo de nuevo.' });
+      } else {
+        setLoginErrors({ correo: 'No se pudo conectar con el servidor. Revisa tu conexión.' });
+      }
       setLoading(false);
     }
   };
@@ -234,10 +242,19 @@ export default function LoginScreen() {
       }
 
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Error de conexión con el servidor';
-      if (msg.toLowerCase().includes('correo'))       setRegErrors({ correo: msg });
-      else if (msg.toLowerCase().includes('comuna'))  setRegErrors({ comuna: msg });
-      else setRegErrors({ nombre: msg });
+      if (err instanceof ApiError) {
+        const lower = err.message.toLowerCase();
+        if (err.status === 409 || lower.includes('correo') || lower.includes('registrad') || lower.includes('existe'))
+          setRegErrors({ correo: 'Este correo ya está registrado. Inicia sesión o usa otro.' });
+        else if (lower.includes('comuna'))
+          setRegErrors({ comuna: 'La comuna seleccionada no es válida.' });
+        else if (err.status >= 500)
+          setRegErrors({ nombre: 'El servidor no está disponible por ahora. Inténtalo más tarde.' });
+        else
+          setRegErrors({ nombre: 'No pudimos crear la cuenta. Revisa tus datos e inténtalo de nuevo.' });
+      } else {
+        setRegErrors({ nombre: 'No se pudo conectar con el servidor. Revisa tu conexión.' });
+      }
       setLoading(false);
     }
   };

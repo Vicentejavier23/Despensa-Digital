@@ -1,4 +1,14 @@
 
+// Error de API con el código HTTP para poder mostrar mensajes amigables
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 export async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const cleanEndpoint = endpoint
     .replace(/^\/?api\//i, '')
@@ -13,7 +23,15 @@ export async function request<T = any>(endpoint: string, options: RequestInit = 
   };
   const response = await fetch(url, { ...options, headers });
   if (!response.ok) {
-    throw new Error(`Error en la petición: ${response.status}`);
+    // Intentar leer el mensaje que envía el backend (JSON { error/message } o texto)
+    let serverMsg = '';
+    try {
+      const body = await response.clone().json();
+      serverMsg = body?.error || body?.message || body?.mensaje || '';
+    } catch {
+      try { serverMsg = await response.text(); } catch { /* noop */ }
+    }
+    throw new ApiError(response.status, serverMsg || `HTTP ${response.status}`);
   }
   return response.json() as Promise<T>;
 }
